@@ -1,7 +1,7 @@
 import React from 'react';
 import {Text,View,Image, TextInput, Button} from 'react-native';
 
-export default class Login extends React.Component{
+export default class Register extends React.Component{
 
     render(){
         const {navigate} = this.props.navigation
