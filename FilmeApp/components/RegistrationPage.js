@@ -101,7 +101,7 @@ export default class Register extends React.Component{
                             height:240,
                         width:135}}
                             
-                    source={require("../assets/logo1.jpg")}
+                    source={require("../assets/blackLogo.png")}
                 />
                 <Text                 
                     onPress={()=>navigate('Login')}
