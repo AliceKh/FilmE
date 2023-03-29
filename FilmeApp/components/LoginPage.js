@@ -69,6 +69,16 @@ export default class Login extends React.Component{
                     color:"#00716F",
                     paddingVertical:30
                 }}>New User</Text>
+
+<Text 
+                
+                onPress={()=>navigate('ImageGrid')}
+                
+                style={{
+                    alignSelf:"center",
+                    color:"#00716F",
+                    paddingVertical:30
+                }}>Images</Text>
             </View>
         )
     }
