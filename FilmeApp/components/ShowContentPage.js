@@ -47,7 +47,8 @@ export default class ImageGrid extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
+    padding: 10,
+    marginTop:25
   },
   itemContainer: {
     flex: 1,
@@ -62,8 +63,8 @@ const styles = StyleSheet.create({
   },
   itemImage: {
     flex: 1,
-    width: 200,
-    height: 200,
+    width: 210,
+    height: 235,
     aspectRatio: 1,
   },
 });
