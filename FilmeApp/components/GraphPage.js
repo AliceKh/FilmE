@@ -4,16 +4,8 @@ import {Image, Text, View} from 'react-native';
 export default class GraphPage extends React.Component {
 
     render() {
-        const {navigate} = this.props.navigation
         return (
             <View style={{backgroundColor: "#FFF", height: "100%"}}>
-                <Text
-                    style={{
-                        fontSize: 30,
-                        alignSelf: "center",
-                    }}
-                >FilmE</Text>
-
 
                 <View style={{
                     marginHorizontal: 20,

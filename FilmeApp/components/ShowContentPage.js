@@ -16,21 +16,31 @@ const data = [
 export default class ImageGrid extends React.Component {
   constructor(props) {
     super(props);
+    this.navigate = props.navigation
     this.state = {
       selectedImageId: null,
+      //navigate: 
     };
+
+    //const {navigate} = this.props.navigation
   }
+
+  
 
   renderItem = ({ item }) => (
     <TouchableOpacity
       style={[styles.itemContainer, item.id === this.state.selectedImageId && styles.selectedItemContainer]}
-      onPress={() => this.setState({ selectedImageId: item.id })}
+      onPress={() => {
+        this.setState({ selectedImageId: item.id }); 
+        this.props.navigation.navigate('GraphPage');
+      }}
     >
       <Image style={styles.itemImage} source={item.source} />
     </TouchableOpacity>
   );
 
   render() {
+   
     return (
       <View style={styles.container}>
         <FlatList
