@@ -7,7 +7,10 @@ const data = [
   { id: '3', source: require('../images/user3.png') },
   { id: '4', source: require('../images/user4.png') },
   { id: '5', source: require('../images/user5.png') },
-  { id: '6', source: require('../images/user1.png') },
+  { id: '6', source: require('../images/user6.png') },
+  { id: '7', source: require('../images/user7.png') },
+  { id: '8', source: require('../images/user1.png') },
+  { id: '9', source: require('../images/user8.png') },
 ];
 
 export default class ImageGrid extends React.Component {
