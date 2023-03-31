@@ -4,6 +4,7 @@ import Login from './components/LoginPage';
 import Register from './components/RegistrationPage'
 import Home from './components/MainPage';
 import ImageGrid from './components/ShowContentPage';
+import GraphPage from './components/GraphPage';
 
 const stackNavigatorOptions = {
     headerShown:false,
@@ -18,6 +19,7 @@ const AppNavigator = createStackNavigator({
     Login:{screen:Login},
     Register:{screen:Register},
     ImageGrid:{screen:ImageGrid},
+    GraphPage:{screen:GraphPage}
 },
 {
     defaultNavigationOptions : stackNavigatorOptions

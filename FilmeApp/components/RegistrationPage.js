@@ -97,7 +97,7 @@ export default class Register extends React.Component{
 
                 <Image
                     style={{alignSelf:"center",
-                            margin:"10%",
+                            margin:"5%",
                             height:240,
                         width:135}}
                             
@@ -109,7 +109,7 @@ export default class Register extends React.Component{
                     style={{
                         alignSelf:"center",
                         color:"#9960D2",
-                        paddingVertical:10
+                        paddingBottom:"5%"
                     }}>Login
                 </Text>
             </View>
