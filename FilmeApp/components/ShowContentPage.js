@@ -57,8 +57,9 @@ export default class ImageGrid extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 10,
-    marginTop:25
+    padding: 16,
+    backgroundColor: '#000000',
+    backgroundImage: 'linear-gradient(to right, #29024f, #000000, #29024f)',
   },
   itemContainer: {
     flex: 1,
