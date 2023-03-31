@@ -69,13 +69,14 @@ export default class Login extends React.Component{
                     paddingVertical:10
                 }}>
                     <Button title='Login'
+                        onPress={()=>navigate('ImageGrid')}
                         color="#9960D2"
                         ></Button>
                 </View>
 
                 <Image
                     style={{alignSelf:"center",
-                            margin:"15%",
+                            margin:"10%",
                             height:240,
                         width:135}}
                             
@@ -87,7 +88,7 @@ export default class Login extends React.Component{
                     style={{
                         alignSelf:"center",
                         color:"#9960D2",
-                        paddingVertical:10
+                        paddingBottom:"5%"
                     }}>New User
                 </Text>
             </View>
