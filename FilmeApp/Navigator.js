@@ -5,6 +5,9 @@ import Register from './components/RegistrationPage'
 import Home from './components/MainPage';
 import ImageGrid from './components/ShowContentPage';
 import GraphPage from './components/GraphPage';
+import ProfilePage from './components/ProfilePage'
+//import ExplorePage from './components/ExplorePage';
+//import VideoReactionPage from './components/VideoReactionPage';
 
 const stackNavigatorOptions = {
     headerShown:false,
@@ -19,7 +22,10 @@ const AppNavigator = createStackNavigator({
     Login:{screen:Login},
     Register:{screen:Register},
     ImageGrid:{screen:ImageGrid},
-    GraphPage:{screen:GraphPage}
+    GraphPage:{screen:GraphPage},
+    ProfilePage:{screen:ProfilePage},
+    //ExplorePage:{screen:ExplorePage},
+   // VideoReactionPage:{screen:VideoReactionPage}
 },
 {
     defaultNavigationOptions : stackNavigatorOptions

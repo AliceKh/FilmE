@@ -91,6 +91,16 @@ export default class Login extends React.Component{
                         paddingBottom:"5%"
                     }}>New User
                 </Text>
+                <Text                 
+                    onPress={()=>navigate('ProfilePage')}
+                    
+                    style={{
+                        alignSelf:"center",
+                        color:"#9960D2",
+                        paddingBottom:"5%"
+                    }}>ProfilePage
+                </Text>
+                
             </View>
         )
     }
