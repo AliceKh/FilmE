@@ -6,7 +6,7 @@ import Home from './components/MainPage';
 import ImageGrid from './components/ShowContentPage';
 import GraphPage from './components/GraphPage';
 import ProfilePage from './components/ProfilePage'
-//import ExplorePage from './components/ExplorePage';
+import ExplorePage from './components/ExplorePage';
 //import VideoReactionPage from './components/VideoReactionPage';
 
 const stackNavigatorOptions = {
@@ -24,7 +24,7 @@ const AppNavigator = createStackNavigator({
     ImageGrid:{screen:ImageGrid},
     GraphPage:{screen:GraphPage},
     ProfilePage:{screen:ProfilePage},
-    //ExplorePage:{screen:ExplorePage},
+    ExplorePage:{screen:ExplorePage},
    // VideoReactionPage:{screen:VideoReactionPage}
 },
 {
