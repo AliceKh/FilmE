@@ -43,7 +43,7 @@ const songs = [
         id: '7',
         name: 'Song 7',
         artist: 'Artist 7',
-        image: require('../images/user1.png')
+        image: require('../images/user2.png')
     },
   ];
 
