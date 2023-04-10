@@ -109,7 +109,15 @@ export default class Login extends React.Component{
                         paddingBottom:"5%"
                     }}>ExplorePage
                 </Text>
-                
+                <Text                 
+                    onPress={()=>navigate('VideoReactionPage')}
+                    
+                    style={{
+                        alignSelf:"center",
+                        color:"#9960D2",
+                        paddingBottom:"5%"
+                    }}> Video Reaction
+                </Text>
             </View>
         )
     }
