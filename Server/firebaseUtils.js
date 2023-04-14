@@ -24,10 +24,10 @@ export const firebaseInstance = admin.initializeApp({
 // Create a root reference
 // export const firebaseStorage = getStorage(firebaseInstance);
 
-export const videoDirectoryPath = 'video/'
-export const audioDirectoryPath = 'audio/'
-export const previewImagesDirectoryPath = 'preview/'
-export const profileImagesDirectoryPath = 'profile images/'
+export const videoDirectoryPath = 'video'
+export const audioDirectoryPath = 'audio'
+export const previewImagesDirectoryPath = 'preview'
+export const profileImagesDirectoryPath = 'profile images'
 
 // Create a reference to each folder
 // export const videoRef = ref(firebaseInstance, videoDirectoryPath);

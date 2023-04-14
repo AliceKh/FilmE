@@ -3,7 +3,9 @@ import {uploadVideoMulter} from "../controllers/uploadVideo.js";
 
 const router = express.Router();
 
-router.route('/video').post(uploadVideoMulter.single('file'), (req, res) => {
+router.route('/video')
+    .post(
+        uploadVideoMulter.single('file'), (req, res) => {
     res.status(201).json(req.file)
 });
 // router.route('/audio').post(uploadAudio);
