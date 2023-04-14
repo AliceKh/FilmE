@@ -17,24 +17,11 @@ class VideoReactionPage extends React.Component {
 
     this.videoRef = React.createRef();
     this.state = {
-      videoUrl: null,
+      videoUrl: '',
       isPlaying: true
     };
   }
-  
 
-  componentDidMount() {
-    const storage = getStorage();
-    const videoRef = ref(storage, 'video/mixkit-mother-with-her-little-daughter-eating-a-marshmallow-in-nature-39764.mp4');
-
-    getDownloadURL(videoRef)
-      .then(url => {
-        this.setState({ videoUrl: url });
-      })
-      .catch(error => {
-        console.log(error);
-      });
-  }
 
   handlePlayPause = () => {
     const { isPlaying } = this.state;
@@ -51,6 +38,8 @@ class VideoReactionPage extends React.Component {
 
   render() {
     const { videoUrl, isPlaying } = this.state;
+    const { navigation } = this.props;
+    const item = navigation.state.params.selectedItem
 
     return (
       <View style={styles.container}>
@@ -65,7 +54,7 @@ class VideoReactionPage extends React.Component {
         </View>
         <Video
           ref={this.videoRef}
-          source={{uri: videoUrl}}
+          source={{uri: item.LinkToStorage}}
           style={styles.backgroundVideo}
           resizeMode="contain"
           shouldPlay={isPlaying}
@@ -75,8 +64,8 @@ class VideoReactionPage extends React.Component {
           }}
         />
         <View style={styles.overlay}>
-          <Text style={styles.title}>Song Title</Text>
-          <Text style={styles.artist}>Artist Name</Text>
+          <Text style={styles.title}>{item.Title}</Text>
+          <Text style={styles.artist}>{item.Uploader.Username}</Text>
           <View style={styles.controls}>
           <TouchableOpacity>
             <Image source={require('../images/shuffle.png')} style={styles.controlButton} />

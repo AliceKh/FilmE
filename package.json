@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "@react-native-firebase/storage": "^17.4.2"
+  }
+}

@@ -1,62 +1,28 @@
 import React, { Component } from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, Image, FlatList } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-
-const songs = [
-    {
-      id: '1',
-      name: 'Song 1',
-      artist: 'Artist 1',
-      image: require('../images/user1.png')
-    },
-    {
-      id: '2',
-      name: 'Song 2',
-      artist: 'Artist 2',
-      image: require('../images/user1.png')
-    },
-    {
-      id: '3',
-      name: 'Song 3',
-      artist: 'Artist 3',
-      image: require('../images/user1.png')
-    },
-    {
-      id: '4',
-      name: 'Song 4',
-      artist: 'Artist 4',
-      image: require('../images/user1.png')
-    },
-    {
-      id: '5',
-      name: 'Song 5',
-      artist: 'Artist 5',
-      image: require('../images/user1.png')
-    },
-    {
-        id: '6',
-        name: 'Song 6',
-        artist: 'Artist 6',
-        image: require('../images/user1.png')
-    },
-    {
-        id: '7',
-        name: 'Song 7',
-        artist: 'Artist 7',
-        image: require('../images/user2.png')
-    },
-  ];
+import axios from 'axios'
 
 export default class ExplorePage extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       searchTerm: '',
+      songs: [],
     };
   }
 
+  componentDidMount() {
+    axios.get('http://localhost:4000/uploads')
+      .then(response => {
+        this.setState({ songs: response.data });
+      })
+      .catch(error => {
+        console.log(error);
+      });
+  }
+
   handleSearch = () => {
-    // TODO: implement search functionality
     console.log(`Searching for "${this.state.searchTerm}"`);
   };
 
@@ -94,18 +60,20 @@ export default class ExplorePage extends React.Component {
           <Text style={styles.seeAll}>See All</Text>
         </View>
         <FlatList
-          data={songs}
-          renderItem={({item}) => (
+          data={this.state.songs}
+          renderItem={({item}) =>(
             <View style={styles.songItem}>
-              <Image style={styles.songImage} source={item.image} />
+              <Image style={styles.songImage} source={{uri : item.LinkToPreviewImage}} />
               <View style={styles.songDetails}>
-                <Text style={styles.songName}>{item.name}</Text>
-                <Text style={styles.artistName}>{item.artist}</Text>
+                <Text style={styles.songName}>{item.Title}</Text>
+                <Text style={styles.artistName}>{item.Uploader.Username}</Text>
               </View>
-              <Image source={require('../images/right.png')} style={{ width: 30, height: 30 }} />
+              <TouchableOpacity onPress={() => this.props.navigation.navigate('VideoReactionPage', { selectedItem: item })}>
+                <Image source={require('../images/right.png')} style={{ width: 30, height: 30 }} />
+              </TouchableOpacity>
             </View>
           )}
-          keyExtractor={item => item.id}
+          keyExtractor={item => item._id}
         />
       </View>
     );
@@ -190,7 +158,7 @@ const styles = StyleSheet.create({
   songImage: {
     width: 50,
     height: 50,
-    borderRadius: 25,
+    borderRadius: 10,
     marginRight: 10,
   },
   songDetails: {
