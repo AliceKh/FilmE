@@ -15,13 +15,14 @@ export default function UploadPage() {
             });
 
             if (result.type === 'success') {
-                console.log('res : ' + JSON.stringify(result));
+                console.warn('res : ' + JSON.stringify(result));
                 setFileResponse(result);
             }
         } catch (err) {
             console.warn(err);
         }
     }, []);
+    //todo uplodyify
     return (
         <View style={styles.page}>
             <View style={styles.titleView}>
@@ -36,15 +37,11 @@ export default function UploadPage() {
                     // onPress={() => console.log("pressed")}
                     onPress={handleDocumentSelection}
                 />
-                {fileResponse.map((file, index) => (
-                    <Text
-                        key={index.toString()}
-                        style={styles.uri}
-                        numberOfLines={1}
-                        ellipsizeMode={'middle'}>
-                        {file?.uri}
-                    </Text>
-                ))}
+                <Text
+                    numberOfLines={1}
+                    ellipsizeMode={'middle'}>
+                    {fileResponse?.name}
+                </Text>
             </View>
             <View style={{
                 flexDirection: "row",
