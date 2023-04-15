@@ -1,144 +1,172 @@
-import React from 'react';
-import {Image, StyleSheet, Text, View} from 'react-native';
+import React, {useCallback, useState} from 'react';
+import {Button, Image, StyleSheet, Text, TextInput, View} from 'react-native';
+import {FAB} from "react-native-paper";
+import * as DocumentPicker from 'expo-document-picker';
 
-export default class UploadPage extends React.Component {
-    render() {
-        return (
-            <View style={styles.page}>
-                <View style={{
-                    marginHorizontal: 55,
-                    alignItems: "center",
-                    justifyContent: "center",
-                    marginTop: 45,
-                    paddingVertical: 10,
-                    borderRadius: 23
-                }}>
-                    <Text style={{
-                        color: "#9960D2",
-                        margin: 5,
-                        fontSize: 24
-                    }}>Upload</Text>
-                </View>
-                <View style={{
-                    marginHorizontal: 20,
-                    alignItems: "center",
-                    justifyContent: "center",
-                    marginTop: 30,
-                    paddingVertical: 10,
-                    borderRadius: 23
-                }}>
-                    <Image
-                        source={require('../assets/upload-up-arrow.png')}
-                        style={{
-                            width: '100%',
-                            height: undefined,
-                            aspectRatio: 1
-                        }}/>
-                </View>
+export default function UploadPage() {
+    const [fileResponse, setFileResponse] = useState([]);
 
+    const handleDocumentSelection = useCallback(async () => {
+        try {
+            const result = await DocumentPicker.getDocumentAsync({
+                copyToCacheDirectory: false,
+                multiple: false,
+                // type: 'image/*',
+            });
+
+            if (result.type === 'success') {
+                console.log('res : ' + JSON.stringify(result));
+                setFileResponse(result);
+            }
+        } catch (err) {
+            console.warn(err);
+        }
+    }, []);
+    return (
+        <View style={styles.page}>
+            <View style={styles.titleView}>
+                <Text style={styles.title}>Upload</Text>
             </View>
-        )
-    }
+            <View style={styles.uploadView}>
+                <FAB
+                    icon="upload"
+                    size={"large"}
+                    loading={false}
+                    style={styles.uploadFAB}
+                    // onPress={() => console.log("pressed")}
+                    onPress={handleDocumentSelection}
+                />
+                {fileResponse.map((file, index) => (
+                    <Text
+                        key={index.toString()}
+                        style={styles.uri}
+                        numberOfLines={1}
+                        ellipsizeMode={'middle'}>
+                        {file?.uri}
+                    </Text>
+                ))}
+            </View>
+            <View style={{
+                flexDirection: "row",
+                alignItems: "center",
+                marginHorizontal: 55,
+                borderWidth: 2,
+                marginTop: 55,
+                paddingHorizontal: 10,
+                borderColor: "#9960D2",
+                borderRadius: 12,
+                paddingVertical: 2
+            }}>
+                <TextInput
+                    placeholder="Email"
+                    placeholderTextColor="#909580"
+                    textAlign='left'
+                    style={{width: "100%"}}
+                />
+            </View>
+
+            <View style={{
+                flexDirection: "row",
+                alignItems: "center",
+                marginHorizontal: 55,
+                borderWidth: 2,
+                marginTop: 25,
+                paddingHorizontal: 10,
+                borderColor: "#9960D2",
+                borderRadius: 12,
+                paddingVertical: 2
+            }}>
+                <TextInput
+                    placeholder="Password"
+                    placeholderTextColor="#909580"
+                    secureTextEntry={true}
+                    color='#6E2E76'
+                    textAlign='left'
+                    style={{width: "100%"}}
+                />
+            </View>
+
+            <View style={{
+                flexDirection: "row",
+                alignItems: "center",
+                marginHorizontal: 55,
+                borderWidth: 2,
+                marginTop: 25,
+                paddingHorizontal: 10,
+                borderColor: "#9960D2",
+                borderRadius: 12,
+                paddingVertical: 2
+            }}>
+                <TextInput
+                    placeholder="Confirm Password"
+                    placeholderTextColor="#909580"
+                    secureTextEntry={true}
+                    color='#6E2E76'
+                    textAlign='left'
+                    style={{width: "100%"}}
+                />
+            </View>
+
+            <View style={{
+                marginHorizontal: 55,
+                paddingHorizontal: 10,
+                alignItems: "center",
+                justifyContent: "center",
+                marginTop: 50,
+                paddingVertical: 10
+            }}>
+                <Button title='Sign Up'
+                        color="#9960D2"
+                ></Button>
+            </View>
+
+            <Image
+                style={{
+                    alignSelf: "center",
+                    margin: "5%",
+                    height: 240,
+                    width: 135
+                }}
+
+                source={require("../assets/blackLogo.png")}
+            />
+            {/*<Text*/}
+            {/*    onPress={() => navigate('Login')}*/}
+
+            {/*    style={{*/}
+            {/*        alignSelf: "center",*/}
+            {/*        color: "#9960D2",*/}
+            {/*        paddingBottom: "5%"*/}
+            {/*    }}>Login*/}
+            {/*</Text>*/}
+
+
+        </View>
+    );
 }
 
 const styles = StyleSheet.create({
-    page: {
-        flex: 1,
-        backgroundImage: 'coral',
-            // 'linear-gradient(to right, #29024f, #000000, #29024f)',
-        paddingHorizontal: 20,
-        paddingTop: 40,
+    // page:
+    titleView: {
+        display: 'flex',
+        marginHorizontal: 55,
+        alignSelf: 'center',
+        margin: 10
     },
-    searchIcon: {
-        marginRight: 10,
+    title: {
+        color: "#9960D2",
+        margin: 5,
+        fontSize: 24
     },
-    searchInput: {
-        flex: 1,
-        fontSize: 18,
-        color: 'white'
+    uploadView: {
+        // marginTop: 30,
+        // paddingVertical: 10,
+        // borderRadius: 23,
+        alignItems: 'center'
     },
-    header: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 10,
-    },
-    heading: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        color: 'white'
-    },
-    recentlyPlayed: {
-        fontWeight: 'bold',
-        fontSize: 24,
-        color: 'white'
-    },
-    seeAll: {
-        color: 'gray',
-        fontSize: 16,
-    },
-    recentlyPlayedContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        marginBottom: 20,
-    },
-    recentlyPlayedItem: {
-        alignItems: 'center',
-    },
-    recentlyPlayedImage: {
-        width: 150,
-        height: 150,
-        borderRadius: 20,
-        marginBottom: 10,
-    },
-    recentlyPlayedName: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        textAlign: 'center',
-        color: 'white'
-    },
-    recentlyPlayedArtist: {
-        fontSize: 16,
-        textAlign: 'center',
-        color: 'gray'
-    },
-    songItem: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingVertical: 10,
-        borderBottomWidth: 1,
-        borderBottomColor: '#ddd',
-    },
-    songImage: {
-        width: 50,
-        height: 50,
-        borderRadius: 25,
-        marginRight: 10,
-    },
-    songDetails: {
-        flex: 1,
-    },
-    songName: {
-        fontSize: 16,
-        fontWeight: 'bold',
-        marginBottom: 5,
-        color: 'white'
-    },
-    artistName: {
-        fontSize: 14,
-        color: 'gray'
-    },
-});
+    uploadFAB: {},
+    uploadedImage: undefined
 
-// import {Component} from "react";
-// import {Image, Text, View} from "react-native";
-// export default class UploadPage extends Component {
-//
-//     render() {
-//         <View>
-//             <Text>Upload!</Text>
-//             <Image source={require('./../assets/upload-up-arrow.png')}></Image>
-//         </View>
-//     };
-// }
+})
+
 
