@@ -18,7 +18,6 @@ const stackNavigatorOptions = {
 
 }
 const AppNavigator = createStackNavigator({
-    Uploadpage: {screen: UploadPage},
     Home: {screen:Home},
     Login:{screen:Login},
     Register:{screen:Register},
@@ -26,7 +25,8 @@ const AppNavigator = createStackNavigator({
     GraphPage:{screen:GraphPage},
     ProfilePage:{screen:ProfilePage},
     ExplorePage:{screen:ExplorePage},
-    VideoReactionPage:{screen:VideoReactionPage}
+    VideoReactionPage:{screen:VideoReactionPage},
+    Uploadpage: {screen: UploadPage},
 },
 {
     defaultNavigationOptions : stackNavigatorOptions
