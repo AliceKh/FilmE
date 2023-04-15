@@ -43,62 +43,27 @@ export default function UploadPage() {
                     {fileResponse?.name}
                 </Text>
             </View>
-            <View style={{
-                flexDirection: "row",
-                alignItems: "center",
-                marginHorizontal: 55,
-                borderWidth: 2,
-                marginTop: 55,
-                paddingHorizontal: 10,
-                borderColor: "#9960D2",
-                borderRadius: 12,
-                paddingVertical: 2
-            }}>
+            <View style={styles.borderInput}>
                 <TextInput
-                    placeholder="Email"
+                    placeholder="Title"
                     placeholderTextColor="#909580"
                     textAlign='left'
                     style={{width: "100%"}}
                 />
             </View>
 
-            <View style={{
-                flexDirection: "row",
-                alignItems: "center",
-                marginHorizontal: 55,
-                borderWidth: 2,
-                marginTop: 25,
-                paddingHorizontal: 10,
-                borderColor: "#9960D2",
-                borderRadius: 12,
-                paddingVertical: 2
-            }}>
+            <View style={styles.borderInput}>
                 <TextInput
-                    placeholder="Password"
+                    placeholder="Description"
                     placeholderTextColor="#909580"
-                    secureTextEntry={true}
-                    color='#6E2E76'
                     textAlign='left'
                     style={{width: "100%"}}
                 />
             </View>
-
-            <View style={{
-                flexDirection: "row",
-                alignItems: "center",
-                marginHorizontal: 55,
-                borderWidth: 2,
-                marginTop: 25,
-                paddingHorizontal: 10,
-                borderColor: "#9960D2",
-                borderRadius: 12,
-                paddingVertical: 2
-            }}>
+            <View style={styles.borderInput}>
                 <TextInput
-                    placeholder="Confirm Password"
+                    placeholder="Tags"
                     placeholderTextColor="#909580"
-                    secureTextEntry={true}
-                    color='#6E2E76'
                     textAlign='left'
                     style={{width: "100%"}}
                 />
@@ -112,7 +77,7 @@ export default function UploadPage() {
                 marginTop: 50,
                 paddingVertical: 10
             }}>
-                <Button title='Sign Up'
+                <Button title='Publish'
                         color="#9960D2"
                 ></Button>
             </View>
@@ -143,7 +108,9 @@ export default function UploadPage() {
 }
 
 const styles = StyleSheet.create({
-    // page:
+    page: {
+        paddingTop: 25
+    },
     titleView: {
         display: 'flex',
         marginHorizontal: 55,
@@ -162,7 +129,18 @@ const styles = StyleSheet.create({
         alignItems: 'center'
     },
     uploadFAB: {},
-    uploadedImage: undefined
+    uploadedImage: undefined,
+    borderInput: {
+            flexDirection: "row",
+            alignItems: "center",
+            marginHorizontal: 55,
+            borderWidth: 2,
+            marginTop: 10,
+            paddingHorizontal: 10,
+            borderColor: "#9960D2",
+            borderRadius: 12,
+            paddingVertical: 2
+        }
 
 })
 
