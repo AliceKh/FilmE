@@ -1,6 +1,6 @@
 const dotenv = require('dotenv').config()
 const express = require('express')
-const app = express()
+export const app = express()
 const bodyParser = require('body-parser')
 const mongoose = require('mongoose')
 const multer = require('multer')
@@ -89,4 +89,4 @@ const upload = multer({ storage: storage });
 // const authRouter = require('./routes/auth_routes')
 // app.use('/auth',authRouter)
 
-module.exports = app
+//module.exports = app

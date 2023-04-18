@@ -1,7 +1,13 @@
 import React from 'react';
 import {Button, Image, Text, TextInput, View} from 'react-native';
+import { register } from '../services/AuthService';
 
 export default class Register extends React.Component {
+    submitRegistration = () =>{
+        register(this.emailRef.value, this.passwordRef.value, this.usernameRef.value)
+            .then(this.props.navigation.navigate('ImageGrid'))
+            .catch(console.log("Failed"));
+    }
 
     render() {
         const {navigate} = this.props.navigation
@@ -33,10 +39,30 @@ export default class Register extends React.Component {
                     paddingVertical: 2
                 }}>
                     <TextInput
+                        placeholder="User Name"
+                        placeholderTextColor="#909580"
+                        textAlign='left'
+                        style={{width: "100%"}}
+                        ref={(username) => {this.usernameRef = username}}
+                    />
+                </View>
+                <View style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    marginHorizontal: 55,
+                    borderWidth: 2,
+                    marginTop: 55,
+                    paddingHorizontal: 10,
+                    borderColor: "#9960D2",
+                    borderRadius: 12,
+                    paddingVertical: 2
+                }}>
+                    <TextInput
                         placeholder="Email"
                         placeholderTextColor="#909580"
                         textAlign='left'
                         style={{width: "100%"}}
+                        ref={(email) => {this.emailRef = email}}
                     />
                 </View>
 
@@ -58,6 +84,7 @@ export default class Register extends React.Component {
                         color='#6E2E76'
                         textAlign='left'
                         style={{width: "100%"}}
+                        ref={(pass) => {this.passwordRef = pass}}
                     />
                 </View>
 
@@ -92,6 +119,7 @@ export default class Register extends React.Component {
                 }}>
                     <Button title='Sign Up'
                             color="#9960D2"
+                            onPress={this.submitRegistration}
                     ></Button>
                 </View>
 
