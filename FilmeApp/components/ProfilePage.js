@@ -1,18 +1,6 @@
 import React from 'react';
-import { View, Modal, Text, Image, StyleSheet, FlatList, TouchableOpacity} from 'react-native';
+import { View, Modal, Text, Image, StyleSheet, FlatList, TouchableOpacity, Dimensions} from 'react-native';
 import axios from 'axios';
-
-const data = [
-    { id: '1', source: require('../images/user1.png') },
-    { id: '2', source: require('../images/user2.png') },
-    { id: '3', source: require('../images/user3.png') },
-    { id: '4', source: require('../images/user4.png') },
-    { id: '5', source: require('../images/user5.png') },
-    { id: '6', source: require('../images/user6.png') },
-    { id: '7', source: require('../images/user7.png') },
-    { id: '8', source: require('../images/user1.png') },
-    { id: '9', source: require('../images/user8.png') },
-  ];
 
 export default class ProfileScreen extends React.Component {
     constructor(props) {
@@ -22,34 +10,47 @@ export default class ProfileScreen extends React.Component {
           selectedImageId: null,
           isMenuVisible: false,
           showList: true,
-          //navigate: 
+          user: null,
+          songs: [], 
         };
         this.toggleList = this.toggleList.bind(this);
-        //const {navigate} = this.props.navigation
       }
 
       componentDidMount() {
-        const userId = 'id';
-        axios.get('http://localhost:4000/user/${userId}')
+        const userId = '64306b71dd045edb9b98d52d';
+        axios.get(`http://localhost:4000/user/${userId}`)
           .then(response => {
             this.setState({ user: response.data });
           })
           .catch(error => {
             console.log(error);
           });
+          
+        axios.get('http://localhost:4000/uploads')
+          .then(response => {
+            this.setState({ songs: response.data });
+          })
+          .catch(error => {
+            console.log(error);
+          });
       }
 
-    renderItem = ({ item }) => (
-        <TouchableOpacity
-          style={[styles.itemContainer, item.id === this.state.selectedImageId && styles.selectedItemContainer]}
-          onPress={() => {
-            this.setState({ selectedImageId: item.id }); 
-            this.props.navigation.navigate('GraphPage');
-          }}
-        >
-          <Image style={styles.itemImage} source={item.source} />
-        </TouchableOpacity>
-      );
+      renderItem = ({ item, index }) => {
+        const column = index % 3;
+        const itemWidth = Dimensions.get('window').width / 3 - 12;
+      
+        return (
+          <TouchableOpacity
+            style={[styles.itemContainer, column === 0 && styles.itemContainerFirstColumn, item.id === this.state.selectedImageId && styles.selectedItemContainer]}
+            onPress={() => {
+              this.setState({ selectedImageId: item.id }); 
+              this.props.navigation.navigate('GraphPage');
+            }}
+          >
+            <Image style={[styles.itemImage, { width: itemWidth }]} source={{ uri: item.LinkToPreviewImage }} />
+          </TouchableOpacity>
+        );
+      }      
 
     toggleMenu = () => {
         this.setState({isMenuVisible: !this.state.isMenuVisible})
@@ -81,8 +82,7 @@ export default class ProfileScreen extends React.Component {
     }
 
   render() {
-    const { showList } = this.state;
-
+    const { showList, user } = this.state;
     return (
       <View style={styles.body}>
         {/* Header section */}
@@ -105,22 +105,22 @@ export default class ProfileScreen extends React.Component {
 
        {/* Profile picture section */}
        <View style={{ alignItems: 'center', marginTop: 16 }}>
-          <Image source={require('../images/user1.png')} style={{ width: 120, height: 120, borderRadius: 60 }} />
-          <Text style={ styles.profileName }>Full Name</Text>
+          <Image source={user && {uri : user.ProfileImage}} style={{ width: 120, height: 120, borderRadius: 60 }} />
+          <Text style={ styles.profileName }>{user && user.Username}</Text>
         </View>
 
         {/* Followers, following, likes row */}
         <View style={[styles.centerStyle, {marginTop: 16 }]}>
           <View style={[{ alignItems: 'center' },{marginRight: 8}]}>
-            <Text style={styles.infoStatic}>10M</Text>
+            <Text style={styles.infoStatic}>{user && user.NumberOfFollowing}</Text>
             <Text style={ styles.infoName }>Following</Text>
           </View>
           <View style={[{ alignItems: 'center' },{marginRight: 8}]}>
-            <Text style={styles.infoStatic}>100</Text>
+            <Text style={styles.infoStatic}>{user && user.NumberOfFollowers}</Text>
             <Text style={ styles.infoName }>Followers</Text>
           </View>
           <View style={{ alignItems: 'center' }}>
-            <Text style={styles.infoStatic}>1M</Text>
+            <Text style={styles.infoStatic}>{user && user.NumberOfReactions}</Text>
             <Text style={ styles.infoName }>Reactions</Text>
           </View>
         </View>
@@ -150,7 +150,7 @@ export default class ProfileScreen extends React.Component {
         {showList ? (
           <View style={styles.container}>
             <FlatList
-              data={data}
+              data={this.state.songs}
               renderItem={this.renderItem}
               keyExtractor={item => item.id}
               numColumns={3}
