@@ -1,11 +1,14 @@
-import {Upload} from "./dbSchemas/dbSchemas";
+//import {Upload} from "./dbSchemas/dbSchemas";
+import dotenv from 'dotenv'
+import { response } from "express";
+import mongoose from "mongoose";
+//var ObjectId = require("mongoose").Types.ObjectId;
+//import * as dbSchemas from './dbSchemas/dbSchemas';
 
-const { response } = require("express");
-const mongoose = require("mongoose");
-var ObjectId = require("mongoose").Types.ObjectId;
-import * as dbSchemas from './dbSchemas/dbSchemas';
+dotenv.config();
 
-function connectToMongo() {
+export function connectToMongo() {
+  console.log("DATABASE_URL: ", process.env.DATABASE_URL);
   mongoose.connect(
         process.env.DATABASE_URL,
       { useNewUrlParser: true }
@@ -18,7 +21,7 @@ function connectToMongo() {
     });
 }
 
-async function upload(uploadData) {
+export async function upload(uploadData) {
   var toUpload = new Upload(uploadData);
 
   toUpload.save((err, res) => {
@@ -29,8 +32,3 @@ async function upload(uploadData) {
     }
   });
 }
-
-module.exports = {
- connectToMongo,
-  upload
-};

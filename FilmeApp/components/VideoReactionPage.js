@@ -1,14 +1,10 @@
 import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, Dimensions, Image } from 'react-native';
 import { Video } from 'expo-av';
-import * as firebase from "firebase/app";
-import { getStorage, ref, getDownloadURL } from "firebase/storage";
-import firebaseConfig from './config'
 
 const { height } = Dimensions.get('window');
 const width = height * 0.5625; // 16:9 aspect ratio
 
-firebase.initializeApp(firebaseConfig);
 
 class VideoReactionPage extends React.Component {
 

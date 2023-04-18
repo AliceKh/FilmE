@@ -1,90 +1,3 @@
-// import React from 'react';
-// import { View, Text, Image, TouchableOpacity, ScrollView, FlatList, StyleSheet } from 'react-native';
-
-// const data = [
-//     { id: '1', source: require('../images/user1.png') },
-//     { id: '2', source: require('../images/user2.png') },
-//     { id: '3', source: require('../images/user3.png') },
-//     { id: '4', source: require('../images/user4.png') },
-//     { id: '5', source: require('../images/user5.png') },
-//     { id: '6', source: require('../images/user6.png') },
-//     { id: '7', source: require('../images/user7.png') },
-//     { id: '8', source: require('../images/user1.png') },
-//     { id: '9', source: require('../images/user8.png') },
-//   ];
-
-// export default class ProfileScreen extends React.Component{
-
-// renderItem = ({ item }) => (
-//     <TouchableOpacity
-//         //style={[styles.itemContainer, item.id === this.state.selectedImageId && styles.selectedItemContainer]}
-//         onPress={() => {
-//         //this.setState({ selectedImageId: item.id }); 
-//         //this.props.navigation.navigate('GraphPage');
-//         }}
-//         >
-//         <Image source={item.source} />
-//     </TouchableOpacity>
-// );
-    
-// render (){
-//   return (
-//     <View style={{ flex: 1 }}>
-//         {/* Header */}
-//         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingTop: 16 }}>
-//           <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
-//             <Image source={require('../images/user1.png')} style={{ width: 24, height: 24 }} />
-//           </TouchableOpacity>
-//           <Text style={{ fontSize: 18, fontWeight: 'bold' }}>{"Test"}</Text>
-//           <TouchableOpacity>
-//             <Image source={require('../images/user1.png')} style={{ width: 24, height: 24 }} />
-//           </TouchableOpacity>
-//         </View>
-
-//         {/* User info */}
-//         <View style={{ alignItems: 'center', marginTop: 16 }}>
-//           <Image source={require('../images/user1.png')} style={{ width: 100, height: 100, borderRadius: 50 }} />
-//           <Text style={{ fontSize: 20, fontWeight: 'bold', marginTop: 8 }}>{"Israel Israeli"}</Text>
-//           <View style={{ flexDirection: 'row', marginTop: 16 }}>
-//             {/* First row of buttons */}
-//             <TouchableOpacity style={{ flex: 1, alignItems: 'center', paddingVertical: 8 }}>
-//               <Text style={{ fontSize: 16 }}>{"14"}</Text>
-//             </TouchableOpacity>
-//             <TouchableOpacity style={{ flex: 1, alignItems: 'center', paddingVertical: 8 }}>
-//               <Text style={{ fontSize: 16 }}>{"1.9K"}</Text>
-//             </TouchableOpacity>
-//             <TouchableOpacity style={{ flex: 1, alignItems: 'center', paddingVertical: 8 }}>
-//               <Text style={{ fontSize: 16 }}>{"46K"}</Text>
-//             </TouchableOpacity>
-//           </View>
-//           <View style={{ flexDirection: 'row', marginTop: 8 }}>
-//             {/* Button labels */}
-//             <Text style={{ flex: 1, textAlign: 'center', fontSize: 12 }}>{"Following"}</Text>
-//             <Text style={{ flex: 1, textAlign: 'center', fontSize: 12 }}>{"Followers"}</Text>
-//             <Text style={{ flex: 1, textAlign: 'center', fontSize: 12 }}>{"Reactions"}</Text>
-//           </View>
-//         </View>
-
-//         {/* Bio section */}
-//         <View style={{ paddingHorizontal: 16, marginTop: 16 }}>
-//           <Text style={{ fontSize: 14, marginTop: 8 }}>{"Blah Blah Blah"}</Text>
-//         </View>
-
-    
-//         <View>
-//             <FlatList
-//             data={data}
-//             renderItem={this.renderItem}
-//             keyExtractor={item => item.id}
-//             numColumns={3}
-//             />
-//         </View>
-// </View>
-// );
-
-//   }
-// }
-
 import React from 'react';
 import { View, Modal, Text, Image, StyleSheet, FlatList, TouchableOpacity} from 'react-native';
 
@@ -107,10 +20,22 @@ export default class ProfileScreen extends React.Component {
         this.state = {
           selectedImageId: null,
           isMenuVisible: false,
+          showList: true,
           //navigate: 
         };
-    
+        this.toggleList = this.toggleList.bind(this);
         //const {navigate} = this.props.navigation
+      }
+
+      componentDidMount() {
+        const userId = 'id';
+        axios.get('http://localhost:4000/user/${userId}')
+          .then(response => {
+            this.setState({ user: response.data });
+          })
+          .catch(error => {
+            console.log(error);
+          });
       }
 
     renderItem = ({ item }) => (
@@ -127,7 +52,13 @@ export default class ProfileScreen extends React.Component {
 
     toggleMenu = () => {
         this.setState({isMenuVisible: !this.state.isMenuVisible})
-    } 
+    }
+
+    toggleList = () => {
+      this.setState(prevState => ({
+        showList: !prevState.showList,
+      }));
+    }
 
     renderMenu = () => {
         return (
@@ -146,9 +77,11 @@ export default class ProfileScreen extends React.Component {
             </TouchableOpacity>
           </Modal>
         );
-      }
+    }
 
   render() {
+    const { showList } = this.state;
+
     return (
       <View style={styles.body}>
         {/* Header section */}
@@ -157,9 +90,11 @@ export default class ProfileScreen extends React.Component {
                 <Image source={require('../images/previous.png')} 
                        style={{ width: 20, height: 20, color: 'white' }} />
             </TouchableOpacity>  
-          <Text style={ styles.headerText }>{"  Explore Page "}
-            <Image source={require('../images/up.png')} style={{ width: 16, height: 16 }} />
-          </Text>
+          <TouchableOpacity onPress={() => this.props.navigation.navigate('ExplorePage')}>
+            <Text style={ styles.headerText }>{"  Explore Page "}
+              <Image source={require('../images/up.png')} style={{ width: 16, height: 16 }} />
+            </Text>
+          </TouchableOpacity>
           <TouchableOpacity onPress={this.toggleMenu}>
             <Image source={require('../images/menu.png')} style={{ width: 30, height: 30 }} />
           </TouchableOpacity>
@@ -201,16 +136,30 @@ export default class ProfileScreen extends React.Component {
             <Image source={require('../images/down.png')} style={{ width: 30, height: 30 }} />
           </TouchableOpacity>
         </View>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-evenly' }}>
+          <TouchableOpacity onPress={() => this.setState({showList : true})}>
+            <Image source={require('../images/grid.png')} style={{ width: 30, height: 30 }} />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => this.setState({showList : false})} >
+            <Image source={require('../images/alert.png')} style={{ width: 30, height: 30 }} />
+          </TouchableOpacity>
+        </View>
 
         {/* Video list section */}
-        <View style={styles.container}>
-        <FlatList
-          data={data}
-          renderItem={this.renderItem}
-          keyExtractor={item => item.id}
-          numColumns={3}
-        />
-      </View>
+        {showList ? (
+          <View style={styles.container}>
+            <FlatList
+              data={data}
+              renderItem={this.renderItem}
+              keyExtractor={item => item.id}
+              numColumns={3}
+            />
+          </View>
+        ) : (
+          <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+            <Text style={{color: 'white'}}>Notifications</Text>
+          </View>
+        )}
     </View>
 );
     }

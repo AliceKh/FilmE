@@ -29,6 +29,15 @@ export default class ExplorePage extends React.Component {
   render() {
     return (
       <View style={styles.container}>
+        <View style={styles.header}>
+        <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
+                <Image source={require('../images/previous.png')} 
+                       style={{ width: 20, height: 20, color: 'white' }} />
+            </TouchableOpacity> 
+            <TouchableOpacity onPress={this.toggleMenu}>
+            <Image source={require('../images/menu.png')} style={{ width: 30, height: 30 }} />
+          </TouchableOpacity>
+        </View>
         <View style={styles.searchBar}>
           <Ionicons name="search-outline" size={24} color="gray" style={styles.searchIcon} />
           <TextInput
@@ -44,16 +53,9 @@ export default class ExplorePage extends React.Component {
           <Text style={styles.seeAll}>See All</Text>
         </View>
         <View style={styles.recentlyPlayedContainer}>
-          <View style={styles.recentlyPlayedItem}>
-            <Image source={{ uri: 'https://picsum.photos/id/1015/200/200' }} style={styles.recentlyPlayedImage} />
-            <Text style={styles.recentlyPlayedName}>Song Title</Text>
-            <Text style={styles.recentlyPlayedArtist}>Artist Name</Text>
-          </View>
-          <View style={styles.recentlyPlayedItem}>
-            <Image source={{ uri: 'https://picsum.photos/id/1018/200/200' }} style={styles.recentlyPlayedImage} />
-            <Text style={styles.recentlyPlayedName}>Song Title</Text>
-            <Text style={styles.recentlyPlayedArtist}>Artist Name</Text>
-          </View>
+         <FlatList>
+
+         </FlatList>
         </View>
         <View style={styles.header}>
           <Text style={styles.heading}>Recommendation</Text>
