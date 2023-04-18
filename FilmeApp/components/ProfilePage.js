@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Modal, Text, Image, StyleSheet, FlatList, TouchableOpacity} from 'react-native';
+import axios from 'axios';
 
 const data = [
     { id: '1', source: require('../images/user1.png') },
