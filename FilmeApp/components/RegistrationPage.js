@@ -5,8 +5,8 @@ import { register } from '../services/AuthService';
 export default class Register extends React.Component {
     submitRegistration = () =>{
         register(this.emailRef.value, this.passwordRef.value, this.usernameRef.value)
-            .then(this.props.navigation.navigate('ImageGrid'))
-            .catch(console.log("Failed"));
+            .then(() => this.props.navigation.navigate('ImageGrid'))
+            .catch(() => console.log("Failed"));
     }
 
     render() {
@@ -32,7 +32,7 @@ export default class Register extends React.Component {
                     alignItems: "center",
                     marginHorizontal: 55,
                     borderWidth: 2,
-                    marginTop: 55,
+                    marginTop: 25,
                     paddingHorizontal: 10,
                     borderColor: "#9960D2",
                     borderRadius: 12,
@@ -51,7 +51,7 @@ export default class Register extends React.Component {
                     alignItems: "center",
                     marginHorizontal: 55,
                     borderWidth: 2,
-                    marginTop: 55,
+                    marginTop: 25,
                     paddingHorizontal: 10,
                     borderColor: "#9960D2",
                     borderRadius: 12,

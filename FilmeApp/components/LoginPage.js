@@ -5,8 +5,8 @@ import { login } from '../services/AuthService';
 export default class Login extends React.Component{
     submitLogin = () =>{
         login(this.emailRef.value, this.passwordRef.value)
-            .then(this.props.navigation.navigate('ImageGrid'))
-            .catch(console.log("Failed"));
+            .then(() =>this.props.navigation.navigate('ImageGrid'))
+            .catch(() =>console.log("Failed"));
     }
 
     render(){

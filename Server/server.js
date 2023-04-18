@@ -15,7 +15,7 @@ connectToMongo();
 
 app.use('/upload', uploadRoute);
 
-app.get('/auth', authRoute);
+app.use('/auth', authRoute);
   
 app.get('/uploads', getUploads);
 
