@@ -101,3 +101,11 @@ dist
 
 # TernJS port file
 .tern-port
+
+# macOS
+.DS_Store
+
+#IDE
+.idea
+
+.vscode/

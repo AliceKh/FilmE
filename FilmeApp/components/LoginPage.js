@@ -1,7 +1,13 @@
 import React from 'react';
 import {Text,View,Image, TextInput, Button} from 'react-native';
+import { login } from '../services/AuthService';
 
 export default class Login extends React.Component{
+    submitLogin = () =>{
+        login(this.emailRef.value, this.passwordRef.value)
+            .then(() =>this.props.navigation.navigate('ImageGrid'))
+            .catch(() =>console.log("Failed"));
+    }
 
     render(){
         const {navigate} = this.props.navigation
@@ -37,6 +43,7 @@ export default class Login extends React.Component{
                         placeholderTextColor="#909580"
                         textAlign='left'
                         style={{width:"100%"}}
+                        ref={(email) => {this.emailRef = email}}
                     />
                 </View>
 
@@ -58,6 +65,7 @@ export default class Login extends React.Component{
                         color='#6E2E76'
                         textAlign='left'
                         style={{width:"100%"}}
+                        ref={(pass) => {this.passwordRef = pass}}
                     />
                 </View>
 
@@ -69,13 +77,14 @@ export default class Login extends React.Component{
                     paddingVertical:10
                 }}>
                     <Button title='Login'
+                        onPress={this.submitLogin}
                         color="#9960D2"
                         ></Button>
                 </View>
 
                 <Image
                     style={{alignSelf:"center",
-                            margin:"15%",
+                            margin:"10%",
                             height:240,
                         width:135}}
                             
@@ -87,8 +96,26 @@ export default class Login extends React.Component{
                     style={{
                         alignSelf:"center",
                         color:"#9960D2",
-                        paddingVertical:10
+                        paddingBottom:"5%"
                     }}>New User
+                </Text>
+                <Text                 
+                    onPress={()=>navigate('ProfilePage')}
+                    
+                    style={{
+                        alignSelf:"center",
+                        color:"#9960D2",
+                        paddingBottom:"5%"
+                    }}>ProfilePage
+                </Text>
+                <Text                 
+                    onPress={()=>navigate('ExplorePage')}
+                    
+                    style={{
+                        alignSelf:"center",
+                        color:"#9960D2",
+                        paddingBottom:"5%"
+                    }}>ExplorePage
                 </Text>
             </View>
         )
