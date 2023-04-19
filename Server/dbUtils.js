@@ -1,7 +1,8 @@
-//import {Upload} from "./dbSchemas/dbSchemas";
+import Upload from "./dbSchemas/upload.js";
 import dotenv from 'dotenv'
 import { response } from "express";
 import mongoose from "mongoose";
+import User from './dbSchemas/user.js';
 //var ObjectId = require("mongoose").Types.ObjectId;
 //import * as dbSchemas from './dbSchemas/dbSchemas';
 
@@ -25,6 +26,18 @@ export async function upload(uploadData) {
   var toUpload = new Upload(uploadData);
 
   toUpload.save((err, res) => {
+    if (err) {
+      console.log(err);
+    } else {
+      console.log(res);
+    }
+  });
+}
+
+export async function insertUser(userData, uid) {
+  var user = new User({Email:userData.email, Username:userData.username, UID:uid});
+
+  user.save((err, res) => {
     if (err) {
       console.log(err);
     } else {

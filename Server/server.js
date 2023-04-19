@@ -1,6 +1,7 @@
 import express from 'express'
 import cors from 'cors'
 import {uploadRoute} from "./routes/upload.js";
+import { authRoute } from './routes/authentication.js';
 import Upload from './dbSchemas/upload.js'
 import User from './dbSchemas/user.js'
 import {connectToMongo} from './dbUtils.js'
@@ -13,6 +14,8 @@ app.use(express.json());
 connectToMongo();
 
 app.use('/upload', uploadRoute);
+
+app.use('/auth', authRoute);
   
 app.get('/uploads', getUploads);
 

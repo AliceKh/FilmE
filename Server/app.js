@@ -1,4 +1,4 @@
-const app = require('./serverOld')
+import {app} from "./serverOld.js";
 
 const port = process.env.PORT
 app.listen(port, ()=>{
