@@ -19,7 +19,7 @@ app.use('/auth', authRoute);
   
 app.get('/uploads', getUploads);
 
-app.get('/user/:id', getUsers);
+app.use('/user', getUsers);
 
 app.listen(4000, () => {
     console.log('Server listening on port 4000...');
