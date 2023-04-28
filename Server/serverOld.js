@@ -1,16 +1,51 @@
 const dotenv = require('dotenv').config()
 const express = require('express')
-const app = express()
+export const app = express()
 const bodyParser = require('body-parser')
 const mongoose = require('mongoose')
 const multer = require('multer')
+const Uploads = require('./Uploads');
+const Users = require('./Users');
+
+const admin = require("firebase-admin");
+
+const serviceAccount = require("../Server/serviceAccountKey.json");
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+  storageBucket: 'filme-4277e.appspot.com'
+});
+
+const bucket = admin.storage().bucket();
+
+const videoFileRef = bucket.file('video/mixkit-mother-with-her-little-daughter-eating-a-marshmallow-in-nature-39764.mp4');
+
+// if (process.env.NODE_ENV == "development") {
+//     const swaggerUI = require("swagger-ui-express")
+//     const swaggerJsDoc = require("swagger-jsdoc")
+//     const options = {
+//         definition: {
+//             openapi: "3.0.0",
+//             info: {
+//                 title: "Node Demo API",
+//                 version: "1.0.0",
+//                 description: "A simple Express Library API",
+//             },
+//             servers: [{url: "http://localhost:" + process.env.PORT,},],
+//         },
+//         apis: ["./routes/*.js"],
+//     };
+//     const specs = swaggerJsDoc(options);
+//     app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(specs));
+//  }
+
 
 app.use(bodyParser.urlencoded({extended:true, limit: '1m'}))
 app.use(bodyParser.json())
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, './uploads/');
+        cb(null, './Uploads/');
       },
       filename: function (req, file, cb) {
         cb(null,file.originalname);
@@ -19,48 +54,27 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-
-
  mongoose.connect(process.env.DATABASE_URL,{useNewUrlParser : true})
  const db = mongoose.connection
  db.on('error',error=>{console.error(error)})
  db.once('open',()=>{console.log('db connected!')})
 
- const uploadSchema = new mongoose.Schema({
-    LinkToStorage: {type: String, required: true},
-    LinkToPreviewImage: {type: String, required: true},
-    Title: {type: String, required: true},
-    Uploader: {type: mongoose.Types.ObjectId, required: true},
-    DateWhenUploaded: {type: Date, required: true},
-    Type: ['video','audio'],
-    Tags: [{type: String, required: true}],
-    NumberOfReactions: {type: Number, required: true},
-    ListOfReactions: [{type: mongoose.Types.ObjectId, required: true}],
-  });
-  const Video = mongoose.model('Uploads', uploadSchema);
+ app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  next();
+});
 
-  app.post('/upload', upload.single('video'), async (req, res) => {
-    try {
-      // Save the video information to MongoDB
-      const video = new Video({
-        LinkToStorage: `https://my-storage-service.com/${req.file.originalname}`,
-        LinkToPreviewImage: `https://my-preview-service.com/${req.file.originalname}`,
-        Title: req.body.title,
-        Uploader: req.body.uploader,
-        DateWhenUploaded: new Date(),
-        Type: req.body.type,
-        Tags: req.body.tags,
-        NumberOfReactions: 0,
-        ListOfReactions: []
-      });
-      await video.save();
-  
-      res.status(201).json({ message: 'File uploaded successfully' });
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ message: 'Server error' });
-    }
-  });
+ app.get('/uploads', async (req, res) => {
+  try{
+    const uploads = await Uploads.find().populate({ path: 'Uploader', model: 'Users' })
+    res.json(uploads);
+    } catch(error){
+      console.log(error);
+      res.status(500).json({ error: 'Error retrieving uploads' });
+    };
+});
 
 
 
@@ -75,4 +89,4 @@ const upload = multer({ storage: storage });
 // const authRouter = require('./routes/auth_routes')
 // app.use('/auth',authRouter)
 
-module.exports = app
+//module.exports = app

@@ -5,6 +5,9 @@ import Register from './components/RegistrationPage'
 import Home from './components/MainPage';
 import ImageGrid from './components/ShowContentPage';
 import GraphPage from './components/GraphPage';
+import ProfilePage from './components/ProfilePage'
+import ExplorePage from './components/ExplorePage';
+import VideoReactionPage from './components/VideoReactionPage';
 import UploadPage from "./components/UploadPage";
 
 const stackNavigatorOptions = {
@@ -15,15 +18,18 @@ const stackNavigatorOptions = {
 
 }
 const AppNavigator = createStackNavigator({
-        Uploadpage: {screen: UploadPage},
-        Home: {screen: Home},
-        Login: {screen: Login},
-        Register: {screen: Register},
-        ImageGrid: {screen: ImageGrid},
-        GraphPage: {screen: GraphPage}
-    },
-    {
-        defaultNavigationOptions: stackNavigatorOptions
-    }
+    Home: {screen:Home},
+    Login:{screen:Login},
+    Register:{screen:Register},
+    ImageGrid:{screen:ImageGrid},
+    GraphPage:{screen:GraphPage},
+    ProfilePage:{screen:ProfilePage},
+    ExplorePage:{screen:ExplorePage},
+    VideoReactionPage:{screen:VideoReactionPage},
+    Uploadpage: {screen: UploadPage},
+},
+{
+    defaultNavigationOptions : stackNavigatorOptions
+}  
 );
 export default createAppContainer(AppNavigator);

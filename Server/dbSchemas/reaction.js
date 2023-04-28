@@ -25,6 +25,6 @@ ReactionSchema.index({UserReacting: 1, ReactingTo: 1}, {
     collation: {locale: 'en', strength: 2}
 });
 
-const Reaction = mongoose.model('Reaction', ReactionSchema);
+const Reaction = mongoose.model('Reactions', ReactionSchema);
 
-module.exports = Reaction;
+export default Reaction;
