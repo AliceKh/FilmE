@@ -1,7 +1,7 @@
 import express from 'express'
-import {uploadVideoMulter} from "../controllers/firebaseUpload/uploadVideo.js";
-import {uploadAudioMulter} from "../controllers/firebaseUpload/uploadAudio.js";
-import {uploadPreviewMulter} from "../controllers/firebaseUpload/uploadPreview.js";
+import {uploadVideoMulter} from "../controllers/firebaseStorageUpload/uploadVideo.js";
+import {uploadAudioMulter} from "../controllers/firebaseStorageUpload/uploadAudio.js";
+import {uploadPreviewMulter} from "../controllers/firebaseStorageUpload/uploadPreview.js";
 
 const router = express.Router();
 
