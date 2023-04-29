@@ -1,6 +1,6 @@
 import React, {useContext, useState} from 'react';
 import {Image, StyleSheet, Text, TextInput, View} from 'react-native';
-import {FAB, ProgressBar, SegmentedButtons} from "react-native-paper";
+import {Button, FAB, ProgressBar, SegmentedButtons} from "react-native-paper";
 import * as DocumentPicker from 'expo-document-picker';
 import NativeUploady, {
     UploadyContext,
@@ -11,8 +11,9 @@ import NativeUploady, {
 } from "@rpldy/native-uploady";
 
 export default function UploadPage() {
+    const server = 'http://192.168.1.96:4000/upload/';
     const [publish, setPublish] = React.useState('');
-    const [serverUploadDestUrl, setServerUploadDestUrl] = React.useState('http://172.20.10.2:3000/upload/');
+    const [serverUploadDestUrl, setServerUploadDestUrl] = React.useState(server);
     const [uploadType, setUploadType] = React.useState('');
     const [uploadFile, setUploadFile] = useState('');
     const [previewFile, setPreviewFile] = useState('');
@@ -33,9 +34,8 @@ export default function UploadPage() {
         useItemStartListener((item) => {
             console.log(`item ${item.id} starting to upload, name = ${item.file.name} ${item.file.type}`);
         });
-
         let progress = useItemProgressListener((item) => {
-            // console.log(progress);
+
         });
 
 
@@ -75,7 +75,6 @@ export default function UploadPage() {
                     style={styles.uploadFAB}
                     onPress={handleDocumentSelection(setUploadFile, uploadType)}
                 />
-
                 {progress &&
                     <View>
                         <Text
@@ -88,10 +87,16 @@ export default function UploadPage() {
                             progress={progress.completed * 0.01}/>
                     </View>
                 }
+                {/*<Text*/}
+                {/*    ellipsizeMode={'middle'}>*/}
+                {/*    {{uploadFile}}*/}
+                {/*</Text>*/}
             </View>
         )
     }
+    const PreviewUpload = () => {
 
+    }
 
     return (
         <View style={styles.page}>
@@ -128,29 +133,21 @@ export default function UploadPage() {
                 <FileUpload/>
             </NativeUploady>
 
-            {/*<View style={styles.uploadPreviewView}>*/}
-            {/*    <Button*/}
-            {/*        icon="camera"*/}
-            {/*        mode="outlined"*/}
-            {/*        onPress={handleDocumentSelection(setPreviewFile, 'image')}*/}
-            {/*    >*/}
-            {/*        choose preview image*/}
-            {/*    </Button>*/}
-            {/*    <Text*/}
-            {/*        numberOfLines={1}*/}
-            {/*        ellipsizeMode={'middle'}>*/}
-            {/*        {previewFile?.name}*/}
-            {/*    </Text>*/}
-            {/*</View>*/}
-            {/*<View>*/}
-            {/*    <Button*/}
-            {/*        icon="camera"*/}
-            {/*        mode="contained"*/}
-            {/*        onPress={handleDocumentSelection(setPreviewFile, 'image')}*/}
-            {/*    >*/}
-            {/*        Upload*/}
-            {/*    </Button>*/}
-            {/*</View>*/}
+            <View style={styles.uploadPreviewView}>
+                <Button
+                    icon="camera"
+                    mode="outlined"
+                    // onPress={handleDocumentSelection(setPreviewFile, 'image')}
+                >
+                    choose preview image
+                </Button>
+                <Text
+                    numberOfLines={1}
+                    ellipsizeMode={'middle'}>
+                    {previewFile?.name}
+                </Text>
+            </View>
+
             <View style={styles.borderInput}>
                 <TextInput
                     placeholder="Title"
@@ -231,6 +228,7 @@ const styles = StyleSheet.create({
         alignItems: 'center'
     },
     uploadPreviewView: {
+        paddingTop: 10,
         marginHorizontal: 80,
         alignItems: "center"
     },
