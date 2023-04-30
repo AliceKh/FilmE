@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from "mongoose";
 
 const UploadSchema = new mongoose.Schema({
     LinkToStorage: {
@@ -48,6 +48,6 @@ const UploadSchema = new mongoose.Schema({
     }]
 });
 
-const Upload = mongoose.model('Upload', UploadSchema);
+const Upload = mongoose.model('Uploads', UploadSchema);
 
-module.exports = Upload;
+export default Upload;
