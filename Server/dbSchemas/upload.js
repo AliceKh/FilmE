@@ -48,6 +48,6 @@ const UploadSchema = new mongoose.Schema({
     }]
 });
 
-const Upload = mongoose.model('Uploads', UploadSchema);
+const uploadModel = mongoose.model('Uploads', UploadSchema);
 
-export default Upload;
+export default uploadModel;
