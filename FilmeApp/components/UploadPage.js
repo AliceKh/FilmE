@@ -22,6 +22,7 @@ export default function UploadPage() {
     const [dateWhenUploaded, setDateWhenUploaded] = useState('');
     const [type, setType] = useState('');
     const [tags, setTags] = useState('');
+    const [timeStamps, setTimeStamps] = useState('');
 
     const [chosenFile, setChosenFile] = useState('');
     const [chosenPreviewFile, setChosenPreviewFile] = useState('');
@@ -104,7 +105,7 @@ export default function UploadPage() {
 
     }
 
-    function handlePublish(){
+    const handlePublish = () => {
         console.log("pressed publish");
         axios.post('http://192.168.1.81:4000/upload', {
             LinkToStorage:linkToStorage,
@@ -112,9 +113,10 @@ export default function UploadPage() {
             Title:title,
             Uploader:uploader,
             Type:type,
-            Tags:tags
+            Tags:tags,
+            TimeStamps:timeStamps
         })
-            .then(r => console.log(r))
+            .then(r => console.log("uploaded!!"))
     }
 
     return (
@@ -179,12 +181,22 @@ export default function UploadPage() {
             </View>
             <View style={styles.borderInput}>
                 <TextInput
-                    placeholder="Tags"
+                    placeholder="Tags (split by ' ')"
                     placeholderTextColor="#909580"
                     textAlign='left'
                     style={{width: "100%"}}
                     value={tags}
                     onChangeText={value => setTags(value)}
+                />
+            </View>
+            <View style={styles.borderInput}>
+                <TextInput
+                    placeholder="TimeStamps (split by ' ')"
+                    placeholderTextColor="#909580"
+                    textAlign='left'
+                    style={{width: "100%"}}
+                    value={timeStamps}
+                    onChangeText={value => setTimeStamps(value)}
                 />
             </View>
             <View style={{
@@ -195,7 +207,7 @@ export default function UploadPage() {
                 marginTop: 50,
                 paddingVertical: 10
             }}>
-                <Button mode="contained" onPress={handlePublish()}>
+                <Button mode="contained" onPress={handlePublish}>
                     Publish
                 </Button>
             </View>
@@ -219,8 +231,6 @@ export default function UploadPage() {
             {/*        paddingBottom: "5%"*/}
             {/*    }}>Login*/}
             {/*</Text>*/}
-
-
         </View>
     );
 }

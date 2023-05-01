@@ -36,6 +36,10 @@ const UploadSchema = new mongoose.Schema({
         type: [String],
         description: 'Tags'
     },
+    TimeStamps: {
+        type: [String],
+        description: 'Timestamps to record reaction, in float(min.sec), if empty record reaction for whole upload'
+    },
     NumberOfReactions: {
         type: Number,
         min: 0,

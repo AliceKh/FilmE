@@ -12,6 +12,12 @@ router.post('/', function(req, res) {
     upload['DateWhenUploaded'] = Date.now();
     upload['NumberOfReactions'] = 0;
     upload['ListOfReactions'] = [];
+    if (!!upload['Tags']){
+        upload['Tags'] = upload['Tags'].split(' ');
+    }
+    if (!!upload['TimeStamps']){
+        upload['TimeStamps'] = upload['TimeStamps'].split(' ')
+    }
     insertUpload(req.body).then(r => console.log(r));
     res.send('respond with a resource');
 });
