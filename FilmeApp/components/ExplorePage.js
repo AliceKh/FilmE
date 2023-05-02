@@ -70,7 +70,9 @@ export default class ExplorePage extends React.Component {
                 <Text style={styles.songName}>{item.Title}</Text>
                 <Text style={styles.artistName}>{item.Uploader.Username}</Text>
               </View>
-              <TouchableOpacity onPress={() => this.props.navigation.navigate('VideoReactionPage', { selectedItem: item })}>
+              <TouchableOpacity onPress={() => item.Type == 'video' ? 
+                this.props.navigation.navigate('VideoReactionPage', { selectedItem: item })
+               : this.props.navigation.navigate('AudioReactionPage', { selectedItem: item })}>
                 <Image source={require('../images/right.png')} style={{ width: 30, height: 30 }} />
               </TouchableOpacity>
             </View>

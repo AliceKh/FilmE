@@ -9,6 +9,7 @@ import ProfilePage from './components/ProfilePage'
 import ExplorePage from './components/ExplorePage';
 import VideoReactionPage from './components/VideoReactionPage';
 import UploadPage from "./components/UploadPage";
+import AudioReactionPage from './components/AudioReactionPage';
 
 const stackNavigatorOptions = {
     headerShown: false,
@@ -27,6 +28,7 @@ const AppNavigator = createStackNavigator({
     ExplorePage:{screen:ExplorePage},
     VideoReactionPage:{screen:VideoReactionPage},
     Uploadpage: {screen: UploadPage},
+    AudioReactionPage: {screen:AudioReactionPage}
 },
 {
     defaultNavigationOptions : stackNavigatorOptions
