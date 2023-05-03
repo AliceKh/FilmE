@@ -26,8 +26,8 @@ const AppNavigator = createStackNavigator({
     GraphPage:{screen:GraphPage},
     ProfilePage:{screen:ProfilePage},
     ExplorePage:{screen:ExplorePage},
+    UploadPage:{screen:UploadPage},
     VideoReactionPage:{screen:VideoReactionPage},
-    Uploadpage: {screen: UploadPage},
     AudioReactionPage: {screen:AudioReactionPage}
 },
 {
