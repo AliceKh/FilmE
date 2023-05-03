@@ -1,5 +1,5 @@
 import React from 'react';
-import {Text,View,Image, TextInput, Button, Alert} from 'react-native';
+import {Text,View,Image, TextInput, Button, Alert, StyleSheet, TouchableOpacity} from 'react-native';
 import { login } from '../services/AuthService';
 
 export default class Login extends React.Component{
@@ -21,6 +21,12 @@ export default class Login extends React.Component{
         const {navigate} = this.props.navigation
         return(
             <View style={{height:"100%"}}>
+                <View style={styles.header}>
+                    <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
+                        <Image source={require('../images/previous.png')} 
+                            style={{ width: 20, height: 20, color: 'white' }} />
+                    </TouchableOpacity>
+                </View>
                 <View style={{
                     marginHorizontal:55,
                     alignItems:"center",
@@ -107,25 +113,22 @@ export default class Login extends React.Component{
                         paddingBottom:"5%"
                     }}>New User
                 </Text>
-                <Text                 
-                    onPress={()=>navigate('ProfilePage')}
-                    
-                    style={{
-                        alignSelf:"center",
-                        color:"#9960D2",
-                        paddingBottom:"5%"
-                    }}>ProfilePage
-                </Text>
-                <Text                 
-                    onPress={()=>navigate('ExplorePage')}
-                    
-                    style={{
-                        alignSelf:"center",
-                        color:"#9960D2",
-                        paddingBottom:"5%"
-                    }}>ExplorePage
-                </Text>
             </View>
         )
     }
 }
+
+const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundImage: 'linear-gradient(to right, #29024f, #000000, #29024f)',
+      paddingHorizontal: 20,
+      paddingTop: 40,
+    },
+    header: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 10,
+    }
+});
