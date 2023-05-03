@@ -22,7 +22,7 @@ export function connectToMongo() {
     });
 }
 
-export async function upload(uploadData) {
+export async function insertUpload(uploadData) {
   var toUpload = new Upload(uploadData);
 
   toUpload.save((err, res) => {
