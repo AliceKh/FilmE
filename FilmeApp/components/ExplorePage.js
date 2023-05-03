@@ -39,6 +39,33 @@ export default class ExplorePage extends React.Component {
     }
   }
 
+  handleRecentlyPlayed = (item) =>{
+    let {lastTwoClicked} = this.state;
+                let foundIndex = lastTwoClicked.findIndex(song => song._id === item._id);
+                if (foundIndex !== -1 && foundIndex < 2) {
+                  // If song is already in the list, swap the position with the last item
+                  if (foundIndex == 0 || foundIndex == 1) {
+                    if(foundIndex == 1){
+                    let temp = lastTwoClicked[foundIndex];
+                    lastTwoClicked[foundIndex] = lastTwoClicked[0];
+                    lastTwoClicked[0] = temp;
+                  }
+                }
+                }
+                else if (foundIndex >= 2) {
+                  lastTwoClicked.push(lastTwoClicked.shift());
+                }
+                else {
+                  // If song is not in the list, add it to the end
+                  lastTwoClicked.push(item);
+                  if (lastTwoClicked.length > 2) {
+                    lastTwoClicked.push(lastTwoClicked.shift());
+                  }
+                } 
+                // Update state with the new recently played songs list
+                this.setState({lastTwoClicked});
+  }
+
   render() {
     return (
       <View style={styles.container}>
@@ -97,33 +124,10 @@ export default class ExplorePage extends React.Component {
                 <Text style={styles.artistName}>{item.Uploader.Username}</Text>
               </View>
               <TouchableOpacity onPress={() => {
-                let {lastTwoClicked} = this.state;
-                let foundIndex = lastTwoClicked.findIndex(song => song._id === item._id);
-                if (foundIndex !== -1 && foundIndex < 2) {
-                  // If song is already in the list, swap the position with the last item
-                  if (foundIndex == 0 || foundIndex == 1) {
-                    if(foundIndex == 1){
-                    let temp = lastTwoClicked[foundIndex];
-                    lastTwoClicked[foundIndex] = lastTwoClicked[0];
-                    lastTwoClicked[0] = temp;
-                  }
-                }
-                }
-                else if (foundIndex >= 2) {
-                  lastTwoClicked.push(lastTwoClicked.shift());
-                }
-                else {
-                  // If song is not in the list, add it to the end
-                  lastTwoClicked.push(item);
-                  if (lastTwoClicked.length > 2) {
-                    lastTwoClicked.push(lastTwoClicked.shift());
-                  }
-                } 
-                // Update state with the new recently played songs list
-                this.setState({lastTwoClicked});
+                this.handleRecentlyPlayed(item);
                 item.Type == 'video' ? 
                 this.props.navigation.navigate('VideoReactionPage', { selectedItem: item })
-                : this.props.navigation.navigate('AudioReactionPage', { selectedItem: item })}
+                : this.props.navigation.navigate('AudioReactionPage', { selectedItem: item });}
               }>
                 <Image source={require('../images/right.png')} style={{ width: 30, height: 30 }} />
               </TouchableOpacity>
