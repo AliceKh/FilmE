@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, Image, FlatList } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage'
 import { Ionicons } from '@expo/vector-icons';
 import axios from 'axios'
 
@@ -9,6 +10,7 @@ export default class ExplorePage extends React.Component {
     this.state = {
       searchTerm: '',
       songs: [],
+      lastTwoClicked: [],
     };
   }
 
@@ -25,6 +27,17 @@ export default class ExplorePage extends React.Component {
   handleSearch = () => {
     console.log(`Searching for "${this.state.searchTerm}"`);
   };
+
+  handleSongClick = (item) => {
+    const { lastTwoSongs } = this.state;
+    if (lastTwoSongs.length < 2) {
+      // If there are less than two songs, simply add the new song
+      this.setState({ lastTwoSongs: [ ...lastTwoSongs, item ] });
+    } else {
+      // If there are already two songs, shift out the oldest one and add the new one
+      this.setState({ lastTwoSongs: [ lastTwoSongs[1], item ] });
+    }
+  }
 
   render() {
     return (
@@ -53,16 +66,29 @@ export default class ExplorePage extends React.Component {
           <Text style={styles.seeAll}>See All</Text>
         </View>
         <View style={styles.recentlyPlayedContainer}>
-         <FlatList>
-
-         </FlatList>
+          <FlatList
+            data={this.state.lastTwoClicked.slice(0,2)}
+            renderItem={({item}) => (
+              <TouchableOpacity style={styles.recentlyPlayedItem} onPress={() => this.props.navigation.navigate('VideoReactionPage', { selectedItem: item })}>
+                <Image style={styles.recentlyPlayedImage} source={{uri : item.LinkToPreviewImage}} />
+                <View style={styles.songDetails}>
+                  <Text style={styles.recentlyPlayedName}>{item.Title}</Text>
+                  <Text style={styles.recentlyPlayedArtist}>{item.Uploader.Username}</Text>
+                </View>
+              </TouchableOpacity>
+            )}
+            keyExtractor={item => item._id}
+            horizontal={true}
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ paddingLeft: 20 }}
+          />
         </View>
         <View style={styles.header}>
           <Text style={styles.heading}>Recommendation</Text>
           <Text style={styles.seeAll}>See All</Text>
         </View>
         <FlatList
-          data={this.state.songs}
+          data={this.state.songs.slice(0,4)}
           renderItem={({item}) =>(
             <View style={styles.songItem}>
               <Image style={styles.songImage} source={{uri : item.LinkToPreviewImage}} />
@@ -70,9 +96,35 @@ export default class ExplorePage extends React.Component {
                 <Text style={styles.songName}>{item.Title}</Text>
                 <Text style={styles.artistName}>{item.Uploader.Username}</Text>
               </View>
-              <TouchableOpacity onPress={() => item.Type == 'video' ? 
+              <TouchableOpacity onPress={() => {
+                let {lastTwoClicked} = this.state;
+                let foundIndex = lastTwoClicked.findIndex(song => song._id === item._id);
+                if (foundIndex !== -1 && foundIndex < 2) {
+                  // If song is already in the list, swap the position with the last item
+                  if (foundIndex == 0 || foundIndex == 1) {
+                    if(foundIndex == 1){
+                    let temp = lastTwoClicked[foundIndex];
+                    lastTwoClicked[foundIndex] = lastTwoClicked[0];
+                    lastTwoClicked[0] = temp;
+                  }
+                }
+                }
+                else if (foundIndex >= 2) {
+                  lastTwoClicked.push(lastTwoClicked.shift());
+                }
+                else {
+                  // If song is not in the list, add it to the end
+                  lastTwoClicked.push(item);
+                  if (lastTwoClicked.length > 2) {
+                    lastTwoClicked.push(lastTwoClicked.shift());
+                  }
+                } 
+                // Update state with the new recently played songs list
+                this.setState({lastTwoClicked});
+                item.Type == 'video' ? 
                 this.props.navigation.navigate('VideoReactionPage', { selectedItem: item })
-               : this.props.navigation.navigate('AudioReactionPage', { selectedItem: item })}>
+                : this.props.navigation.navigate('AudioReactionPage', { selectedItem: item })}
+              }>
                 <Image source={require('../images/right.png')} style={{ width: 30, height: 30 }} />
               </TouchableOpacity>
             </View>
@@ -178,4 +230,5 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: 'gray'
   },
+  
 });
