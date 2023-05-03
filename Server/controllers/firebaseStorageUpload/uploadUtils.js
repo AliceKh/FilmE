@@ -10,14 +10,13 @@ export const checkFileSize = async (filePath) => {
 }
 
 export const filetypeFilter = {
-    video: /\.(mp4|avi|mkv)$/,
+    video: /\.(mp4|avi|mkv|mov)$/,
     audio: /\.(mp3|wav|ogg)$/,
     image: /\.(png|jpg|jpeg)$/
 }
 
 export function filterBytype(type) {
     return (req, file, callback) => {
-        // Accept video files only
         if (!file.originalname.match(filetypeFilter[type])) {
             return callback(new Error('Only ' + type + ' files are allowed!'), false);
         }
@@ -27,7 +26,7 @@ export function filterBytype(type) {
 
 export function multerByType(type, dir) {
     return {
-        fileFilter: filterBytype(type),
+        // fileFilter: filterBytype(type),
         storage: FirebaseStorage({
             bucketName: bucketName,
             directoryPath: dir,

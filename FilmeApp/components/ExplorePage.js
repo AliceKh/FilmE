@@ -121,7 +121,9 @@ export default class ExplorePage extends React.Component {
                 } 
                 // Update state with the new recently played songs list
                 this.setState({lastTwoClicked});
-                this.props.navigation.navigate('VideoReactionPage', { selectedItem: item })}
+                item.Type == 'video' ? 
+                this.props.navigation.navigate('VideoReactionPage', { selectedItem: item })
+                : this.props.navigation.navigate('AudioReactionPage', { selectedItem: item })}
               }>
                 <Image source={require('../images/right.png')} style={{ width: 30, height: 30 }} />
               </TouchableOpacity>
