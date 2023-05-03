@@ -64,7 +64,7 @@ class AudioReactionPage extends React.Component {
             </View>
             <Video
             ref={this.videoRef}
-            source={require('../assets/background.mp4')}
+            source={require('../assets/audioBackground.mp4')}
             style={styles.backgroundVideo}
             resizeMode={ResizeMode.CONTAIN}
             shouldPlay={isPlaying}
