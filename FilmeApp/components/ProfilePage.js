@@ -17,7 +17,7 @@ export default class ProfileScreen extends React.Component {
       }
 
       componentDidMount() {
-        const userId = '64306b71dd045edb9b98d52d';
+        const userId = '644d2ec5ccb302c74d5d91b2';
         axios.get(`http://localhost:4000/user/${userId}`)
           .then(response => {
             this.setState({ user: response.data });
