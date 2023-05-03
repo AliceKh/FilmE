@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, Dimensions, Image } from 'react-native';
-import { Video, Audio } from 'expo-av';
+import { Video, Audio, ResizeMode } from 'expo-av';
 
 const { height } = Dimensions.get('window');
 const width = height * 0.5625; // 16:9 aspect ratio
@@ -12,7 +12,6 @@ class AudioReactionPage extends React.Component {
 
         this.videoRef = React.createRef();
         this.state = {
-            videoUrl: '',
             isPlaying: true,
             sound: undefined
         };
@@ -35,18 +34,20 @@ class AudioReactionPage extends React.Component {
 
     handlePlayPause = () => {
         const { isPlaying, sound } = this.state;
-        // const video = this.videoRef.current;
+        const video = this.videoRef.current;
 
         if (isPlaying) {
             sound.pauseAsync();
+            video.pauseAsync()
         } else {
             sound.playAsync();
+            video.playAsync();
         }
         this.setState({ isPlaying: !isPlaying });
     };
 
     render() {
-        const { videoUrl, isPlaying } = this.state;
+        const { isPlaying } = this.state;
         const { navigation } = this.props;
         const item = navigation.state.params.selectedItem
 
@@ -61,17 +62,17 @@ class AudioReactionPage extends React.Component {
                 <Image source={require('../images/menu.png')} style={{ width: 30, height: 30 }} />
             </TouchableOpacity>
             </View>
-            {/* <Video
+            <Video
             ref={this.videoRef}
-            source={{uri: item.LinkToStorage}}
+            source={require('../assets/background.mp4')}
             style={styles.backgroundVideo}
-            resizeMode="contain"
+            resizeMode={ResizeMode.CONTAIN}
             shouldPlay={isPlaying}
             isLooping={true}
             onReadyForDisplay={videoData => {
                 videoData.srcElement.style.position = "initial"
             }}
-            /> */}
+            />
             <View style={styles.overlay}>
             <Text style={styles.title}>{item.Title}</Text>
             <Text style={styles.artist}>{item.Uploader.Username}</Text>
