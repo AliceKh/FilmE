@@ -5,8 +5,16 @@ import { register } from '../services/AuthService';
 export default class Register extends React.Component {
     submitRegistration = () =>{
         register(this.emailRef.value, this.passwordRef.value, this.usernameRef.value)
-            .then(() => this.props.navigation.navigate('ImageGrid'))
-            .catch(() => console.log("Failed"));
+            .then(() => this.props.navigation.navigate('ExplorePage'))
+            .catch((error) => {
+                console.log(error); 
+                alert("Registration Failed");
+                this.registrationFailedAlert();
+            });
+    }
+
+    registrationFailedAlert = () => {
+        Alert.alert('Oops!', 'Registration failed', [{text: 'OK', onPress: ()=>console.log('')}]);
     }
 
     render() {

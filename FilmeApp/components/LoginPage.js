@@ -1,12 +1,20 @@
 import React from 'react';
-import {Text,View,Image, TextInput, Button} from 'react-native';
+import {Text,View,Image, TextInput, Button, Alert} from 'react-native';
 import { login } from '../services/AuthService';
 
 export default class Login extends React.Component{
-    submitLogin = () =>{
+    submitLogin = () => {
         login(this.emailRef.value, this.passwordRef.value)
-            .then(() =>this.props.navigation.navigate('ImageGrid'))
-            .catch(() =>console.log("Failed"));
+            .then(() => this.props.navigation.navigate('ExplorePage'))
+            .catch((error) => {
+                console.log(error); 
+                alert("Login Failed");
+                this.loginFailedAlert();
+            });
+    }
+
+    loginFailedAlert = () => {
+        Alert.alert('Oops!', 'Login failed', [{text: 'OK', onPress: ()=>console.log('')}]);
     }
 
     render(){
