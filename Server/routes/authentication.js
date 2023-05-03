@@ -18,7 +18,7 @@ router.post('/register', (req, res) => {
       const errorCode = error.code;
       const errorMessage = error.message;
       console.log(error);
-      res.sendStatus(500);
+      res.status(500).json({error: error.code});
     });
  });
 
@@ -32,7 +32,7 @@ router.post('/register', (req, res) => {
       const errorCode = error.code;
       const errorMessage = error.message;
       console.log(error);
-      res.sendStatus(500);
+      res.status(500).json({error: error.code});
     });
  }); 
 
