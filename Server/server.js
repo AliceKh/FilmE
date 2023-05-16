@@ -1,7 +1,8 @@
 import express from 'express'
 import cors from 'cors'
-import {uploadRoute} from "./routes/upload.js";
+import { uploadRoute } from "./routes/upload.js";
 import { authRoute } from './routes/authentication.js';
+import { reactRoute } from './routes/reaction';
 import Upload from './dbSchemas/upload.js'
 import User from './dbSchemas/user.js'
 import {connectToMongo} from './dbUtils.js'
@@ -20,6 +21,8 @@ app.use('/auth', authRoute);
 app.get('/uploads', getUploads);
 
 app.use('/user', getUsers);
+
+app.use('/react', reactRoute);
 
 app.listen(4000, () => {
     console.log('Server listening on port 4000...');
