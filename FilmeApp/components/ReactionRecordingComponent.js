@@ -1,13 +1,8 @@
 import { Camera, CameraType } from 'expo-camera';
 import { useState } from 'react';
-import { Button, StyleSheet, Text, View, Dimensions } from 'react-native';
+import { Button, StyleSheet, Text, View } from 'react-native';
 import * as FileSystem from 'expo-file-system';
 import { sendReactions } from '../services/ReactionsService';
-import { Video, Audio, ResizeMode } from 'expo-av';
-
-
-const { height } = Dimensions.get('window');
-const width = height * 0.5625; // 16:9 aspect ratio
 
 export default function ReactionRecording(props) {
     
@@ -37,7 +32,6 @@ export default function ReactionRecording(props) {
         interval = setInterval(() => {
           camera.takePictureAsync()
             .then((res) => {
-                console.log(res.uri);
                 FileSystem.readAsStringAsync(res.uri, {encoding: 'base64'})
                   .then((encoded) => reactions.push(encoded));
             })
@@ -59,22 +53,11 @@ export default function ReactionRecording(props) {
 }
 
 const styles = StyleSheet.create({
-    backgroundVideo: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        bottom: 0,
-        right: 0,
-        height: height,
-        width: width,
-        flex: 1,
-    },
   container: {
     flex: 1,
     justifyContent: 'center',
   },
   camera: {
-    //flex: 1,
     height:1,
     width:1,
     alignItems:'flex-end'
@@ -89,10 +72,5 @@ const styles = StyleSheet.create({
     flex: 1,
     alignSelf: 'flex-end',
     alignItems: 'center',
-  },
-  text: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: 'white',
-  },
+  }
 });
