@@ -73,6 +73,15 @@ export default class Home extends React.Component{
                             paddingBottom:"5%"
                         }}>UploadPage
                     </Text>
+                    <Text
+                        onPress={()=>navigate('ReactionRecording')}
+
+                        style={{
+                            alignSelf:"center",
+                            color:"#9960D2",
+                            paddingBottom:"5%"
+                        }}>Record
+                    </Text>
                 </View>
             </View>
         )
