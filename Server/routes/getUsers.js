@@ -1,9 +1,12 @@
 import express from 'express'
 import User from '../dbSchemas/user.js';
+import {auth} from '../firebaseUtils.js'
 
 const router = express.Router();
 
 router.get('/:id', async (req, res) => {
+  const currentUser = auth.currentUser;
+  console.log(currentUser);
     try {
         const user = await User.findById(req.params.id);
         if (!user) {

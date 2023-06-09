@@ -1,4 +1,5 @@
 import React from 'react';
+import { LinearGradient } from 'expo-linear-gradient';
 import { View, Modal, Text, Image, StyleSheet, FlatList, TouchableOpacity, Dimensions} from 'react-native';
 import axios from 'axios';
 
@@ -18,7 +19,7 @@ export default class ProfileScreen extends React.Component {
 
       componentDidMount() {
         const userId = '644d2ec5ccb302c74d5d91b2';
-        axios.get(`http://localhost:4000/user/${userId}`)
+        axios.get(`http://192.168.1.29:4000/profileuser/${userId}`)
           .then(response => {
             this.setState({ user: response.data });
           })
@@ -26,7 +27,7 @@ export default class ProfileScreen extends React.Component {
             console.log(error);
           });
           
-        axios.get('http://localhost:4000/uploads')
+        axios.get('http://192.168.1.29:4000/uploads')
           .then(response => {
             this.setState({ songs: response.data });
           })
@@ -38,10 +39,13 @@ export default class ProfileScreen extends React.Component {
       renderItem = ({ item, index }) => {
         const column = index % 3;
         const itemWidth = Dimensions.get('window').width / 3 - 12;
+        if(item.LinkToPreviewImage == ""){
+          item.LinkToPreviewImage = "https://firebasestorage.googleapis.com/v0/b/filme-4277e.appspot.com/o/preview%2Fuser3.png?alt=media";
+        }
       
         return (
           <TouchableOpacity
-            style={[styles.itemContainer, column === 0 && styles.itemContainerFirstColumn, item.id === this.state.selectedImageId && styles.selectedItemContainer]}
+            style={[styles.itemContainer, column === 0 && styles.itemContainerFirstColumn, item.id === this.state.selectedImageId]}
             onPress={() => {
               this.setState({ selectedImageId: item.id }); 
               this.props.navigation.navigate('GraphPage');
@@ -84,13 +88,16 @@ export default class ProfileScreen extends React.Component {
   render() {
     const { showList, user } = this.state;
     return (
-      <View style={styles.body}>
+        <LinearGradient
+         colors={['#29024f', '#000000', '#29024f']}
+         style={styles.body}
+        >
         {/* Header section */}
         <View style={styles.header}>
-            <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
-                <Image source={require('../images/previous.png')} 
-                       style={{ width: 20, height: 20, color: 'white' }} />
-            </TouchableOpacity>  
+          <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
+              <Image source={require('../images/previous.png')} 
+                      style={{ width: 20, height: 20, color: 'white' }} />
+          </TouchableOpacity>  
           <TouchableOpacity onPress={() => this.props.navigation.navigate('ExplorePage')}>
             <Text style={ styles.headerText }>{"  Explore Page "}
               <Image source={require('../images/up.png')} style={{ width: 16, height: 16 }} />
@@ -119,7 +126,7 @@ export default class ProfileScreen extends React.Component {
             <Text style={styles.infoStatic}>{user && user.NumberOfFollowers}</Text>
             <Text style={ styles.infoName }>Followers</Text>
           </View>
-          <View style={{ alignItems: 'center' }}>
+          <View style={[{ alignItems: 'center' },{marginRight: 8}]}>
             <Text style={styles.infoStatic}>{user && user.NumberOfReactions}</Text>
             <Text style={ styles.infoName }>Reactions</Text>
           </View>
@@ -137,7 +144,7 @@ export default class ProfileScreen extends React.Component {
             <Image source={require('../images/down.png')} style={{ width: 30, height: 30 }} />
           </TouchableOpacity>
         </View>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-evenly' }}>
+        <View style={{ flexDirection: 'row-reverse', justifyContent: 'space-evenly' }}>
           <TouchableOpacity onPress={() => this.setState({showList : true})}>
             <Image source={require('../images/grid.png')} style={{ width: 30, height: 30 }} />
           </TouchableOpacity>
@@ -161,21 +168,21 @@ export default class ProfileScreen extends React.Component {
             <Text style={{color: 'white'}}>Notifications</Text>
           </View>
         )}
-    </View>
+        </LinearGradient>
 );
     }
 }
 
 const styles = StyleSheet.create({
     header:{
-        flexDirection: 'row',
+        flexDirection: 'row-reverse',
         alignItems: 'center', 
         justifyContent: 'space-between', 
-        padding: 16
+        paddingTop: 25,
+        paddingHorizontal: 10
     },
     body:{
         flex: 1,
-        backgroundImage: 'linear-gradient(to right, #29024f, #000000, #29024f)',
     },
     container: {
       flex: 1,
@@ -188,10 +195,6 @@ const styles = StyleSheet.create({
       overflow: 'hidden',
       alignItems: 'center'
     },
-    selectedItemContainer: {
-      borderWidth: 2,
-      borderColor: '#2196f3',
-    },
     itemImage: {
       flex: 1,
       width: 210,
@@ -200,12 +203,12 @@ const styles = StyleSheet.create({
     },
     infoName:{
         fontSize: 16,
-        color: 'gray'
+        color: 'gray',
     },
     infoStatic:{
         fontWeight: 'bold',
         fontSize: 14,
-        color: 'white'
+        color: 'white',
     },
     profileName:{
         fontWeight: 'bold',
@@ -224,11 +227,11 @@ const styles = StyleSheet.create({
         borderRadius: 20
     },
     centerStyle:{
-        flexDirection: 'row', 
+        flexDirection: 'row-reverse', 
         justifyContent: 'center', 
         alignItems: 'center'
     },
     iconBtn:{
-        borderColor: '#686060', borderWidth: 1, borderRadius: 3
+        borderColor: '#686060', borderWidth: 1, borderRadius: 3, marginLeft: 8
     },
   });
