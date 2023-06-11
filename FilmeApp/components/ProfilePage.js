@@ -18,8 +18,7 @@ export default class ProfileScreen extends React.Component {
       }
 
       componentDidMount() {
-        const userId = '644d2ec5ccb302c74d5d91b2';
-        axios.get(`http://192.168.1.29:4000/profileuser/${userId}`)
+        axios.get(`http://10.0.0.5:4000/profileuser`)
           .then(response => {
             this.setState({ user: response.data });
           })
@@ -27,7 +26,7 @@ export default class ProfileScreen extends React.Component {
             console.log(error);
           });
           
-        axios.get('http://192.168.1.29:4000/uploads')
+        axios.get('http://10.0.0.5:4000/uploads')
           .then(response => {
             this.setState({ songs: response.data });
           })
