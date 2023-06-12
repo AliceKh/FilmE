@@ -97,7 +97,7 @@ export default class ProfileScreen extends React.Component {
               <Image source={require('../images/previous.png')} 
                       style={{ width: 20, height: 20, color: 'white' }} />
           </TouchableOpacity>  
-          <TouchableOpacity onPress={() => this.props.navigation.navigate('ExplorePage')}>
+          <TouchableOpacity onPress={() => this.props.navigation.navigate('ExplorePage', { previousRouteName: 'ProfilePage' })}>
             <Text style={ styles.headerText }>{"  Explore Page "}
               <Image source={require('../images/up.png')} style={{ width: 16, height: 16 }} />
             </Text>
@@ -133,14 +133,16 @@ export default class ProfileScreen extends React.Component {
 
         {/* Buttons section */}
         <View style={[styles.centerStyle, {marginVertical: 16, marginBottom: 20 }]}>
-          <TouchableOpacity style={[styles.followBtn,{marginRight: 8}]}>
+          <TouchableOpacity style={styles.followBtn}>
             <Text style={ styles.headerText }>Follow</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.iconBtn,{marginRight: 8}]}>
-            <Image source={require('../images/spotify.png')} style={{ width: 30, height: 30 }} />
+          <TouchableOpacity onPress={() => this.props.navigation.navigate('UploadPage',
+                                                     { previousRouteName: 'ProfilePage' })}
+                            style={[styles.iconBtn,{ marginHorizontal: 25}]}>
+            <Image source={require('../images/plus.png')} style={{ width: 30, height: 30 }} />
           </TouchableOpacity>
           <TouchableOpacity style={styles.iconBtn}>
-            <Image source={require('../images/down.png')} style={{ width: 30, height: 30 }} />
+            <Image source={require('../images/spotify.png')} style={{ width: 30, height: 30 }} />
           </TouchableOpacity>
         </View>
         <View style={{ flexDirection: 'row-reverse', justifyContent: 'space-evenly' }}>
@@ -231,6 +233,6 @@ const styles = StyleSheet.create({
         alignItems: 'center'
     },
     iconBtn:{
-        borderColor: '#686060', borderWidth: 1, borderRadius: 3, marginLeft: 8
+        borderColor: '#686060', borderWidth: 1, borderRadius: 3
     },
   });
