@@ -3,8 +3,11 @@ import {insertUpload} from "../dbUtils.js";
 import {uploadVideoMulter} from "../controllers/firebaseStorageUpload/uploadVideo.js";
 import {uploadAudioMulter} from "../controllers/firebaseStorageUpload/uploadAudio.js";
 import {uploadPreviewMulter} from "../controllers/firebaseStorageUpload/uploadPreview.js";
+import {firebaseInstance} from "../firebaseUtils.js";
+
 
 const router = express.Router();
+
 
 router.post('/', function(req, res) {
     let upload = req.body;
@@ -24,6 +27,7 @@ router.post('/', function(req, res) {
 
 router.route('/video')
     .post(uploadVideoMulter.single('file'), (req, res) => {
+        console.log("vlad", res.file)
         res.status(201).json(req.file)
     });
 router.route('/audio')

@@ -12,7 +12,7 @@ import NativeUploady, {
 import axios from "axios";
 
 export default function UploadPage() {
-    const server = 'http://localhost:4000/upload/';
+    const server = 'http://172.20.10.2:4000/upload/';
     const [serverUploadDestUrl, setServerUploadDestUrl] = React.useState(server);
 
     const [linkToStorage, setLinkToStorage] = useState('');
@@ -107,7 +107,7 @@ export default function UploadPage() {
 
     const handlePublish = () => {
         console.log("pressed publish");
-        axios.post('http://localhost:4000/upload', {
+        axios.post('http://172.20.10.2:4000/upload', {
             LinkToStorage:linkToStorage,
             LinkToPreviewImage:linkToPreviewImage,
             Title:title,
