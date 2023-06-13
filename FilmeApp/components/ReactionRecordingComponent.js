@@ -1,5 +1,5 @@
 import { Camera, CameraType } from 'expo-camera';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Button, StyleSheet, Text, View } from 'react-native';
 import * as FileSystem from 'expo-file-system';
 import { sendReactions } from '../services/ReactionsService';
@@ -8,6 +8,8 @@ export default function ReactionRecording(props) {
     
     const [permission, requestPermission] = Camera.useCameraPermissions();
     const [camera, setCamera] = useState();
+    const [reactionsArray, setReactionsArray] = useState([]);
+    const intervalId = useRef();
 
     if (!permission) {
     // Camera permissions are still loading
@@ -23,24 +25,38 @@ export default function ReactionRecording(props) {
             </View>
         );
     }
-
-    if(camera) {
-      var interval;
-
+    
+    if(camera) { 
+      var intervalValue;  
+      const reactions = [];   
       if(props.isPlaying) {
-        var reactions = [];
-        interval = setInterval(() => {
-          camera.takePictureAsync()
-            .then((res) => {
-                FileSystem.readAsStringAsync(res.uri, {encoding: 'base64'})
-                  .then((encoded) => reactions.push(encoded));
-            })
-            .catch(err => console.log(err))}, 
-        3000);
+        if(intervalId.current == null) {
+          setReactionsArray([]);
+          intervalValue = setInterval(() => {
+            let result = camera.takePictureAsync()
+              .then((res) => {
+                  let encodedPicture = FileSystem.readAsStringAsync(res.uri, {encoding: 'base64'})
+                    .then((encoded) => {
+                      return encoded;
+                    });
+
+                    return encodedPicture;
+              })
+              .catch(err => console.log(err));
+
+              reactions.push(result);
+              setReactionsArray(reactions);
+              console.log(reactions.length);
+            }, 
+          3000);
+
+          intervalId.current = intervalValue;
+        }
       }
-      else if(interval) {
-        clearInterval(interval);
-        sendReactions(reactions);
+      else {
+        clearInterval(intervalId.current);
+        intervalId.current = null;
+        sendReactions(reactionsArray);
       }
     }
   

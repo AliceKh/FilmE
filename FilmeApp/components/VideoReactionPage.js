@@ -1,6 +1,8 @@
 import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, Dimensions, Image } from 'react-native';
 import { Video } from 'expo-av';
+import * as FileSystem from 'expo-file-system';
+import * as MediaLibrary from 'expo-media-library';
 
 const { height } = Dimensions.get('window');
 const width = height * 0.5625; // 16:9 aspect ratio
@@ -14,10 +16,39 @@ class VideoReactionPage extends React.Component {
     this.videoRef = React.createRef();
     this.state = {
       videoUrl: '',
-      isPlaying: true
+      isPlaying: false,
+      videoFile: ""
     };
+
+    const { navigation } = this.props;
+    const video = navigation.state.params.selectedItem
+
+    this.downloadFile(video);
   }
 
+  downloadFile = async (video) => {
+    const { status } = await MediaLibrary.requestPermissionsAsync();
+
+    if(status != 'granted') {
+        console.log("Permissions error");
+        return;
+    }
+
+    try {
+      fileUrl = FileSystem.cacheDirectory + video.Title + '.mp4';
+      console.log("statrting download " + fileUrl);
+
+      const downloadResumable = FileSystem.createDownloadResumable(video.LinkToStorage, fileUrl, {}, false);
+      const { uri } = await downloadResumable.downloadAsync(null, {shouldCache: false});
+
+      console.log("completed: " + uri);
+      this.setState({videoFile: uri});
+      this.handlePlayPause();
+    }
+    catch (err) {
+        console.log(err);
+    }
+  }
 
   handlePlayPause = () => {
     const { isPlaying } = this.state;
@@ -50,13 +81,13 @@ class VideoReactionPage extends React.Component {
         </View>
         <Video
           ref={this.videoRef}
-          source={{uri: item.LinkToStorage}}
+          source={{uri: this.state.videoFile}}
           style={styles.backgroundVideo}
           resizeMode="contain"
-          shouldPlay={isPlaying}
+          shouldPlay={this.state.isPlaying}
           isLooping={true}
           onReadyForDisplay={videoData => {
-            videoData.srcElement.style.position = "initial"
+            //videoData.srcElement.style.position = "initial"
           }}
         />
         <View style={styles.overlay}>

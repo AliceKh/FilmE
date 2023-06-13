@@ -15,7 +15,7 @@ class AudioReactionPage extends React.Component {
 
         this.videoRef = React.createRef();
         this.state = {
-            isPlaying: true,
+            isPlaying: false,
             sound: undefined,
             audioFile: ""
         };
@@ -43,9 +43,6 @@ class AudioReactionPage extends React.Component {
 
         console.log("completed: " + uri);
         this.setState({audioFile: uri});
-
-        const asset  = await MediaLibrary.createAssetAsync(uri);
-        console.log("Created: " + asset);
         this.playSound(audio);
         }
         catch (err) {
@@ -63,7 +60,8 @@ class AudioReactionPage extends React.Component {
         this.setState({sound: sound});
 
         console.log('Playing Sound');
-        await sound.playAsync();        
+        await sound.playAsync();
+        this.handlePlayPause();
     }
 
     handlePlayPause = () => {
@@ -101,7 +99,7 @@ class AudioReactionPage extends React.Component {
             source={require('../assets/audioBackground.mp4')}
             style={styles.backgroundVideo}
             resizeMode={ResizeMode.CONTAIN}
-            shouldPlay={isPlaying}
+            shouldPlay={this.state.isPlaying}
             isLooping={true}
             onReadyForDisplay={videoData => {
                 //videoData.srcElement.style.position = "initial"
