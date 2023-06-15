@@ -1,7 +1,10 @@
 import React, {useContext, useState} from 'react';
-import {Image, StyleSheet, Text, TextInput, View} from 'react-native';
+import {Image, StyleSheet, Text, TextInput, View, TouchableOpacity} from 'react-native';
 import {Button, FAB, ProgressBar, SegmentedButtons} from "react-native-paper";
 import * as DocumentPicker from 'expo-document-picker';
+import { LinearGradient } from 'expo-linear-gradient';
+//import { useNavigation } from '@react-navigation/native';
+
 import NativeUploady, {
     UploadyContext,
     useItemErrorListener,
@@ -12,7 +15,7 @@ import NativeUploady, {
 import axios from "axios";
 
 export default function UploadPage() {
-    const server = 'http://localhost:4000/upload/';
+    const server = 'http://10.0.0.5:4000/upload/';
     const [serverUploadDestUrl, setServerUploadDestUrl] = React.useState(server);
 
     const [linkToStorage, setLinkToStorage] = useState('');
@@ -26,6 +29,8 @@ export default function UploadPage() {
 
     const [chosenFile, setChosenFile] = useState('');
     const [chosenPreviewFile, setChosenPreviewFile] = useState('');
+
+    const navigation = useNavigation();
 
     const FileUpload = () => {
         const uploadyContext = useContext(UploadyContext);
@@ -120,7 +125,17 @@ export default function UploadPage() {
     }
 
     return (
-        <View style={styles.page}>
+        <LinearGradient
+         colors={['#29024f', '#000000', '#29024f']}
+         style={styles.page}
+        >
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => navigation.navigate('ExplorePage', { previousRouteName: 'ProfilePage' })}>
+            <Text style={ styles.headerText }>{"  Explore Page "}
+              <Image source={require('../images/up.png')} style={{ width: 20, height: 20, color: 'white' }} />
+            </Text>
+          </TouchableOpacity>
+        </View>
             <View style={styles.titleView}>
                 <Text style={styles.title}>Upload</Text>
             </View>
@@ -212,7 +227,7 @@ export default function UploadPage() {
                 </Button>
             </View>
 
-            <Image
+            {/*<Image
                 style={{
                     alignSelf: "center",
                     margin: "5%",
@@ -221,7 +236,7 @@ export default function UploadPage() {
                 }}
 
                 source={require("../assets/blackLogo.png")}
-            />
+            />*/}
             {/*<Text*/}
             {/*    onPress={() => navigate('Login')}*/}
 
@@ -231,13 +246,24 @@ export default function UploadPage() {
             {/*        paddingBottom: "5%"*/}
             {/*    }}>Login*/}
             {/*</Text>*/}
-        </View>
+        </LinearGradient>
     );
 }
 
 const styles = StyleSheet.create({
     page: {
-        paddingTop: 25
+        paddingTop: 30,
+        flex: 1,
+    },
+    header:{
+        flexDirection: 'row',
+        alignItems: 'center', 
+        justifyContent: 'center', 
+        paddingHorizontal: 10
+    },
+    headerText:{
+        fontSize: 16,
+        color: 'white'
     },
     titleView: {
         display: 'flex',
