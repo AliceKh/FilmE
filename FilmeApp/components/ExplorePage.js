@@ -2,7 +2,9 @@ import React, { Component } from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, Image, FlatList } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import axios from 'axios'
+import { BackHandler } from 'react-native';
 
 export default class ExplorePage extends React.Component {
   constructor(props) {
@@ -11,69 +13,104 @@ export default class ExplorePage extends React.Component {
       searchTerm: '',
       songs: [],
       lastTwoClicked: [],
+      AllSongs: [],
     };
   }
 
   componentDidMount() {
-    axios.get('http://localhost:4000/uploads')
+    axios.get('http://10.0.0.5:4000/exploreuploads')
       .then(response => {
         this.setState({ songs: response.data });
       })
       .catch(error => {
         console.log(error);
       });
+
+    AsyncStorage.getItem('AllSongs')
+    .then((value) => {
+      if (value) {
+        this.setState({ AllSongs: JSON.parse(value) });
+      }
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (prevState.AllSongs !== this.state.AllSongs) {
+      AsyncStorage.setItem('AllSongs', JSON.stringify(this.state.AllSongs))
+        .catch((error) => {
+          console.log(error);
+        });
+    }
   }
 
   handleSearch = () => {
     console.log(`Searching for "${this.state.searchTerm}"`);
   };
 
-  handleSongClick = (item) => {
-    const { lastTwoSongs } = this.state;
-    if (lastTwoSongs.length < 2) {
-      // If there are less than two songs, simply add the new song
-      this.setState({ lastTwoSongs: [ ...lastTwoSongs, item ] });
-    } else {
-      // If there are already two songs, shift out the oldest one and add the new one
-      this.setState({ lastTwoSongs: [ lastTwoSongs[1], item ] });
-    }
-  }
-
   handleRecentlyPlayed = (item) =>{
-    let {lastTwoClicked} = this.state;
-                let foundIndex = lastTwoClicked.findIndex(song => song._id === item._id);
-                if (foundIndex !== -1 && foundIndex < 2) {
-                  // If song is already in the list, swap the position with the last item
-                  if (foundIndex == 0 || foundIndex == 1) {
-                    if(foundIndex == 1){
-                    let temp = lastTwoClicked[foundIndex];
-                    lastTwoClicked[foundIndex] = lastTwoClicked[0];
-                    lastTwoClicked[0] = temp;
-                  }
-                }
-                }
-                else if (foundIndex >= 2) {
-                  lastTwoClicked.push(lastTwoClicked.shift());
-                }
-                else {
-                  // If song is not in the list, add it to the end
-                  lastTwoClicked.push(item);
-                  if (lastTwoClicked.length > 2) {
-                    lastTwoClicked.push(lastTwoClicked.shift());
-                  }
-                } 
-                // Update state with the new recently played songs list
-                this.setState({lastTwoClicked});
-  }
+    const { AllSongs } = this.state;
+    let song = "";
+    const foundIndex = AllSongs.findIndex(song => song._id === item._id);
+          if (foundIndex !== -1) {
+            if(foundIndex !== 0){
+              song = AllSongs.splice(foundIndex,1)[0];
+              AllSongs.unshift(song);
+            }
+
+          }
+          else {
+            // If song is not in the list, add it to the end
+            AllSongs.unshift(item);
+          } 
+          // Update state with the new recently played songs list
+          this.setState({ AllSongs: [...AllSongs] });
+    }
+
+    generateAvatar = (name) => {
+      const initials = name.substr(0, 2).toUpperCase();
+      const avatarSize = 200;
+      const circleRadius = avatarSize / 2;
+  
+      return (
+        <Svg width={avatarSize} height={avatarSize}>
+          <Circle
+            cx={circleRadius}
+            cy={circleRadius}
+            r={circleRadius}
+            fill="gray"
+          />
+          <Text
+            x={circleRadius}
+            y={circleRadius + 8}
+            textAnchor="middle"
+            fontSize="72"
+            fontWeight="bold"
+            fill="white"
+          >
+            {initials}
+          </Text>
+        </Svg>
+      );
+    };
 
   render() {
     return (
-      <View style={styles.container}>
+      <LinearGradient
+         colors={['#29024f', '#000000', '#29024f']}
+         style={styles.container}
+        >
         <View style={styles.header}>
-        <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
-                <Image source={require('../images/previous.png')} 
-                       style={{ width: 20, height: 20, color: 'white' }} />
-            </TouchableOpacity> 
+        <TouchableOpacity onPress={() => BackHandler.exitApp()}>
+        <Image source={require('../images/previous.png')} style={{ width: 20, height: 20, color: 'white' }}/>
+      </TouchableOpacity>
+        <TouchableOpacity onPress={() => this.props.navigation.navigate('ProfilePage', { previousRouteName: 'ExplorePage' })}>
+            <Text style={ styles.headerText }>{"  Profile Page "}
+              <Image source={require('../images/up.png')} style={{ width: 16, height: 16 }} />
+            </Text>
+          </TouchableOpacity>   
             <TouchableOpacity onPress={this.toggleMenu}>
             <Image source={require('../images/menu.png')} style={{ width: 30, height: 30 }} />
           </TouchableOpacity>
@@ -90,11 +127,13 @@ export default class ExplorePage extends React.Component {
         </View>
         <View style={styles.header}>
           <Text style={styles.recentlyPlayed}>Recently Played</Text>
-          <Text style={styles.seeAll}>See All</Text>
+          <Text style={styles.seeAll} onPress={() => this.props.navigation.navigate('SeeAllPage',
+                                                     { selectedItem: this.state.AllSongs,
+                                                       type: "recently" })}>See All</Text>
         </View>
         <View style={styles.recentlyPlayedContainer}>
           <FlatList
-            data={this.state.lastTwoClicked.slice(0,2)}
+            data={this.state.AllSongs.slice(0,2)}
             renderItem={({item}) => (
               <TouchableOpacity style={styles.recentlyPlayedItem} onPress={() => this.props.navigation.navigate('VideoReactionPage', { selectedItem: item })}>
                 <Image style={styles.recentlyPlayedImage} source={{uri : item.LinkToPreviewImage}} />
@@ -112,10 +151,12 @@ export default class ExplorePage extends React.Component {
         </View>
         <View style={styles.header}>
           <Text style={styles.heading}>Recommendation</Text>
-          <Text style={styles.seeAll}>See All</Text>
+          <Text style={styles.seeAll} onPress={() => this.props.navigation.navigate('SeeAllPage',
+                                                     { selectedItem: this.state.songs,
+                                                       type: "all" })}>See All</Text>
         </View>
         <FlatList
-          data={this.state.songs.slice(0,4)}
+          data={this.state.songs.slice(0,7)}
           renderItem={({item}) =>(
             <View style={styles.songItem}>
               <Image style={styles.songImage} source={{uri : item.LinkToPreviewImage}} />
@@ -135,7 +176,7 @@ export default class ExplorePage extends React.Component {
           )}
           keyExtractor={item => item._id}
         />
-      </View>
+      </LinearGradient>
     );
   }
 }
@@ -143,12 +184,11 @@ export default class ExplorePage extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundImage: 'linear-gradient(to right, #29024f, #000000, #29024f)',
     paddingHorizontal: 20,
     paddingTop: 40,
   },
   searchBar: {
-    flexDirection: 'row',
+    flexDirection: 'row-reverse',
     alignItems: 'center',
     backgroundColor: '#584177',
     borderRadius: 5,
@@ -164,10 +204,14 @@ const styles = StyleSheet.create({
     color: 'white'
   },
   header: {
-    flexDirection: 'row',
+    flexDirection: 'row-reverse',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 10,
+  },
+  headerText:{
+    fontSize: 16,
+    color: 'white'
   },
   heading: {
     fontSize: 24,
@@ -184,7 +228,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   recentlyPlayedContainer: {
-    flexDirection: 'row',
+    flexDirection: 'row-reverse',
     justifyContent: 'space-between',
     marginBottom: 20,
   },
@@ -209,7 +253,7 @@ const styles = StyleSheet.create({
     color: 'gray'
   },
   songItem: {
-    flexDirection: 'row',
+    flexDirection: 'row-reverse',
     alignItems: 'center',
     paddingVertical: 10,
     borderBottomWidth: 1,

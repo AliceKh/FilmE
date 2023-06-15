@@ -10,7 +10,9 @@ export default function Login (props) {
 
     function submitLogin(){
         login(email, password)
-            .then(() => {navigate('ExplorePage')})
+            .then(() => {
+            navigate('ExplorePage', { previousRouteName: 'LoginPage' });
+            })
             .catch((error) => {
                 console.log(error); 
                 //alert("Login Failed");

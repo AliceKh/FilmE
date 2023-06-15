@@ -3,7 +3,7 @@ import dotenv from 'dotenv'
 import { response } from "express";
 import mongoose from "mongoose";
 import User from './dbSchemas/user.js';
-import { createCanvas, loadImage } from "canvas";
+import { createCanvas } from "canvas";
 //var ObjectId = require("mongoose").Types.ObjectId;
 //import * as dbSchemas from './dbSchemas/dbSchemas';
 

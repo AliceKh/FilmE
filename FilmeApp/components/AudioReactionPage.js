@@ -159,7 +159,7 @@ class AudioReactionPage extends React.Component {
         left: 16,
         right: 16,
         height: 50,
-        flexDirection: 'row',
+        flexDirection: 'row-reverse',
         justifyContent: 'space-between',
         alignItems: 'center',
         zIndex: 1,
@@ -193,7 +193,7 @@ class AudioReactionPage extends React.Component {
         fontSize: 16,
     },
     controls: {
-        flexDirection: 'row',
+        flexDirection: 'row-reverse',
         justifyContent: 'space-between',
         marginTop: 10,
     },
