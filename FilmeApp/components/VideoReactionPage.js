@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Dimensions, Image } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, Dimensions, Image, Modal } from 'react-native';
 import { Video } from 'expo-av';
 
 const { height } = Dimensions.get('window');
@@ -14,7 +14,8 @@ class VideoReactionPage extends React.Component {
     this.videoRef = React.createRef();
     this.state = {
       videoUrl: '',
-      isPlaying: true
+      isPlaying: true,
+      isDialogVisible: false,
     };
   }
 
@@ -32,8 +33,13 @@ class VideoReactionPage extends React.Component {
     this.setState({ isPlaying: !isPlaying });
   };
 
+  toggleDialog = () => {
+    const { isDialogVisible } = this.state;
+    this.setState({ isDialogVisible: !isDialogVisible });
+  };
+
   render() {
-    const { videoUrl, isPlaying } = this.state;
+    const { isDialogVisible, isPlaying } = this.state;
     const { navigation } = this.props;
     const item = navigation.state.params.selectedItem
 
@@ -44,7 +50,7 @@ class VideoReactionPage extends React.Component {
                 <Image source={require('../images/previous.png')} 
                        style={{ width: 20, height: 20, color: 'white' }} />
             </TouchableOpacity> 
-            <TouchableOpacity onPress={this.toggleMenu}>
+            <TouchableOpacity onPress={this.toggleDialog}>
             <Image source={require('../images/menu.png')} style={{ width: 30, height: 30 }} />
           </TouchableOpacity>
         </View>
@@ -84,6 +90,18 @@ class VideoReactionPage extends React.Component {
           </TouchableOpacity>
         </View>
         </View>
+        <Modal visible={isDialogVisible} animationType="slide" transparent={true}>
+          <View style={styles.dialogContainer}>
+            <View style={styles.dialogContent}>
+              <Image source={require('../images/inFrame.png')} style={styles.dialogImage} />
+              <Text style={styles.dialogText}>You're Not in Frame</Text>
+              <Text style={{color: '#cccccc'}}>Please adjust your position so that your face is centered within the square on the screen for optimal facial recognition.</Text>
+              <TouchableOpacity onPress={this.toggleDialog} style={styles.dialogButton}>
+                <Text>Fixed it</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
       </View>
     );
   }
@@ -144,6 +162,55 @@ const styles = StyleSheet.create({
     width: 30,
     height: 30,
     marginHorizontal: 5,
+  },
+  dialogContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.5)',
+    marginVertical: height / 6,
+    marginHorizontal: width / 15,
+    borderRadius: 20,
+    borderWidth:1
+  },
+  dialogContent: {
+    flex: 1,
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    width: '100%',
+  },  
+  dialogImageContainer: {
+    flex: 4,
+    justifyContent: 'center',
+    alignItems: 'center',
+    aspectRatio: 1,
+  },
+  dialogTextContainer: {
+    flex: 4,
+    justifyContent: 'center',
+    alignItems: 'center',
+    aspectRatio: 1,
+  },
+  dialogButtonContainer: {
+    flex: 2,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  dialogImage: {
+    width: '100%',
+    height: '40%',
+    resizeMode: 'cover',
+    borderRadius: 20
+  },
+  dialogText: {
+    fontSize: 16,
+    textAlign: 'left',
+    color: '#807e7e',
+    height: '20%'
+  },
+  dialogButton: {
+    marginTop: 10,
+    paddingHorizontal: 20,
   },
 });
 
