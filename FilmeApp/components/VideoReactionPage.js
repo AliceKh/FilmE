@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Dimensions, Image } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, Dimensions, Image, ActivityIndicator } from 'react-native';
 import { Video } from 'expo-av';
 import * as FileSystem from 'expo-file-system';
 import * as MediaLibrary from 'expo-media-library';
@@ -17,6 +17,7 @@ class VideoReactionPage extends React.Component {
     this.state = {
       videoUrl: '',
       isPlaying: false,
+      isLoading: true,
       videoFile: ""
     };
 
@@ -43,6 +44,7 @@ class VideoReactionPage extends React.Component {
 
       console.log("completed: " + uri);
       this.setState({videoFile: uri});
+      this.setState({isLoading: false});
       this.handlePlayPause();
     }
     catch (err) {
@@ -79,7 +81,12 @@ class VideoReactionPage extends React.Component {
             <Image source={require('../images/menu.png')} style={{ width: 30, height: 30 }} />
           </TouchableOpacity>
         </View>
-        <Video
+        {this.state.isLoading ?
+          <View style={{paddingTop: height/2}}>
+              <ActivityIndicator size="large" color="#9960D2" /> 
+          </View>
+          :
+          <Video
           ref={this.videoRef}
           source={{uri: this.state.videoFile}}
           style={styles.backgroundVideo}
@@ -89,7 +96,8 @@ class VideoReactionPage extends React.Component {
           onReadyForDisplay={videoData => {
             //videoData.srcElement.style.position = "initial"
           }}
-        />
+        />     
+        }   
         <View style={styles.overlay}>
           <Text style={styles.title}>{item.Title}</Text>
           <Text style={styles.artist}>{item.Uploader.Username}</Text>

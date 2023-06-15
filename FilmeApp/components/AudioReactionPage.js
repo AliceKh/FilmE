@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Dimensions, Image, Asset } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, Dimensions, Image, ActivityIndicator } from 'react-native';
 import { Video, Audio, ResizeMode } from 'expo-av';
 import * as FileSystem from 'expo-file-system';
 import * as MediaLibrary from 'expo-media-library';
@@ -16,12 +16,14 @@ class AudioReactionPage extends React.Component {
         this.videoRef = React.createRef();
         this.state = {
             isPlaying: false,
+            isLoading: true,
             sound: undefined,
             audioFile: ""
         };
 
         const { navigation } = this.props;
-        const audio = navigation.state.params.selectedItem
+        const audio = navigation.state.params.selectedItem;
+        console.log(JSON.stringify(audio));
 
         this.downloadFile(audio);
     }
@@ -61,6 +63,7 @@ class AudioReactionPage extends React.Component {
 
         console.log('Playing Sound');
         await sound.playAsync();
+        this.setState({isLoading: false});
         this.handlePlayPause();
     }
 
@@ -94,18 +97,24 @@ class AudioReactionPage extends React.Component {
                 <Image source={require('../images/menu.png')} style={{ width: 30, height: 30 }} />
             </TouchableOpacity>
             </View>
-            <Video
-            ref={this.videoRef}
-            source={require('../assets/audioBackground.mp4')}
-            style={styles.backgroundVideo}
-            resizeMode={ResizeMode.CONTAIN}
-            shouldPlay={this.state.isPlaying}
-            isLooping={true}
-            onReadyForDisplay={videoData => {
-                //videoData.srcElement.style.position = "initial"
-                //console.log(videoData)
-            }}
-            />
+            {this.state.isLoading ?
+                <View style={{paddingTop: height/2}}>
+                    <ActivityIndicator size="large" color="#9960D2" /> 
+                </View>
+                :
+                <Video
+                ref={this.videoRef}
+                source={require('../assets/audioBackground.mp4')}
+                style={styles.backgroundVideo}
+                resizeMode={ResizeMode.CONTAIN}
+                shouldPlay={this.state.isPlaying}
+                isLooping={true}
+                onReadyForDisplay={videoData => {
+                    //videoData.srcElement.style.position = "initial"
+                    //console.log(videoData)
+                }}
+                />     
+            }       
             <View style={styles.overlay}>
             <Text style={styles.title}>{item.Title}</Text>
             <Text style={styles.artist}>{item.Uploader.Username}</Text>
@@ -131,7 +140,7 @@ class AudioReactionPage extends React.Component {
             </TouchableOpacity>
             </View>
             </View>
-            <ReactionRecording isPlaying={this.state.isPlaying}></ReactionRecording>
+            <ReactionRecording isPlaying={this.state.isPlaying} uploaderId={item.Uploader._id} mediaId={item._id}></ReactionRecording>
         </View>
         );
     }
@@ -142,7 +151,7 @@ class AudioReactionPage extends React.Component {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundImage: 'linear-gradient(to right, #29024f, #000000, #29024f)',
+        // backgroundImage: 'linear-gradient(to right, #29024f, #000000, #29024f)',
     },
     header: {
         position: 'absolute',

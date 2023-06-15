@@ -1,5 +1,5 @@
 import { Camera, CameraType } from 'expo-camera';
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { Button, StyleSheet, Text, View } from 'react-native';
 import * as FileSystem from 'expo-file-system';
 import { sendReactions } from '../services/ReactionsService';
@@ -9,6 +9,7 @@ export default function ReactionRecording(props) {
     const [permission, requestPermission] = Camera.useCameraPermissions();
     const [camera, setCamera] = useState();
     const [reactionsArray, setReactionsArray] = useState([]);
+    const [initTime, setInitTime] = useState(Date.now());
     const intervalId = useRef();
 
     if (!permission) {
@@ -32,23 +33,18 @@ export default function ReactionRecording(props) {
       if(props.isPlaying) {
         if(intervalId.current == null) {
           setReactionsArray([]);
-          intervalValue = setInterval(() => {
-            let result = camera.takePictureAsync()
-              .then((res) => {
-                  let encodedPicture = FileSystem.readAsStringAsync(res.uri, {encoding: 'base64'})
-                    .then((encoded) => {
-                      return encoded;
-                    });
+          intervalValue = setInterval(async () => {
+            let time = Date.now();
+            let result = await camera.takePictureAsync();
 
-                    return encodedPicture;
-              })
-              .catch(err => console.log(err));
+              //let encodedPicture = await FileSystem.readAsStringAsync(result.uri, {encoding: 'base64'})
+              // reactions.push(encodedPicture);
+              // setReactionsArray(reactions);
 
-              reactions.push(result);
-              setReactionsArray(reactions);
-              console.log(reactions.length);
-            }, 
-          3000);
+            let pictureTime = (time - initTime)/1000;
+            sendReactions(result.uri, pictureTime, props.mediaId);
+          }, 
+          7000);
 
           intervalId.current = intervalValue;
         }
@@ -56,7 +52,6 @@ export default function ReactionRecording(props) {
       else {
         clearInterval(intervalId.current);
         intervalId.current = null;
-        sendReactions(reactionsArray);
       }
     }
   
