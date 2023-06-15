@@ -9,27 +9,35 @@ import NativeUploady, {
     useItemProgressListener,
     useItemStartListener
 } from "@rpldy/native-uploady";
+import axios from "axios";
 
 export default function UploadPage() {
-    const server = 'http://192.168.1.96:4000/upload/';
-    const [publish, setPublish] = React.useState('');
+    const server = 'http://localhost:4000/upload/';
     const [serverUploadDestUrl, setServerUploadDestUrl] = React.useState(server);
-    const [uploadType, setUploadType] = React.useState('');
-    const [uploadFile, setUploadFile] = useState('');
-    const [previewFile, setPreviewFile] = useState('');
+
+    const [linkToStorage, setLinkToStorage] = useState('');
+    const [linkToPreviewImage, setLinkToPreviewImage] = useState('');
+    const [title, setTitle] = useState('');
+    const [uploader, setUploader] = useState('64306b71dd045edb9b98d52d');
+    const [dateWhenUploaded, setDateWhenUploaded] = useState('');
+    const [type, setType] = useState('');
+    const [tags, setTags] = useState('');
+    const [timeStamps, setTimeStamps] = useState('');
+
+    const [chosenFile, setChosenFile] = useState('');
+    const [chosenPreviewFile, setChosenPreviewFile] = useState('');
 
     const FileUpload = () => {
-        const [uploadUrl, setUploadUrl] = useState(false);
         const uploadyContext = useContext(UploadyContext);
         useItemFinishListener((item) => {
             const response = item.uploadResponse.data;
             console.log(`item ${item.id} finished uploading, response was: `, response);
             console.log(item.uploadResponse.data.fileRef.metadata.selfLink);
-            setUploadUrl(item.uploadResponse.data.fileRef.metadata.selfLink);
+            setLinkToStorage(item.uploadResponse.data.fileRef.metadata.selfLink);
         });
         useItemErrorListener((item) => {
             console.log(`item ${item.id} upload error !!!! `, item);
-            setUploadFile('');
+            setChosenFile('');
         });
         useItemStartListener((item) => {
             console.log(`item ${item.id} starting to upload, name = ${item.file.name} ${item.file.type}`);
@@ -37,7 +45,6 @@ export default function UploadPage() {
         let progress = useItemProgressListener((item) => {
 
         });
-
 
         function handleDocumentSelection(setFunc, type) {
             return async () => {
@@ -71,9 +78,9 @@ export default function UploadPage() {
                     icon="upload"
                     size={"large"}
                     loading={false}
-                    disabled={!uploadType || !!uploadFile}
+                    disabled={!type || !!chosenFile}
                     style={styles.uploadFAB}
-                    onPress={handleDocumentSelection(setUploadFile, uploadType)}
+                    onPress={handleDocumentSelection(setChosenFile, type)}
                 />
                 {progress &&
                     <View>
@@ -98,6 +105,20 @@ export default function UploadPage() {
 
     }
 
+    const handlePublish = () => {
+        console.log("pressed publish");
+        axios.post('http://localhost:4000/upload', {
+            LinkToStorage:linkToStorage,
+            LinkToPreviewImage:linkToPreviewImage,
+            Title:title,
+            Uploader:uploader,
+            Type:type,
+            Tags:tags,
+            TimeStamps:timeStamps
+        })
+            .then(r => console.log("uploaded!!"))
+    }
+
     return (
         <View style={styles.page}>
             <View style={styles.titleView}>
@@ -105,19 +126,19 @@ export default function UploadPage() {
             </View>
             <View style={styles.typeView}>
                 <SegmentedButtons
-                    value={uploadType}
-                    onValueChange={setUploadType}
+                    value={type}
+                    onValueChange={setType}
                     buttons={[
                         {
                             value: 'audio',
                             label: 'Audio',
                             icon: 'headphones',
-                            disabled: !!uploadFile
+                            disabled: !!chosenFile
                         }, {
                             value: 'video',
                             label: 'Video',
                             icon: 'video',
-                            disabled: !!uploadFile
+                            disabled: !!chosenFile
                         },
                     ]}
                 />
@@ -144,7 +165,7 @@ export default function UploadPage() {
                 <Text
                     numberOfLines={1}
                     ellipsizeMode={'middle'}>
-                    {previewFile?.name}
+                    {chosenPreviewFile?.name}
                 </Text>
             </View>
 
@@ -154,14 +175,28 @@ export default function UploadPage() {
                     placeholderTextColor="#909580"
                     textAlign='left'
                     style={{width: "100%"}}
+                    value={title}
+                    onChangeText={value => setTitle(value)}
                 />
             </View>
             <View style={styles.borderInput}>
                 <TextInput
-                    placeholder="Tags"
+                    placeholder="Tags (split by ' ')"
                     placeholderTextColor="#909580"
                     textAlign='left'
                     style={{width: "100%"}}
+                    value={tags}
+                    onChangeText={value => setTags(value)}
+                />
+            </View>
+            <View style={styles.borderInput}>
+                <TextInput
+                    placeholder="TimeStamps (split by ' ')"
+                    placeholderTextColor="#909580"
+                    textAlign='left'
+                    style={{width: "100%"}}
+                    value={timeStamps}
+                    onChangeText={value => setTimeStamps(value)}
                 />
             </View>
             <View style={{
@@ -172,9 +207,9 @@ export default function UploadPage() {
                 marginTop: 50,
                 paddingVertical: 10
             }}>
-                {/*<Button title='Publish'*/}
-                {/*        color="#9960D2"*/}
-                {/*></Button>*/}
+                <Button mode="contained" onPress={handlePublish}>
+                    Publish
+                </Button>
             </View>
 
             <Image
@@ -196,8 +231,6 @@ export default function UploadPage() {
             {/*        paddingBottom: "5%"*/}
             {/*    }}>Login*/}
             {/*</Text>*/}
-
-
         </View>
     );
 }

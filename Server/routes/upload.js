@@ -1,9 +1,26 @@
 import express from 'express'
+import {insertUpload} from "../controllers/db/upload.js";
 import {uploadVideoMulter} from "../controllers/firebaseStorageUpload/uploadVideo.js";
 import {uploadAudioMulter} from "../controllers/firebaseStorageUpload/uploadAudio.js";
 import {uploadPreviewMulter} from "../controllers/firebaseStorageUpload/uploadPreview.js";
 
 const router = express.Router();
+
+router.post('/', function (req, res) {
+    let upload = req.body;
+    console.log(upload);
+    upload['DateWhenUploaded'] = Date.now();
+    upload['NumberOfReactions'] = 0;
+    upload['ListOfReactions'] = [];
+    if (!!upload['Tags']) {
+        upload['Tags'] = upload['Tags'].split(' ');
+    }
+    if (!!upload['TimeStamps']) {
+        upload['TimeStamps'] = upload['TimeStamps'].split(' ')
+    }
+    insertUpload(req.body).then(r => console.log(r));
+    res.send('respond with a resource');
+});
 
 router.route('/video')
     .post(uploadVideoMulter.single('file'), (req, res) => {

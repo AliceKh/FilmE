@@ -8,8 +8,7 @@ export function register(email, password, username) {
         resolve();
       })
       .catch(error => {
-        console.log("error: " + error);
-        reject();
+        reject(error);
       });
   });
 }
@@ -22,8 +21,7 @@ export function login(email, password) {
       resolve();
     })
     .catch(error => {
-      console.log("error: " + error);
-      reject();
+      reject(error);
     });
   });
 }

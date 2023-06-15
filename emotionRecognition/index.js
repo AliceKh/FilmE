@@ -47,13 +47,13 @@ app.post('/emotions', upload.single('image'), async (req, res) => {
   try {
     if (req.body.imageUrl) {
       const annotations = await processImageLink(req.body.imageUrl);
-      res.send({ annotations });
+      filteredSend(annotations, res);
     } else if (req.body.imageBase64) {
       const annotations = await processBase64Image(req.body.imageBase64);
-      res.send({ annotations });
+      filteredSend(annotations, res);
     } else if (req.file) {
       const annotations = await processImageFile(req.file);
-      res.send({ annotations });
+      filteredSend(annotations, res);
     } else {
       throw new Error('No image specified');
     }
@@ -61,6 +61,16 @@ app.post('/emotions', upload.single('image'), async (req, res) => {
     res.status(400).send({ error: error.message });
   }
 });
+
+function filteredSend (annotations, res) {
+  const ReactionMetadata = {
+    joyLikelihood: annotations[0].joyLikelihood,
+    sorrowLikelihood: annotations[0].sorrowLikelihood,
+    angerLikelihood: annotations[0].angerLikelihood,
+    surpriseLikelihood: annotations[0].surpriseLikelihood
+  };
+  res.send({ ReactionMetadata });
+}
 
 app.listen(3001, () => {
   console.log('Server listening on port 3001');
