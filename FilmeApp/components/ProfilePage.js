@@ -49,6 +49,7 @@ export default class ProfileScreen extends React.Component {
   }
 
   renderItem = ({ item, index }) => {
+    // console.log(item);
     const column = index % 3;
     const itemWidth = Dimensions.get('window').width / 3 - 12;
 
@@ -60,7 +61,7 @@ export default class ProfileScreen extends React.Component {
           item.id === this.state.selectedImageId && styles.selectedItemContainer,
         ]}
         onPress={() => {
-          this.setState({ selectedImageId: item.id, isGraphVisible: true }); // Show graph on block click
+          this.setState({ selectedImageId: item._id, isGraphVisible: true }); // Show graph on block click
         }}
       >
         <Image style={[styles.itemImage, { width: itemWidth }]} source={{ uri: item.LinkToPreviewImage }} />
@@ -106,7 +107,7 @@ export default class ProfileScreen extends React.Component {
           onPress={() => this.setState({ isGraphVisible: false })}
         >
           <View style={styles.modalContent}>
-            <GraphPage />
+            <GraphPage objectId={this.state.selectedImageId}/>
           </View>
         </TouchableOpacity>
       </Modal>
