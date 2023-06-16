@@ -18,7 +18,7 @@ class VideoReactionPage extends React.Component {
       videoUrl: '',
       isPlaying: false,
       isLoading: true,
-      isDialogVisible: false,,
+      isDialogVisible: false,
       videoFile: ""
     };
 
@@ -134,9 +134,9 @@ class VideoReactionPage extends React.Component {
             <View style={styles.dialogContent}>
               <Image source={require('../images/inFrame.png')} style={styles.dialogImage} />
               <Text style={styles.dialogText}>You're Not in Frame</Text>
-              <Text style={{color: '#cccccc'}}>Please adjust your position so that your face is centered within the square on the screen for optimal facial recognition.</Text>
+              <Text style={styles.paraText}>Please adjust your position so that your face is centered within the square on the screen for optimal facial recognition.</Text>
               <TouchableOpacity onPress={this.toggleDialog} style={styles.dialogButton}>
-                <Text>Fixed it</Text>
+                <Text style={styles.headerText}>  Fixed it  </Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -237,7 +237,7 @@ const styles = StyleSheet.create({
   },
   dialogImage: {
     width: '100%',
-    height: '40%',
+    height: '60%',
     resizeMode: 'cover',
     borderRadius: 20
   },
@@ -245,12 +245,22 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textAlign: 'left',
     color: '#807e7e',
-    height: '20%'
+    marginTop : 20
+  },
+  paraText: {
+    marginTop: 10,
+    color: '#cccccc',
+    
   },
   dialogButton: {
-    marginTop: 10,
-    paddingHorizontal: 20,
+    marginTop: 55,
+    backgroundColor: 'red',
+    borderRadius: 10,
   },
+  headerText: {
+    fontSize: 16,
+    color: 'white'
+  }
 });
 
 export default VideoReactionPage;
