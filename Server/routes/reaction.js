@@ -1,6 +1,7 @@
 import express from 'express'
 import {createOrUpdateReaction} from "../controllers/reaction.js"
 import multer from "multer";
+import axios from 'axios';
 
 const router = express.Router();
 
@@ -29,6 +30,7 @@ router.post('', upload.single('photo'), async (req, res) => {
         await createOrUpdateReaction(userReacting, reactionTo, reactionData);
         res.send('reaction saved successfully!');
     } catch (e) {
+        console.log(e);
         res.send('reaction save failed');
     }
 });

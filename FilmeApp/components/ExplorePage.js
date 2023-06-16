@@ -18,7 +18,7 @@ export default class ExplorePage extends React.Component {
   }
 
   componentDidMount() {
-    axios.get('http://10.0.0.5:4000/exploreuploads')
+    axios.get('http://localhost:4000/exploreuploads')
       .then(response => {
         this.setState({ songs: response.data });
       })

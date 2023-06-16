@@ -20,13 +20,14 @@ export function sendReactions(uri, time, mediaId) {
     formData.append('timestamp', "0" + minutes + ":" + seconds);
     formData.append('reactionTo', mediaId);
 
-    axios.get(`http://192.168.1.207:4000/profileuser`)
+    axios.get(`http://localhost:4000/profileuser`)
     .then(response => {
         formData.append('userReacting', response.data._id);
         
-        axios.post('http://localhost:4000/reactions', formData, {
+        axios.post('http://localhost:4000/react', formData, {
             headers: { 'Content-Type': 'multipart/form-data' },
         }).then(res => {
+            console.log(res);
             console.log("file sent");
         }).catch(err => {
             console.log(err);

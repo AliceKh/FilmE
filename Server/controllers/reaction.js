@@ -1,4 +1,4 @@
-import {Reaction} from "../dbSchemas/dbSchemas.js";
+import Reaction from "../dbSchemas/reaction.js";
 
 export async function createOrUpdateReaction(userReactingId, reactingToId, timestamp, reactionData) {
     try {
