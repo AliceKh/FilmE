@@ -1,6 +1,9 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Dimensions, Image } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, Dimensions, Image, ActivityIndicator } from 'react-native';
 import { Video, Audio, ResizeMode } from 'expo-av';
+import * as FileSystem from 'expo-file-system';
+import * as MediaLibrary from 'expo-media-library';
+import ReactionRecording from './ReactionRecordingComponent';
 
 const { height } = Dimensions.get('window');
 const width = height * 0.5625; // 16:9 aspect ratio
@@ -12,24 +15,56 @@ class AudioReactionPage extends React.Component {
 
         this.videoRef = React.createRef();
         this.state = {
-            isPlaying: true,
-            sound: undefined
+            isPlaying: false,
+            isLoading: true,
+            sound: undefined,
+            audioFile: ""
         };
 
         const { navigation } = this.props;
-        const audio = navigation.state.params.selectedItem
+        const audio = navigation.state.params.selectedItem;
+        console.log(JSON.stringify(audio));
 
+        this.downloadFile(audio);
+    }
+
+    downloadFile = async (audio) => {
+        const { status } = await MediaLibrary.requestPermissionsAsync();
+
+        if(status != 'granted') {
+            console.log("Permissions error");
+            return;
+        }
+
+        try {
+        fileUrl = FileSystem.cacheDirectory + audio.Title + '.mp3';
+        console.log("statrting download " + fileUrl);
+
+        const downloadResumable = FileSystem.createDownloadResumable(audio.LinkToStorage, fileUrl, {}, false);
+        const { uri } = await downloadResumable.downloadAsync(null, {shouldCache: false});
+
+        console.log("completed: " + uri);
+        this.setState({audioFile: uri});
         this.playSound(audio);
+        }
+        catch (err) {
+            console.log(err);
+        }
     }
 
     playSound = async (audio) => {
-
         console.log('Loading Sound');
-        const { sound } = await Audio.Sound.createAsync(audio.LinkToStorage);
+        const sound = new Audio.Sound()
+
+        await sound.loadAsync({
+            uri: this.state.audioFile
+        })
         this.setState({sound: sound});
 
         console.log('Playing Sound');
         await sound.playAsync();
+        this.setState({isLoading: false});
+        this.handlePlayPause();
     }
 
     handlePlayPause = () => {
@@ -62,17 +97,24 @@ class AudioReactionPage extends React.Component {
                 <Image source={require('../images/menu.png')} style={{ width: 30, height: 30 }} />
             </TouchableOpacity>
             </View>
-            <Video
-            ref={this.videoRef}
-            source={require('../assets/audioBackground.mp4')}
-            style={styles.backgroundVideo}
-            resizeMode={ResizeMode.CONTAIN}
-            shouldPlay={isPlaying}
-            isLooping={true}
-            onReadyForDisplay={videoData => {
-                videoData.srcElement.style.position = "initial"
-            }}
-            />
+            {this.state.isLoading ?
+                <View style={{paddingTop: height/2}}>
+                    <ActivityIndicator size="large" color="#9960D2" /> 
+                </View>
+                :
+                <Video
+                ref={this.videoRef}
+                source={require('../assets/audioBackground.mp4')}
+                style={styles.backgroundVideo}
+                resizeMode={ResizeMode.CONTAIN}
+                shouldPlay={this.state.isPlaying}
+                isLooping={true}
+                onReadyForDisplay={videoData => {
+                    //videoData.srcElement.style.position = "initial"
+                    //console.log(videoData)
+                }}
+                />     
+            }       
             <View style={styles.overlay}>
             <Text style={styles.title}>{item.Title}</Text>
             <Text style={styles.artist}>{item.Uploader.Username}</Text>
@@ -98,6 +140,7 @@ class AudioReactionPage extends React.Component {
             </TouchableOpacity>
             </View>
             </View>
+            <ReactionRecording isPlaying={this.state.isPlaying} uploaderId={item.Uploader._id} mediaId={item._id}></ReactionRecording>
         </View>
         );
     }
@@ -108,7 +151,7 @@ class AudioReactionPage extends React.Component {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundImage: 'linear-gradient(to right, #29024f, #000000, #29024f)',
+        // backgroundImage: 'linear-gradient(to right, #29024f, #000000, #29024f)',
     },
     header: {
         position: 'absolute',
@@ -116,7 +159,7 @@ class AudioReactionPage extends React.Component {
         left: 16,
         right: 16,
         height: 50,
-        flexDirection: 'row',
+        flexDirection: 'row-reverse',
         justifyContent: 'space-between',
         alignItems: 'center',
         zIndex: 1,
@@ -150,7 +193,7 @@ class AudioReactionPage extends React.Component {
         fontSize: 16,
     },
     controls: {
-        flexDirection: 'row',
+        flexDirection: 'row-reverse',
         justifyContent: 'space-between',
         marginTop: 10,
     },

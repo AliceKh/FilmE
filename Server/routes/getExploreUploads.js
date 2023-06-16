@@ -6,11 +6,11 @@ import {auth} from '../firebaseUtils.js'
 const router = express.Router();
 
 
-router.get('/uploads', async (req, res) => {
+router.get('/exploreuploads', async (req, res) => {
     try{
         const currentUser = auth.currentUser.email;
         const user = await User.findOne({ Email : currentUser});
-        const uploads = await Upload.find({Uploader: user._id}).populate({ path: 'Uploader', model: 'Users' })
+        const uploads = await Upload.find({Uploader: {$ne : user._id}}).populate({ path: 'Uploader', model: 'Users' })
         res.json(uploads);
         } catch(error){
         console.log(error);
@@ -18,4 +18,4 @@ router.get('/uploads', async (req, res) => {
         };
 })
 
-export {router as getUploads};
+export {router as getExploreUploads};
