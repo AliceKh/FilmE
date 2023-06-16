@@ -1,13 +1,20 @@
 import express from 'express'
 import {createOrUpdateReaction} from "../controllers/reaction.js"
+import multer from "multer";
 
 const router = express.Router();
 
-router.post('', async (req, res) => {
-    const imageFile = req.files.image;
-    const timestamp = req.body.timestamp;
-    const userId = req.body.userId;
-    const reactingToId = req.body.reactingToId;
+const storage = multer.diskStorage({
+    destination: 'uploads/',
+    filename: function (req, file, cb) {
+        cb(null, file.fieldname + '-' + Date.now() + '-' + file.originalname);
+    }
+});
+const upload = multer({ storage: storage });
+
+router.post('', upload.single('photo'), async (req, res) => {
+    const imageFile = req.file;
+    const { reactionTo, userReacting, timestamp } = req.body;
 
     try {
         let reactionData = await axios.post('http://localhost:3001/emotions', {
@@ -19,7 +26,7 @@ router.post('', async (req, res) => {
             timestamp: timestamp,
         };
 
-        createOrUpdateReaction(userId, reactingToId, reactionData);
+        await createOrUpdateReaction(userReacting, reactionTo, reactionData);
         res.send('reaction saved successfully!');
     } catch (e) {
         res.send('reaction save failed');
