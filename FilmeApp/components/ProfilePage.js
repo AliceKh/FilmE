@@ -38,7 +38,6 @@ export default class ProfileScreen extends React.Component {
       }
 
   renderItem = ({ item, index }) => {
-    // console.log(item);
     const column = index % 3;
     const itemWidth = Dimensions.get('window').width / 3 - 12;
 
