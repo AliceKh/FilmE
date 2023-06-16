@@ -1,11 +1,7 @@
-import Upload from "./dbSchemas/upload.js";
 import dotenv from 'dotenv'
-import { response } from "express";
 import mongoose from "mongoose";
 import User from './dbSchemas/user.js';
 import { createCanvas } from "canvas";
-//var ObjectId = require("mongoose").Types.ObjectId;
-//import * as dbSchemas from './dbSchemas/dbSchemas';
 
 dotenv.config();
 
@@ -23,17 +19,7 @@ export function connectToMongo() {
     });
 }
 
-export async function insertUpload(uploadData) {
-  var toUpload = new Upload(uploadData);
 
-  toUpload.save((err, res) => {
-    if (err) {
-      console.log(err);
-    } else {
-      console.log(res);
-    }
-  });
-}
 
 export async function insertUser(userData, uid) {
   var profileImage = await generateProfileImage(userData.username);

@@ -2,23 +2,25 @@ import React from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
 import { View, Modal, Text, Image, StyleSheet, FlatList, TouchableOpacity, Dimensions} from 'react-native';
 import axios from 'axios';
+import GraphPage from './GraphPage';
 
 export default class ProfileScreen extends React.Component {
-    constructor(props) {
-        super(props);
-        this.navigate = props.navigation
-        this.state = {
-          selectedImageId: null,
-          isMenuVisible: false,
-          showList: true,
-          user: null,
-          songs: [], 
-        };
-        this.toggleList = this.toggleList.bind(this);
-      }
+  constructor(props) {
+    super(props);
+    this.navigate = props.navigation;
+    this.state = {
+      selectedImageId: null,
+      isMenuVisible: false,
+      showList: true,
+      user: null,
+      songs: [],
+      isGraphVisible: false, // Added state for graph visibility
+    };
+    this.toggleList = this.toggleList.bind(this);
+  }
 
       componentDidMount() {
-        axios.get(`http://10.0.0.5:4000/profileuser`)
+        axios.get(`http://localhost:4000/profileuser`)
           .then(response => {
             this.setState({ user: response.data });
           })
@@ -26,7 +28,7 @@ export default class ProfileScreen extends React.Component {
             console.log(error);
           });
           
-        axios.get('http://10.0.0.5:4000/uploads')
+        axios.get('http://localhost:4000/uploads')
           .then(response => {
             this.setState({ songs: response.data });
           })
@@ -35,54 +37,71 @@ export default class ProfileScreen extends React.Component {
           });
       }
 
-      renderItem = ({ item, index }) => {
-        const column = index % 3;
-        const itemWidth = Dimensions.get('window').width / 3 - 12;
-        if(item.LinkToPreviewImage == ""){
-          item.LinkToPreviewImage = "https://firebasestorage.googleapis.com/v0/b/filme-4277e.appspot.com/o/preview%2Fuser3.png?alt=media";
-        }
-      
-        return (
-          <TouchableOpacity
-            style={[styles.itemContainer, column === 0 && styles.itemContainerFirstColumn, item.id === this.state.selectedImageId]}
-            onPress={() => {
-              this.setState({ selectedImageId: item.id }); 
-              this.props.navigation.navigate('GraphPage');
-            }}
-          >
-            <Image style={[styles.itemImage, { width: itemWidth }]} source={{ uri: item.LinkToPreviewImage }} />
-          </TouchableOpacity>
-        );
-      }      
+  renderItem = ({ item, index }) => {
+    const column = index % 3;
+    const itemWidth = Dimensions.get('window').width / 3 - 12;
 
-    toggleMenu = () => {
-        this.setState({isMenuVisible: !this.state.isMenuVisible})
-    }
+    return (
+      <TouchableOpacity
+        style={[
+          styles.itemContainer,
+          column === 0 && styles.itemContainerFirstColumn,
+          item.id === this.state.selectedImageId && styles.selectedItemContainer,
+        ]}
+        onPress={() => {
+          this.setState({ selectedImageId: item._id, isGraphVisible: true }); // Show graph on block click
+        }}
+      >
+        <Image style={[styles.itemImage, { width: itemWidth }]} source={{ uri: item.LinkToPreviewImage }} />
+      </TouchableOpacity>
+    );
+  };
 
-    toggleList = () => {
-      this.setState(prevState => ({
-        showList: !prevState.showList,
-      }));
-    }
+  toggleMenu = () => {
+    this.setState({ isMenuVisible: !this.state.isMenuVisible });
+  };
 
-    renderMenu = () => {
-        return (
-          <Modal visible={this.state.isMenuVisible} transparent animationType="none">
-            <TouchableOpacity style={{ flex: 1 }} onPress={this.toggleMenu}>
-              <View style={{ flex: 1}}>
-                <View style={{ position: 'absolute', top: 50, right: 2, width: 150, borderRadius: 8, padding: 16, backgroundColor: '#5e0362a3' }}>
-                  <TouchableOpacity style={{ marginBottom: 8 }}>
-                    <Text style={{ fontSize: 16, color: 'white',textAlign: 'center' }}>Settings</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity>
-                    <Text style={{ fontSize: 16, color: 'white',textAlign: 'center' }}>Help</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            </TouchableOpacity>
-          </Modal>
-        );
-    }
+  toggleList = () => {
+    this.setState((prevState) => ({
+      showList: !prevState.showList,
+    }));
+  };
+
+  renderMenu = () => {
+    return (
+      <Modal visible={this.state.isMenuVisible} transparent animationType="none">
+        <TouchableOpacity style={{ flex: 1 }} onPress={this.toggleMenu}>
+          <View style={{ flex: 1 }}>
+            <View style={{ position: 'absolute', top: 50, right: 2, width: 150, borderRadius: 8, padding: 16, backgroundColor: '#5e0362a3' }}>
+              <TouchableOpacity style={{ marginBottom: 8 }}>
+                <Text style={{ fontSize: 16, color: 'white', textAlign: 'center' }}>Settings</Text>
+              </TouchableOpacity>
+              <TouchableOpacity>
+                <Text style={{ fontSize: 16, color: 'white', textAlign: 'center' }}>Help</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </TouchableOpacity>
+      </Modal>
+    );
+  };
+
+  renderGraphModal = () => {
+    return (
+      <Modal visible={this.state.isGraphVisible} transparent animationType="slide">
+        <TouchableOpacity
+          style={styles.modalBackground}
+          activeOpacity={1} // Prevents TouchableOpacity from handling touch events
+          onPress={() => this.setState({ isGraphVisible: false })}
+        >
+          <View style={styles.modalContent}>
+            <GraphPage objectId={this.state.selectedImageId}/>
+          </View>
+        </TouchableOpacity>
+      </Modal>
+    );
+  };
+
 
   render() {
     const { showList, user } = this.state;
@@ -108,26 +127,27 @@ export default class ProfileScreen extends React.Component {
         </View>
 
         {this.renderMenu()}
+        {this.renderGraphModal()}
 
-       {/* Profile picture section */}
-       <View style={{ alignItems: 'center', marginTop: 16 }}>
-          <Image source={user && {uri : user.ProfileImage}} style={{ width: 120, height: 120, borderRadius: 60 }} />
-          <Text style={ styles.profileName }>{user && user.Username}</Text>
+        {/* Profile picture section */}
+        <View style={{ alignItems: 'center', marginTop: 16 }}>
+          <Image source={user && { uri: user.ProfileImage }} style={{ width: 120, height: 120, borderRadius: 60 }} />
+          <Text style={styles.profileName}>{user && user.Username}</Text>
         </View>
 
         {/* Followers, following, likes row */}
-        <View style={[styles.centerStyle, {marginTop: 16 }]}>
-          <View style={[{ alignItems: 'center' },{marginRight: 8}]}>
+        <View style={[styles.centerStyle, { marginTop: 16 }]}>
+          <View style={[{ alignItems: 'center' }, { marginRight: 8 }]}>
             <Text style={styles.infoStatic}>{user && user.NumberOfFollowing}</Text>
-            <Text style={ styles.infoName }>Following</Text>
+            <Text style={styles.infoName}>Following</Text>
           </View>
-          <View style={[{ alignItems: 'center' },{marginRight: 8}]}>
+          <View style={[{ alignItems: 'center' }, { marginRight: 8 }]}>
             <Text style={styles.infoStatic}>{user && user.NumberOfFollowers}</Text>
-            <Text style={ styles.infoName }>Followers</Text>
+            <Text style={styles.infoName}>Followers</Text>
           </View>
           <View style={[{ alignItems: 'center' },{marginRight: 8}]}>
             <Text style={styles.infoStatic}>{user && user.NumberOfReactions}</Text>
-            <Text style={ styles.infoName }>Reactions</Text>
+            <Text style={styles.infoName}>Reactions</Text>
           </View>
         </View>
 
@@ -149,7 +169,7 @@ export default class ProfileScreen extends React.Component {
           <TouchableOpacity onPress={() => this.setState({showList : true})}>
             <Image source={require('../images/grid.png')} style={{ width: 30, height: 30 }} />
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => this.setState({showList : false})} >
+          <TouchableOpacity onPress={() => this.setState({ showList: false })}>
             <Image source={require('../images/alert.png')} style={{ width: 30, height: 30 }} />
           </TouchableOpacity>
         </View>
@@ -157,16 +177,11 @@ export default class ProfileScreen extends React.Component {
         {/* Video list section */}
         {showList ? (
           <View style={styles.container}>
-            <FlatList
-              data={this.state.songs}
-              renderItem={this.renderItem}
-              keyExtractor={item => item.id}
-              numColumns={3}
-            />
+            <FlatList data={this.state.songs} renderItem={this.renderItem} keyExtractor={(item) => item.id} numColumns={3} />
           </View>
         ) : (
           <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-            <Text style={{color: 'white'}}>Notifications</Text>
+            <Text style={{ color: 'white' }}>Notifications</Text>
           </View>
         )}
         </LinearGradient>
