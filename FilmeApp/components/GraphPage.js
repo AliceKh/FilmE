@@ -1,116 +1,100 @@
 import React from 'react';
-<<<<<<< HEAD
-import { View, Text, Image, StyleSheet } from 'react-native';
-import { BarChart } from 'react-native-chart-kit';
-
-export default class GraphPage extends React.Component {
-  render() {
-    const data = {
-      labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
-      datasets: [
-        {
-          data: [20, 45, 28, 80, 99],
-        },
-      ],
-    };
-
-    return (
-      <View style={styles.body}>
-        {/* Header section */}
-        <View style={styles.header}>
-          <Text style={styles.headerText}>Graph Page</Text>
-        </View>
-
-        {/* Graph section */}
-        <View style={styles.graphContainer}>
-          <BarChart
-            data={data}
-            width={300}
-            height={200}
-            yAxisLabel=""
-            chartConfig={{
-              backgroundGradientFrom: '#1E2923',
-              backgroundGradientTo: '#08130D',
-              fillShadowGradientOpacity: 1,
-              color: (opacity = 1) => `rgba(26, 255, 146, ${opacity})`,
-              style: {
-                borderRadius: 16,
-              },
-            }}
-            style={styles.graph}
-          />
-        </View>
-      </View>
-    );
-  }
-}
-
-const styles = StyleSheet.create({
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 16,
-  },
-  body: {
-    flex: 1,
-    backgroundImage: 'linear-gradient(to right, #29024f, #000000, #29024f)',
-  },
-  headerText: {
-    fontSize: 16,
-    color: 'white',
-  },
-  graphContainer: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginVertical: 16,
-  },
-  graph: {
-    borderRadius: 16,
-  },
-=======
 import { View, Text, StyleSheet, Dimensions, TouchableOpacity, Modal } from 'react-native';
 import { BarChart } from 'react-native-chart-kit';
+import axios from 'axios';
 
 export default class GraphPage extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       activeDatasetIndex: 0,
-    };
-  }
-
-  handleClick = (index) => {
-    this.setState({ activeDatasetIndex: index });
-  }
-
-  render() {
-    const datasets = [
-      {
-        timeStamp: 0.12,
-        data: [75, 20, 35, 50],
-      },
-      {
-        timeStamp: 1.42,
-        data: [50, 10, 45, 90],
-      },
-      {
-        timeStamp: 3.23,
-        data: [2, 30, 77, 83],
-      },
-    ];
-
-    const activeDataset = datasets[this.state.activeDatasetIndex];
-
-    const chartData = {
-      labels: ['Joy', 'Sorrow', 'Anger', 'Surprise'],
       datasets: [
         {
-          data: activeDataset.data,
+          timestamp: '00:01:42',
+          totalReactions: 4,
+          emotionAvg: {
+            joyAvg: 4.5,
+            sorrowAvg: 1.5,
+            angerAvg: 3.5,
+            surpriseAvg: 2.5,
+          },
+        },
+        {
+          timestamp: '00:02:33',
+          totalReactions: 4,
+          emotionAvg: {
+            joyAvg: 2.5,
+            sorrowAvg: 3.5,
+            angerAvg: 1.5,
+            surpriseAvg: 3,
+          },
+        },
+        {
+          timestamp: '00:03:55',
+          totalReactions: 2,
+          emotionAvg: {
+            joyAvg: 3,
+            sorrowAvg: 4,
+            angerAvg: 2,
+            surpriseAvg: 1,
+          },
+        },        {
+          timestamp: '00:03:55',
+          totalReactions: 2,
+          emotionAvg: {
+            joyAvg: 3,
+            sorrowAvg: 4,
+            angerAvg: 2,
+            surpriseAvg: 1,
+          },
+        },        {
+          timestamp: '00:03:55',
+          totalReactions: 2,
+          emotionAvg: {
+            joyAvg: 3,
+            sorrowAvg: 4,
+            angerAvg: 2,
+            surpriseAvg: 1,
+          },
         },
       ],
+      contentObjectID: null,
     };
+  }
+
+  componentDidMount() {
+    const { objectId } = this.props;
+    console.log('Received objectId in GraphPage:', objectId);
+    this.setState({ contentObjectID: objectId }, () => {
+      this.fetchAnalyticsData();
+    });
+  }
+
+  fetchAnalyticsData = () => {
+    // const contentObjectID = props.objectId;
+    // console.log(this.state);
+    console.log("contentObjectID: " + this.state.contentObjectID);
+    axios
+      .get('http://localhost:4000/analytics/' + this.state.contentObjectID, {
+      })
+      .then(response => {
+        const { reactions } = response.data;
+        console.log(reactions);
+        this.setState({ datasets: reactions });
+      })
+      .catch(error => {
+        console.error('Error fetching analytics data:', error);
+      });
+  };
+
+  handleClick = index => {
+    this.setState({ activeDatasetIndex: index });
+  };
+
+  render() {
+    const { activeDatasetIndex, datasets } = this.state;
+
+    const activeDataset = datasets[activeDatasetIndex];
 
     const chartConfig = {
       backgroundColor: '#ffffff',
@@ -121,6 +105,27 @@ export default class GraphPage extends React.Component {
       style: {
         borderRadius: 16,
       },
+      yAxis: {
+        min: 0,
+        max: 5,
+        stepSize: 1,
+        fixedLabel: true,
+        labelCount: 6,
+      },
+    };
+    
+    const chartData = {
+      labels: ['Joy', 'Sorrow', 'Anger', 'Surprise'],
+      datasets: [
+        {
+          data: [
+            activeDataset.emotionAvg.joyAvg,
+            activeDataset.emotionAvg.sorrowAvg,
+            activeDataset.emotionAvg.angerAvg,
+            activeDataset.emotionAvg.surpriseAvg,
+          ],
+        },
+      ],
     };
 
     return (
@@ -137,7 +142,7 @@ export default class GraphPage extends React.Component {
                 chartConfig={chartConfig}
                 style={styles.chartStyle}
               />
-              <Text style={styles.timestamp}>{activeDataset.timeStamp}</Text>
+              <Text style={styles.timestamp}>{activeDataset.timestamp}</Text>
             </View>
 
             <Text style={styles.timestampTitle}>Timestamps:</Text>
@@ -148,11 +153,11 @@ export default class GraphPage extends React.Component {
                   key={index}
                   style={[
                     styles.button,
-                    index === this.state.activeDatasetIndex && styles.activeButton
+                    index === activeDatasetIndex && styles.activeButton,
                   ]}
                   onPress={() => this.handleClick(index)}
                 >
-                  <Text style={styles.buttonText}>{dataset.timeStamp}</Text>
+                  <Text style={styles.buttonText}>{dataset.timestamp}</Text>
                 </TouchableOpacity>
               ))}
             </View>
@@ -219,5 +224,4 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: 'black',
   },
->>>>>>> b6aaedafe28bde0dabc0b2cce42f797cd9caf69e
 });
