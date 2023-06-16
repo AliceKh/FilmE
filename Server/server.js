@@ -1,13 +1,11 @@
 import express from 'express'
 import cors from 'cors'
-import { uploadRoute } from "./routes/upload.js";
-import { authRoute } from './routes/authentication.js';
-import { reactRoute } from './routes/reaction';
-import Upload from './dbSchemas/upload.js'
-import User from './dbSchemas/user.js'
+import {uploadRoute} from "./routes/upload.js";
+import {authRoute} from './routes/authentication.js';
+import {reactRoute} from './routes/reaction.js';
 import {connectToMongo} from './dbUtils.js'
-import { getUploads } from './routes/getUploads.js';
-import { getUsers } from './routes/getUsers.js';
+import {getUploads} from './routes/getUploads.js';
+import {getUsers} from './routes/getUsers.js';
 
 const app = express();
 app.use(cors())
@@ -17,7 +15,7 @@ connectToMongo();
 app.use('/upload', uploadRoute);
 
 app.use('/auth', authRoute);
-  
+
 app.get('/uploads', getUploads);
 
 app.use('/user', getUsers);

@@ -1,41 +1,28 @@
 import express from 'express'
-import Reaction from "../dbSchemas/reaction.js";
-import multer from "multer";
+import {createOrUpdateReaction} from "../controllers/reaction.js"
 
 const router = express.Router();
-const react = multer({ dest: 'faceRecognition/' });
-router.post('/upload', upload.single('photo'), async (req, res) => {
+
+router.post('', async (req, res) => {
+    const imageFile = req.files.image;
+    const timestamp = req.body.timestamp;
+    const userId = req.body.userId;
+    const reactingToId = req.body.reactingToId;
+
     try {
-        // Read the file from the temporary location
-        const photo = req.file;
-        const userReactingId = req.body.userReactingId;
-        const uploadId = req.body.uploadId;
-
-        // Send the photo to another route using axios
-        const response = await axios.post('http://localhost:3000/process', {
-            photo: {
-                data: photo.buffer,
-                contentType: photo.mimetype,
-                filename: photo.originalname
-            },
-            userReactingId,
-            uploadId
+        let reactionData = await axios.post('http://localhost:3001/emotions', {
+            file: imageFile
         });
 
-        // Save the reaction to the database
-        const reaction = new Reaction({
-            UserReacting: userId,
-            ReactingTo: uploadId,
-            ReactionMetadata: [{ ...response.data }]
-        });
-        await reaction.save();
+        reactionData = {
+            ...reactionData,
+            timestamp: timestamp,
+        };
 
-        // Handle the response from the other route
-        // For example, you can send a success message back to the client
-        res.json({ message: 'Photo sent and reaction saved successfully' });
-    } catch (error) {
-        // Handle any errors that occur during the process
-        res.status(500).json({ error: 'An error occurred' });
+        createOrUpdateReaction(userId, reactingToId, reactionData);
+        res.send('reaction saved successfully!');
+    } catch (e) {
+        res.send('reaction save failed');
     }
 });
 
