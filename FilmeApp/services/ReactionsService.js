@@ -4,7 +4,6 @@ export function sendReactions(uri, time, mediaId) {
     let formData = new FormData();
     let type = `image/jpeg`;
 
-    // TODO: append more parameters as needed
     formData.append('photo', { uri: uri, name: 'filename', type});
 
     let seconds = time;
