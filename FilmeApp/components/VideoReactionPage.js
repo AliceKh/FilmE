@@ -3,8 +3,9 @@ import { StyleSheet, View, Text, TouchableOpacity, Dimensions, Image, Modal, Act
 import { Video } from 'expo-av';
 import * as FileSystem from 'expo-file-system';
 import * as MediaLibrary from 'expo-media-library';
+import ReactionRecording from './ReactionRecordingComponent';
 
-const { height } = Dimensions.get('window');
+const { height } = Dimensions.get('screen');
 const width = height * 0.5625; // 16:9 aspect ratio
 
 
@@ -98,7 +99,7 @@ class VideoReactionPage extends React.Component {
           style={styles.backgroundVideo}
           resizeMode="contain"
           shouldPlay={this.state.isPlaying}
-          isLooping={true}
+          isLooping={false}
           onReadyForDisplay={videoData => {
             //videoData.srcElement.style.position = "initial"
           }}
@@ -141,6 +142,8 @@ class VideoReactionPage extends React.Component {
             </View>
           </View>
         </Modal>
+
+        <ReactionRecording isPlaying={this.state.isPlaying} uploaderId={item.Uploader._id} mediaId={item._id}></ReactionRecording>
       </View>
     );
   }
