@@ -7,7 +7,7 @@ export function sendReactions(uri, time, mediaId) {
     // TODO: append more parameters as needed
     formData.append('photo', { uri: uri, name: 'filename', type});
 
-    axios.post('http://localhost:4000/reactions', formData, {
+    axios.post(`http://${global.server}:4000/reactions`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
     }).then(res => {
        console.log("file sent");
@@ -15,7 +15,7 @@ export function sendReactions(uri, time, mediaId) {
         console.log(err);
     });
     
-    // axios.post('http://localhost:4000/reactions', {reactions: reactions})
+    // axios.post(`http://${global.server}:4000/reactions`, {reactions: reactions})
     //     .then(response => {
     //         console.log("reactions sent");
     //     })
