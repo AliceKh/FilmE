@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   View,
   Modal,
@@ -25,12 +25,13 @@ export default class ProfileScreen extends React.Component {
       isGraphVisible: false, // Added state for graph visibility
     };
     this.toggleList = this.toggleList.bind(this);
+    this.closeGraphModal = this.closeGraphModal.bind(this);
   }
 
   componentDidMount() {
     const userId = '644d2ec5ccb302c74d5d91b2';
     axios
-      .get(`http://localhost:4000/user/${userId}`)
+      .get(`http://192.168.1.247:4000/user/${userId}`)
       .then((response) => {
         this.setState({ user: response.data });
       })
@@ -39,7 +40,7 @@ export default class ProfileScreen extends React.Component {
       });
 
     axios
-      .get('http://localhost:4000/uploads')
+      .get('http://192.168.1.247:4000/uploads')
       .then((response) => {
         this.setState({ songs: response.data });
       })
@@ -47,6 +48,8 @@ export default class ProfileScreen extends React.Component {
         console.log(error);
       });
   }
+
+  
 
   renderItem = ({ item, index }) => {
     const column = index % 3;
@@ -60,7 +63,7 @@ export default class ProfileScreen extends React.Component {
           item.id === this.state.selectedImageId && styles.selectedItemContainer,
         ]}
         onPress={() => {
-          this.setState({ selectedImageId: item.id, isGraphVisible: true }); // Show graph on block click
+          this.setState({ selectedImageId: item._id, isGraphVisible: true }); // Show graph on block click
         }}
       >
         <Image style={[styles.itemImage, { width: itemWidth }]} source={{ uri: item.LinkToPreviewImage }} />
@@ -97,16 +100,17 @@ export default class ProfileScreen extends React.Component {
     );
   };
 
+  closeGraphModal = () => {
+    console.log("closing graph");
+    this.setState({ isGraphVisible: false });
+  };
+
   renderGraphModal = () => {
     return (
       <Modal visible={this.state.isGraphVisible} transparent animationType="slide">
-        <TouchableOpacity
-          style={styles.modalBackground}
-          activeOpacity={1} // Prevents TouchableOpacity from handling touch events
-          onPress={() => this.setState({ isGraphVisible: false })}
-        >
+        <TouchableOpacity style={styles.modalBackground} activeOpacity={1}>
           <View style={styles.modalContent}>
-            <GraphPage />
+            <GraphPage objectId={this.state.selectedImageId} closeGraph={this.closeGraphModal} />
           </View>
         </TouchableOpacity>
       </Modal>
