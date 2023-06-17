@@ -20,7 +20,7 @@ export default class ProfileScreen extends React.Component {
   }
 
       componentDidMount() {
-        axios.get(`http://localhost:4000/profileuser`)
+        axios.get(`http://${global.server}:4000/profileuser`)
           .then(response => {
             this.setState({ user: response.data });
           })
@@ -28,7 +28,7 @@ export default class ProfileScreen extends React.Component {
             console.log(error);
           });
           
-        axios.get('http://localhost:4000/uploads')
+        axios.get(`http://${global.server}:4000/uploads`)
           .then(response => {
             this.setState({ songs: response.data });
           })

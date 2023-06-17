@@ -19,7 +19,7 @@ export default class UploadPage extends React.Component {
     this.navigate = props.navigation;
     this.setChosenFile = this.setChosenFile.bind(this);
     this.state = {
-      serverUploadDestUrl: 'http://10.0.0.5:4000/upload/',
+      serverUploadDestUrl: `http://${global.server}:4000/upload/`,
       linkToStorage: '',
       linkToPreviewImage: '',
       title: '',
@@ -65,7 +65,7 @@ export default class UploadPage extends React.Component {
 
   handlePublish = () => {
     console.log("pressed publish");
-    axios.post('http://10.0.0.5:4000/upload', {
+    axios.post(`http://${global.server}:4000/upload`, {
       LinkToStorage: this.state.linkToStorage,
       LinkToPreviewImage: this.state.linkToPreviewImage,
       Title: this.state.title,
