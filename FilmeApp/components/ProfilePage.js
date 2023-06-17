@@ -114,7 +114,7 @@ export default class ProfileScreen extends React.Component {
         <View style={styles.header}>
           <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
               <Image source={require('../images/previous.png')} 
-                      style={{ width: 20, height: 20, color: 'white' }} />
+                      style={{ width: 20, height: 20 }} />
           </TouchableOpacity>  
           <TouchableOpacity onPress={() => this.props.navigation.navigate('ExplorePage', { previousRouteName: 'ProfilePage' })}>
             <Text style={ styles.headerText }>{"  Explore Page "}
