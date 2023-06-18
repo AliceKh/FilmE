@@ -1,10 +1,7 @@
 import React, {useContext, useState} from 'react';
-import {Image, StyleSheet, Text, TextInput, View, TouchableOpacity} from 'react-native';
+import {Image, StyleSheet, Text, TextInput, View} from 'react-native';
 import {Button, FAB, ProgressBar, SegmentedButtons} from "react-native-paper";
 import * as DocumentPicker from 'expo-document-picker';
-import { LinearGradient } from 'expo-linear-gradient';
-//import { NavigationContainer, useNavigation } from '@react-navigation/native';
-
 import NativeUploady, {
     UploadyContext,
     useItemErrorListener,
@@ -30,15 +27,12 @@ export default function UploadPage() {
     const [chosenFile, setChosenFile] = useState('');
     const [chosenPreviewFile, setChosenPreviewFile] = useState('');
 
-    //const navigation = useNavigation();
-
     const FileUpload = () => {
         const uploadyContext = useContext(UploadyContext);
         useItemFinishListener((item) => {
             const response = item.uploadResponse.data;
             console.log(`item ${item.id} finished uploading, response was: `, response);
             console.log(item.uploadResponse.data.fileRef.metadata.selfLink);
-
             setLinkToStorage(item.uploadResponse.data.fileRef.metadata.selfLink);
         });
         useItemErrorListener((item) => {
@@ -52,8 +46,6 @@ export default function UploadPage() {
 
         });
 
-        
-
         function handleDocumentSelection(setFunc, type) {
             return async () => {
                 try {
@@ -62,32 +54,13 @@ export default function UploadPage() {
                         multiple: false,
                         type: `${type}/*`
                     });
-                    
+
                     if (result.type === 'success') {
                         console.warn('res : ' + JSON.stringify(result));
                         setFunc(result);
-
-                        const formData = new FormData();
-                        formData.append('file', {
-                            uri: result.uri,
-                            name: result.name,
-                            type: result.type,
-                        });
-                        
-                        try{
-                        const response = await axios.post( serverUploadDestUrl + type, formData._parts[0][1]) //{uri: result.uri,
-                                                                                       // name: result.name,
-                                                                                       //type: result.type})
-                        
-                        console.log('Upload response:', response.data);
-                        }
-                        catch(error){
-                            console.error('Error uploading file: ', error);
-                        }
-
-                        //setServerUploadDestUrl(serverUploadDestUrl + type)
-                        //result.type = result.mimeType // uploady needs mimetype
-                        //uploadyContext.upload(result);
+                        setServerUploadDestUrl(serverUploadDestUrl + type)
+                        result.type = result.mimeType // uploady needs mimetype
+                        uploadyContext.upload(result);
                     }
                 } catch (err) {
                     if (DocumentPicker.isCancel(err)) {
@@ -147,17 +120,7 @@ export default function UploadPage() {
     }
 
     return (
-        <LinearGradient
-         colors={['#29024f', '#000000', '#29024f']}
-         style={styles.page}
-        >
-        <View style={styles.header}>
-          {/* <TouchableOpacity onPress={() => navigation.navigate('ExplorePage', { previousRouteName: 'ProfilePage' })}>
-            <Text style={ styles.headerText }>{"  Explore Page "}
-              <Image source={require('../images/up.png')} style={{ width: 20, height: 20, color: 'white' }} />
-            </Text>
-          </TouchableOpacity> */}
-        </View>
+        <View style={styles.page}>
             <View style={styles.titleView}>
                 <Text style={styles.title}>Upload</Text>
             </View>
@@ -170,14 +133,12 @@ export default function UploadPage() {
                             value: 'audio',
                             label: 'Audio',
                             icon: 'headphones',
-                            disabled: !!chosenFile,
-                            style: styles.choseBtn
+                            disabled: !!chosenFile
                         }, {
                             value: 'video',
                             label: 'Video',
                             icon: 'video',
-                            disabled: !!chosenFile,
-                            style: styles.choseBtn
+                            disabled: !!chosenFile
                         },
                     ]}
                 />
@@ -251,7 +212,7 @@ export default function UploadPage() {
                 </Button>
             </View>
 
-            {/*<Image
+            <Image
                 style={{
                     alignSelf: "center",
                     margin: "5%",
@@ -260,7 +221,7 @@ export default function UploadPage() {
                 }}
 
                 source={require("../assets/blackLogo.png")}
-            />*/}
+            />
             {/*<Text*/}
             {/*    onPress={() => navigate('Login')}*/}
 
@@ -270,124 +231,52 @@ export default function UploadPage() {
             {/*        paddingBottom: "5%"*/}
             {/*    }}>Login*/}
             {/*</Text>*/}
-        </LinearGradient>
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
-  page: {
-    paddingTop: 30,
-    flex: 1,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 10
-  },
-  headerText: {
-    fontSize: 16,
-    color: 'white'
-  },
-  titleView: {
-    display: 'flex',
-    marginHorizontal: 55,
-    alignSelf: 'center',
-    margin: 10
-  },
-  title: {
-    color: "#9960D2",
-    margin: 5,
-    fontSize: 24
-  },
-  typeView: {
-    marginHorizontal: 80,
-  },
-  uploadView: {
-    // marginTop: 30,
-    // paddingVertical: 10,
-    // borderRadius: 23,
-    paddingTop: 10,
-    alignItems: 'center'
-  },
-  uploadPreviewView: {
-    paddingTop: 10,
-    marginHorizontal: 80,
-    alignItems: "center"
-  },
-  uploadFAB: {},
-  uploadedImage: undefined,
-  borderInput: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginHorizontal: 55,
-    borderWidth: 2,
-    marginTop: 10,
-    paddingHorizontal: 10,
-    borderColor: "#9960D2",
-    borderRadius: 12,
-    paddingVertical: 2
-  },
-  choseBtn:{
-    backgroundColor: "#9960D2"
-  }
+    page: {
+        paddingTop: 25
+    },
+    titleView: {
+        display: 'flex',
+        marginHorizontal: 55,
+        alignSelf: 'center',
+        margin: 10
+    },
+    title: {
+        color: "#9960D2",
+        margin: 5,
+        fontSize: 24
+    },
+    typeView: {
+        marginHorizontal: 80,
+    },
+    uploadView: {
+        // marginTop: 30,
+        // paddingVertical: 10,
+        // borderRadius: 23,
+        paddingTop: 10,
+        alignItems: 'center'
+    },
+    uploadPreviewView: {
+        paddingTop: 10,
+        marginHorizontal: 80,
+        alignItems: "center"
+    },
+    uploadFAB: {},
+    uploadedImage: undefined,
+    borderInput: {
+        flexDirection: "row",
+        alignItems: "center",
+        marginHorizontal: 55,
+        borderWidth: 2,
+        marginTop: 10,
+        paddingHorizontal: 10,
+        borderColor: "#9960D2",
+        borderRadius: 12,
+        paddingVertical: 2
+    }
+
 })
-
-
-
-// const styles = StyleSheet.create({
-//     page: {
-//         paddingTop: 30,
-//         flex: 1,
-//     },
-//     header:{
-//         flexDirection: 'row',
-//         alignItems: 'center', 
-//         justifyContent: 'center', 
-//         paddingHorizontal: 10
-//     },
-//     headerText:{
-//         fontSize: 16,
-//         color: 'white'
-//     },
-//     titleView: {
-//         display: 'flex',
-//         marginHorizontal: 55,
-//         alignSelf: 'center',
-//         margin: 10
-//     },
-//     title: {
-//         color: "#9960D2",
-//         margin: 5,
-//         fontSize: 24
-//     },
-//     typeView: {
-//         marginHorizontal: 80,
-//     },
-//     uploadView: {
-//         // marginTop: 30,
-//         // paddingVertical: 10,
-//         // borderRadius: 23,
-//         paddingTop: 10,
-//         alignItems: 'center'
-//     },
-//     uploadPreviewView: {
-//         paddingTop: 10,
-//         marginHorizontal: 80,
-//         alignItems: "center"
-//     },
-//     uploadFAB: {},
-//     uploadedImage: undefined,
-//     borderInput: {
-//         flexDirection: "row",
-//         alignItems: "center",
-//         marginHorizontal: 55,
-//         borderWidth: 2,
-//         marginTop: 10,
-//         paddingHorizontal: 10,
-//         borderColor: "#9960D2",
-//         borderRadius: 12,
-//         paddingVertical: 2
-//     }
-
-// })
