@@ -3,7 +3,6 @@ import {Image, StyleSheet, Text, TextInput, View, TouchableOpacity} from 'react-
 import {Button, FAB, ProgressBar, SegmentedButtons} from "react-native-paper";
 import * as DocumentPicker from 'expo-document-picker';
 import { LinearGradient } from 'expo-linear-gradient';
-import * as FileSystem from 'expo-file-system'
 //import { NavigationContainer, useNavigation } from '@react-navigation/native';
 
 import NativeUploady, {
@@ -68,19 +67,17 @@ export default function UploadPage() {
                         console.warn('res : ' + JSON.stringify(result));
                         setFunc(result);
 
-                        
-
                         const formData = new FormData();
                         formData.append('file', {
                             uri: result.uri,
                             name: result.name,
                             type: result.type,
                         });
-
+                        
                         try{
-                        const response = await axios.post( serverUploadDestUrl + type, {uri: result.uri,
-                                                                                        name: result.name,
-                                                                                        type: result.type})
+                        const response = await axios.post( serverUploadDestUrl + type, formData._parts[0][1]) //{uri: result.uri,
+                                                                                       // name: result.name,
+                                                                                       //type: result.type})
                         
                         console.log('Upload response:', response.data);
                         }

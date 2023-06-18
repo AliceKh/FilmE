@@ -4,7 +4,8 @@ import {uploadVideoMulter} from "../controllers/firebaseStorageUpload/uploadVide
 import {uploadAudioMulter} from "../controllers/firebaseStorageUpload/uploadAudio.js";
 import {uploadPreviewMulter} from "../controllers/firebaseStorageUpload/uploadPreview.js";
 import { bucketName, firebaseInstance, storage, auth } from '../firebaseUtils.js';
-import { ref, uploadBytes } from 'firebase/storage';
+import { ref, uploadBytes, getDownloadURL  } from 'firebase/storage';
+import e from 'express';
 
 const router = express.Router();
 
@@ -31,25 +32,34 @@ router.post('/', function (req, res) {
 
 router.route('/video').post(async (req, res) => {
     try {
-        const { uri, name, type } = req.body;
-    
         const currentUser = auth.currentUser;
+        const { file } = req.body;
+        console.log(file);
+    
+        // Read the file data from req.files.file
+        const fileData = file.data;
+        const fileName = file.name;
+        const fileType = file.mimetype;
     
         if (currentUser) {
-          const storageRef = firebaseInstance.storage().bucket().file(`video/${name}`);
-          const snapshot = await storageRef.save(uri, { contentType: 'video/mp4' });
+        const storageRef = ref(storage, `video/${fileName}`);
+
+        await uploadBytes(storageRef, fileData, { contentType: fileType });
     
-          // Get the download URL using getSignedUrl() method
-          const downloadURL = `https://firebasestorage.googleapis.com/v0/b/${storageRef.bucket.name}/o/${encodeURIComponent(storageRef.name)}?alt=media`;
+        // Get the download URL using getDownloadURL() method
+        const downloadURL = await getDownloadURL(storageRef);
     
-          res.json({ downloadURL });
-        } else {
-          res.status(401).json({ error: 'User is not authenticated' });
-        }
-      } catch (error) {
+        res.json({ downloadURL });
+      }
+     else{
+        res.status(401).json({ error: 'User is not authenticated' });
+     }
+     
+     }catch (error) {
         console.error('Error uploading file:', error);
         res.status(500).json({ error: 'Internal server error' });
       }
+    
   });
     
 router.route('/audio')
