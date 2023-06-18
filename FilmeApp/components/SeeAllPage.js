@@ -46,7 +46,7 @@ export default class SeeAllPage extends React.Component {
         <View style={styles.header}>
             <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
                 <Image source={require('../images/previous.png')} 
-                        style={{ width: 20, height: 20, color: 'white' }} />
+                        style={{ width: 20, height: 20 }} />
             </TouchableOpacity> 
             <TouchableOpacity onPress={this.toggleMenu}>
                 <Image source={require('../images/menu.png')} style={{ width: 30, height: 30 }} />

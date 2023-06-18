@@ -18,7 +18,7 @@ export default class ExplorePage extends React.Component {
   }
 
   componentDidMount() {
-    axios.get('http://10.0.0.5:4000/exploreuploads')
+    axios.get(`http://${global.server}:4000/exploreuploads`)
       .then(response => {
         this.setState({ songs: response.data });
       })
@@ -104,7 +104,7 @@ export default class ExplorePage extends React.Component {
         >
         <View style={styles.header}>
         <TouchableOpacity onPress={() => BackHandler.exitApp()}>
-        <Image source={require('../images/previous.png')} style={{ width: 20, height: 20, color: 'white' }}/>
+        <Image source={require('../images/previous.png')} style={{ width: 20, height: 20 }}/>
       </TouchableOpacity>
         <TouchableOpacity onPress={() => this.props.navigation.navigate('ProfilePage', { previousRouteName: 'ExplorePage' })}>
             <Text style={ styles.headerText }>{"  Profile Page "}

@@ -3,8 +3,9 @@ import { StyleSheet, View, Text, TouchableOpacity, Dimensions, Image, Modal, Act
 import { Video } from 'expo-av';
 import * as FileSystem from 'expo-file-system';
 import * as MediaLibrary from 'expo-media-library';
+import ReactionRecording from './ReactionRecordingComponent';
 
-const { height } = Dimensions.get('window');
+const { height } = Dimensions.get('screen');
 const width = height * 0.5625; // 16:9 aspect ratio
 
 
@@ -81,7 +82,7 @@ class VideoReactionPage extends React.Component {
         <View style={styles.header}>
         <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
                 <Image source={require('../images/previous.png')} 
-                       style={{ width: 20, height: 20, color: 'white' }} />
+                       style={{ width: 20, height: 20 }} />
             </TouchableOpacity> 
             <TouchableOpacity onPress={this.toggleDialog}>
             <Image source={require('../images/menu.png')} style={{ width: 30, height: 30 }} />
@@ -98,7 +99,7 @@ class VideoReactionPage extends React.Component {
           style={styles.backgroundVideo}
           resizeMode="contain"
           shouldPlay={this.state.isPlaying}
-          isLooping={true}
+          isLooping={false}
           onReadyForDisplay={videoData => {
             //videoData.srcElement.style.position = "initial"
           }}
@@ -141,6 +142,8 @@ class VideoReactionPage extends React.Component {
             </View>
           </View>
         </Modal>
+
+        <ReactionRecording isPlaying={this.state.isPlaying} uploaderId={item.Uploader._id} mediaId={item._id}></ReactionRecording>
       </View>
     );
   }

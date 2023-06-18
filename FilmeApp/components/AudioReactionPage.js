@@ -1,11 +1,11 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Dimensions, Image, ActivityIndicator } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, Dimensions, Image, ActivityIndicator, BackHandler } from 'react-native';
 import { Video, Audio, ResizeMode } from 'expo-av';
 import * as FileSystem from 'expo-file-system';
 import * as MediaLibrary from 'expo-media-library';
 import ReactionRecording from './ReactionRecordingComponent';
 
-const { height } = Dimensions.get('window');
+const { height } = Dimensions.get('screen');
 const width = height * 0.5625; // 16:9 aspect ratio
 
 
@@ -28,6 +28,28 @@ class AudioReactionPage extends React.Component {
         this.downloadFile(audio);
     }
 
+    componentDidMount() {
+        BackHandler.addEventListener(
+            'hardwareBackPress',
+            this.handleBackButtonPressAndroid
+        );
+    }
+
+    componentWillUnmount() {
+        BackHandler.removeEventListener(
+          'hardwareBackPress',
+          this.handleBackButtonPressAndroid
+        );
+    }
+
+    handleBackButtonPressAndroid = () => {
+        this.state.sound.pauseAsync();
+    
+        // We have handled the back button
+        // Return `false` to navigate to the previous screen
+        return false;
+    };
+    
     downloadFile = async (audio) => {
         const { status } = await MediaLibrary.requestPermissionsAsync();
 
@@ -91,7 +113,7 @@ class AudioReactionPage extends React.Component {
             <View style={styles.header}>
             <TouchableOpacity onPress={() => {this.state.sound.pauseAsync(); this.props.navigation.goBack()}}>
                     <Image source={require('../images/previous.png')} 
-                        style={{ width: 20, height: 20, color: 'white' }} />
+                        style={{ width: 20, height: 20 }} />
                 </TouchableOpacity> 
                 <TouchableOpacity onPress={this.toggleMenu}>
                 <Image source={require('../images/menu.png')} style={{ width: 30, height: 30 }} />
