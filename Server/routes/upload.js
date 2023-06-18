@@ -56,6 +56,7 @@ router.route('/video').post(upload.single('file'), (req, res) => {
 
         fs.readFile(req.file.path, (err, data) => {
             if(err){
+                console.log(req.file.path)
                 console.log(err);
                 return;
             }
@@ -65,12 +66,6 @@ router.route('/video').post(upload.single('file'), (req, res) => {
                 })
             }
         })
-        //await uploadBytes(storageRef, fileData, { contentType: fileType });
-    
-        // Get the download URL using getDownloadURL() method
-        //const downloadURL = await getDownloadURL(storageRef);
-    
-        //res.json({ downloadURL });
         res.status(201).json(req.file);
       }
      else{
