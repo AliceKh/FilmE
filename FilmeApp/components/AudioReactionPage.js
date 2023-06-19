@@ -1,11 +1,11 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Dimensions, Image, ActivityIndicator, BackHandler } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, Dimensions, Image, Modal, ActivityIndicator } from 'react-native';
 import { Video, Audio, ResizeMode } from 'expo-av';
 import * as FileSystem from 'expo-file-system';
 import * as MediaLibrary from 'expo-media-library';
 import ReactionRecording from './ReactionRecordingComponent';
 
-const { height } = Dimensions.get('screen');
+const { height } = Dimensions.get('window');
 const width = height * 0.5625; // 16:9 aspect ratio
 
 
@@ -18,7 +18,9 @@ class AudioReactionPage extends React.Component {
             isPlaying: false,
             isLoading: true,
             sound: undefined,
-            audioFile: ""
+            audioFile: "",
+            isDialogVisible: false,
+            isFaceDetected: true
         };
 
         const { navigation } = this.props;
@@ -28,28 +30,6 @@ class AudioReactionPage extends React.Component {
         this.downloadFile(audio);
     }
 
-    componentDidMount() {
-        BackHandler.addEventListener(
-            'hardwareBackPress',
-            this.handleBackButtonPressAndroid
-        );
-    }
-
-    componentWillUnmount() {
-        BackHandler.removeEventListener(
-          'hardwareBackPress',
-          this.handleBackButtonPressAndroid
-        );
-    }
-
-    handleBackButtonPressAndroid = () => {
-        this.state.sound.pauseAsync();
-    
-        // We have handled the back button
-        // Return `false` to navigate to the previous screen
-        return false;
-    };
-    
     downloadFile = async (audio) => {
         const { status } = await MediaLibrary.requestPermissionsAsync();
 
@@ -103,8 +83,31 @@ class AudioReactionPage extends React.Component {
         this.setState({ isPlaying: !isPlaying });
     };
 
+    handleFaceDetectionChange = (isFaceDetected) => {
+        const { sound } = this.state;
+        this.setState({ isFaceDetected });
+        
+        const video = this.videoRef.current;
+        if (video) {
+            if (isFaceDetected) {
+                video.playAsync();
+                sound.playAsync();
+            } else {
+                video.pauseAsync();
+                sound.pauseAsync();
+            }
+        }
+      };
+
+    /*toggleDialog = () => {
+        this.setState((prevState) => ({
+          isDialogVisible: !prevState.isDialogVisible,
+
+        }));
+      };*/
+
     render() {
-        const { isPlaying } = this.state;
+        const { isDialogVisible, isPlaying, isFaceDetected  } = this.state;
         const { navigation } = this.props;
         const item = navigation.state.params.selectedItem
 
@@ -113,7 +116,7 @@ class AudioReactionPage extends React.Component {
             <View style={styles.header}>
             <TouchableOpacity onPress={() => {this.state.sound.pauseAsync(); this.props.navigation.goBack()}}>
                     <Image source={require('../images/previous.png')} 
-                        style={{ width: 20, height: 20 }} />
+                        style={{ width: 20, height: 20, color: 'white' }} />
                 </TouchableOpacity> 
                 <TouchableOpacity onPress={this.toggleMenu}>
                 <Image source={require('../images/menu.png')} style={{ width: 30, height: 30 }} />
@@ -162,7 +165,22 @@ class AudioReactionPage extends React.Component {
             </TouchableOpacity>
             </View>
             </View>
-            <ReactionRecording isPlaying={this.state.isPlaying} uploaderId={item.Uploader._id} mediaId={item._id}></ReactionRecording>
+            <ReactionRecording isPlaying={this.state.isPlaying} 
+                               uploaderId={item.Uploader._id}
+                               mediaId={item._id}
+                               onFaceDetectionChange={this.handleFaceDetectionChange} 
+                               >
+                        
+            </ReactionRecording>
+            <Modal visible={!isFaceDetected} animationType="slide" transparent={true}>
+                <View style={styles.dialogContainer}>
+                    <View style={styles.dialogContent}>
+                    <Image source={require('../images/inFrame.png')} style={styles.dialogImage} />
+                    <Text style={styles.dialogText}>You're Not in Frame</Text>
+                    <Text style={styles.paraText}>Please adjust your position so that your face is centered within the square on the screen for optimal facial recognition.</Text>
+                    </View>
+                </View>
+            </Modal>
         </View>
         );
     }
@@ -224,6 +242,65 @@ class AudioReactionPage extends React.Component {
         height: 30,
         marginHorizontal: 5,
     },
+    dialogContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(255, 255, 255, 0.5)',
+        marginVertical: height / 6,
+        marginHorizontal: width / 15,
+        borderRadius: 20,
+        borderWidth:1
+      },
+      dialogContent: {
+        flex: 1,
+        justifyContent: 'flex-start',
+        alignItems: 'center',
+        width: '100%',
+      },  
+      dialogImageContainer: {
+        flex: 4,
+        justifyContent: 'center',
+        alignItems: 'center',
+        aspectRatio: 1,
+      },
+      dialogTextContainer: {
+        flex: 4,
+        justifyContent: 'center',
+        alignItems: 'center',
+        aspectRatio: 1,
+      },
+      dialogButtonContainer: {
+        flex: 2,
+        justifyContent: 'center',
+        alignItems: 'center',
+      },
+      dialogImage: {
+        width: '100%',
+        height: '60%',
+        resizeMode: 'cover',
+        borderRadius: 20
+      },
+      dialogText: {
+        fontSize: 16,
+        textAlign: 'left',
+        color: '#807e7e',
+        marginTop : 20
+      },
+      paraText: {
+        marginTop: 10,
+        color: '#cccccc',
+        
+      },
+      dialogButton: {
+        marginTop: 55,
+        backgroundColor: 'red',
+        borderRadius: 10,
+      },
+      headerText: {
+        fontSize: 16,
+        color: 'white'
+      }
     });
 
 export default AudioReactionPage;
