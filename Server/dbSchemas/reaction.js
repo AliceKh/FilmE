@@ -1,30 +1,55 @@
-const mongoose = require('mongoose');
+import mongoose from "mongoose";
 
-const ReactionSchema = new mongoose.Schema({
+const reactionSchema = new mongoose.Schema({
     UserReacting: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true,
-        description: 'The _id from the user collection of the user reacting'
+        description: 'The _id from the user collection of the user reacting',
     },
     ReactingTo: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Upload',
         required: true,
-        description: 'The _id from the uploads collection of the upload being reacted to'
+        description: 'The _id from the uploads collection of the upload being reacted to',
     },
     ReactionMetadata: {
-        type: mongoose.Schema.Types.Mixed,
-        description: 'The metadata related to the reaction'
-    }
+        type: [
+            {
+                joyLikelihood: {
+                    type: Number,
+                    enum: [0, 1, 2, 3, 4, 5],
+                    description: 'Joy likelihood rating as a number',
+                    required: true,
+                },
+                sorrowLikelihood: {
+                    type: Number,
+                    enum: [0, 1, 2, 3, 4, 5],
+                    description: 'Sorrow likelihood rating as a number',
+                    required: true,
+                },
+                angerLikelihood: {
+                    type: Number,
+                    enum: [0, 1, 2, 3, 4, 5],
+                    description: 'Anger likelihood rating as a number',
+                    required: true,
+                },
+                surpriseLikelihood: {
+                    type: Number,
+                    enum: [0, 1, 2, 3, 4, 5],
+                    description: 'Surprise likelihood rating as a number',
+                    required: true,
+                },
+                timestamp: {
+                    type: String,
+                    description: 'Timestamp of the reaction',
+                    required: true,
+                },
+            },
+        ],
+    },
 });
 
-ReactionSchema.index({UserReacting: 1, ReactingTo: 1}, {
-    unique: true,
-    name: 'user_reacting_to_unique',
-    collation: {locale: 'en', strength: 2}
-});
-
-const Reaction = mongoose.model('Reactions', ReactionSchema);
+const Reaction = mongoose.model('Reaction', reactionSchema);
 
 export default Reaction;

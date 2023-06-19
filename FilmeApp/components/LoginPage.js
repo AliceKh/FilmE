@@ -1,18 +1,36 @@
-import React from 'react';
-import {Text,View,Image, TextInput, Button} from 'react-native';
+import React, { useState } from 'react';
+import {Text,View,Image, TextInput, Button, Alert, StyleSheet, TouchableOpacity} from 'react-native';
 import { login } from '../services/AuthService';
 
-export default class Login extends React.Component{
-    submitLogin = () =>{
-        login(this.emailRef.value, this.passwordRef.value)
-            .then(() =>this.props.navigation.navigate('ImageGrid'))
-            .catch(() =>console.log("Failed"));
+export default function Login (props) {
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const {navigate} = props.navigation;
+
+    function submitLogin(){
+        login(email, password)
+            .then(() => {
+            navigate('ExplorePage', { previousRouteName: 'LoginPage' });
+            })
+            .catch((error) => {
+                console.log(error); 
+                //alert("Login Failed");
+                loginFailedAlert();
+            });
     }
 
-    render(){
-        const {navigate} = this.props.navigation
+    function loginFailedAlert (){
+        Alert.alert('Oops!', 'Login failed', [{text: 'OK', onPress: ()=>console.log('')}]);
+    }
+
         return(
             <View style={{height:"100%"}}>
+                <View style={styles.header}>
+                    <TouchableOpacity onPress={() => navigate.goBack()}>
+                        <Image source={require('../images/previous.png')} 
+                            style={{ width: 20, height: 20 }} />
+                    </TouchableOpacity>
+                </View>
                 <View style={{
                     marginHorizontal:55,
                     alignItems:"center",
@@ -43,7 +61,7 @@ export default class Login extends React.Component{
                         placeholderTextColor="#909580"
                         textAlign='left'
                         style={{width:"100%"}}
-                        ref={(email) => {this.emailRef = email}}
+                        onChangeText={email => setEmail(email)}
                     />
                 </View>
 
@@ -65,7 +83,7 @@ export default class Login extends React.Component{
                         color='#6E2E76'
                         textAlign='left'
                         style={{width:"100%"}}
-                        ref={(pass) => {this.passwordRef = pass}}
+                        onChangeText={pass => setPassword(pass)}
                     />
                 </View>
 
@@ -77,7 +95,7 @@ export default class Login extends React.Component{
                     paddingVertical:10
                 }}>
                     <Button title='Login'
-                        onPress={this.submitLogin}
+                        onPress={submitLogin}
                         color="#9960D2"
                         ></Button>
                 </View>
@@ -101,5 +119,19 @@ export default class Login extends React.Component{
                 </Text>
             </View>
         )
-    }
 }
+
+const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundImage: 'linear-gradient(to right, #29024f, #000000, #29024f)',
+      paddingHorizontal: 20,
+      paddingTop: 40,
+    },
+    header: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 10,
+    }
+});

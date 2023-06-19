@@ -1,16 +1,26 @@
-import React from 'react';
-import {Button, Image, Text, TextInput, View} from 'react-native';
+import React, { useState } from 'react';
+import {Button, Image, Text, TextInput, View, Alert} from 'react-native';
 import { register } from '../services/AuthService';
 
-export default class Register extends React.Component {
-    submitRegistration = () =>{
-        register(this.emailRef.value, this.passwordRef.value, this.usernameRef.value)
-            .then(() => this.props.navigation.navigate('ImageGrid'))
-            .catch(() => console.log("Failed"));
+export default function Register(props) {
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [username, setUsername] = useState('');
+    const {navigate} = props.navigation;
+
+    function submitRegistration(){
+        register(email, password, username)
+            .then(() => navigate('ExplorePage'))
+            .catch((error) => {
+                console.log(error); 
+                registrationFailedAlert();
+            });
     }
 
-    render() {
-        const {navigate} = this.props.navigation
+    function registrationFailedAlert(){
+        Alert.alert('Oops!', 'Registration failed', [{text: 'OK', onPress: ()=>console.log('')}]);
+    }
+
         return (
             <View style={{height: "100%"}}>
                 <View style={{
@@ -43,7 +53,7 @@ export default class Register extends React.Component {
                         placeholderTextColor="#909580"
                         textAlign='left'
                         style={{width: "100%"}}
-                        ref={(username) => {this.usernameRef = username}}
+                        onChangeText={username => setUsername(username)}
                     />
                 </View>
                 <View style={{
@@ -62,7 +72,7 @@ export default class Register extends React.Component {
                         placeholderTextColor="#909580"
                         textAlign='left'
                         style={{width: "100%"}}
-                        ref={(email) => {this.emailRef = email}}
+                        onChangeText={email => setEmail(email)}
                     />
                 </View>
 
@@ -84,7 +94,7 @@ export default class Register extends React.Component {
                         color='#6E2E76'
                         textAlign='left'
                         style={{width: "100%"}}
-                        ref={(pass) => {this.passwordRef = pass}}
+                        onChangeText={pass => setPassword(pass)}
                     />
                 </View>
 
@@ -119,7 +129,7 @@ export default class Register extends React.Component {
                 }}>
                     <Button title='Sign Up'
                             color="#9960D2"
-                            onPress={this.submitRegistration}
+                            onPress={submitRegistration}
                     ></Button>
                 </View>
 
@@ -144,5 +154,4 @@ export default class Register extends React.Component {
                 </Text>
             </View>
         )
-    }
 }
