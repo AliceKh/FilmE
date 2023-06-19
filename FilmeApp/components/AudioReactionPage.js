@@ -114,7 +114,8 @@ class AudioReactionPage extends React.Component {
         return (
         <View style={styles.container}>
             <View style={styles.header}>
-            <TouchableOpacity onPress={() => {this.state.sound.pauseAsync(); this.props.navigation.goBack()}}>
+            <TouchableOpacity onPress={() => {this.state.sound.stopAsync();
+                                              this.props.navigation.goBack()}}>
                     <Image source={require('../images/previous.png')} 
                         style={{ width: 20, height: 20, color: 'white' }} />
                 </TouchableOpacity> 
