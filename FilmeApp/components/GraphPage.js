@@ -75,7 +75,7 @@ export default class GraphPage extends React.Component {
     // console.log(this.state);
     console.log("contentObjectID: " + this.state.contentObjectID);
     axios
-      .get('http://localhost:4000/analytics/' + this.state.contentObjectID, {
+      .get(`http://${global.server}:4000/analytics/` + this.state.contentObjectID, {
       })
       .then(response => {
         const { reactions } = response.data;

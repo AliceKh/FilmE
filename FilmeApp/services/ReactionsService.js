@@ -4,7 +4,6 @@ export function sendReactions(uri, time, mediaId) {
     let formData = new FormData();
     let type = `image/jpeg`;
 
-    // TODO: append more parameters as needed
     formData.append('photo', { uri: uri, name: 'filename', type});
 
     let seconds = time;
@@ -20,11 +19,11 @@ export function sendReactions(uri, time, mediaId) {
     formData.append('timestamp', "0" + minutes + ":" + seconds);
     formData.append('reactionTo', mediaId);
 
-    axios.get(`http://localhost:4000/profileuser`)
+    axios.get(`http://${global.server}:4000/profileuser`)
     .then(response => {
         formData.append('userReacting', response.data._id);
         
-        axios.post('http://localhost:4000/react', formData, {
+        axios.post(`http://${global.server}:4000/react`, formData, {
             headers: { 'Content-Type': 'multipart/form-data' },
         }).then(res => {
             console.log(res);
@@ -35,14 +34,5 @@ export function sendReactions(uri, time, mediaId) {
     })
     .catch(error => {
         console.log(error);
-    });
-    
-    // axios.post('http://localhost:4000/reactions', {reactions: reactions})
-    //     .then(response => {
-    //         console.log("reactions sent");
-    //     })
-    //     .catch(error => {
-    //         console.log(error);
-    //     });
-
+    })
 }

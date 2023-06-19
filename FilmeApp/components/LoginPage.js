@@ -3,7 +3,6 @@ import {Text,View,Image, TextInput, Button, Alert, StyleSheet, TouchableOpacity}
 import { login } from '../services/AuthService';
 
 export default function Login (props) {
-
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const {navigate} = props.navigation;

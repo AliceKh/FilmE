@@ -3,6 +3,7 @@ import { StyleSheet, View, Text, TouchableOpacity, Dimensions, Image, Modal, Act
 import { Video } from 'expo-av';
 import * as FileSystem from 'expo-file-system';
 import * as MediaLibrary from 'expo-media-library';
+import ReactionRecording from './ReactionRecordingComponent';
 
 const { height } = Dimensions.get('window');
 const width = height * 0.5625; // 16:9 aspect ratio
@@ -19,7 +20,8 @@ class VideoReactionPage extends React.Component {
       isPlaying: false,
       isLoading: true,
       isDialogVisible: false,
-      videoFile: ""
+      videoFile: "",
+      isFaceDetected: true,
     };
 
     const { navigation } = this.props;
@@ -66,13 +68,27 @@ class VideoReactionPage extends React.Component {
     this.setState({ isPlaying: !isPlaying });
   };
 
-  toggleDialog = () => {
-    const { isDialogVisible } = this.state;
-    this.setState({ isDialogVisible: !isDialogVisible });
+  handleFaceDetectionChange = (isFaceDetected) => {
+    this.setState({ isFaceDetected });
+
+    const video = this.videoRef.current;
+    if (video) {
+      if (isFaceDetected && this.state.isPlaying) {
+        video.playAsync();
+      } else {
+        video.pauseAsync();
+      }
+    }
   };
 
+  /*toggleDialog = () => {
+    const { isDialogVisible } = this.state;
+    this.setState({ isDialogVisible: !isDialogVisible });
+  };*/
+
+
   render() {
-    const { isDialogVisible, isPlaying } = this.state;
+    const { isDialogVisible, isPlaying, isFaceDetected } = this.state;
     const { navigation } = this.props;
     const item = navigation.state.params.selectedItem
 
@@ -81,7 +97,7 @@ class VideoReactionPage extends React.Component {
         <View style={styles.header}>
         <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
                 <Image source={require('../images/previous.png')} 
-                       style={{ width: 20, height: 20 }} />
+                       style={{ width: 20, height: 20, color: 'white' }} />
             </TouchableOpacity> 
             <TouchableOpacity onPress={this.toggleDialog}>
             <Image source={require('../images/menu.png')} style={{ width: 30, height: 30 }} />
@@ -129,15 +145,19 @@ class VideoReactionPage extends React.Component {
           </TouchableOpacity>
         </View>
         </View>
-        <Modal visible={isDialogVisible} animationType="slide" transparent={true}>
+        <ReactionRecording isPlaying={this.state.isPlaying} 
+                               uploaderId={item.Uploader._id}
+                               mediaId={item._id}
+                               onFaceDetectionChange={this.handleFaceDetectionChange} 
+                               >
+                        
+        </ReactionRecording>
+        <Modal visible={!isFaceDetected} animationType="slide" transparent={true}>
           <View style={styles.dialogContainer}>
             <View style={styles.dialogContent}>
               <Image source={require('../images/inFrame.png')} style={styles.dialogImage} />
               <Text style={styles.dialogText}>You're Not in Frame</Text>
               <Text style={styles.paraText}>Please adjust your position so that your face is centered within the square on the screen for optimal facial recognition.</Text>
-              <TouchableOpacity onPress={this.toggleDialog} style={styles.dialogButton}>
-                <Text style={styles.headerText}>  Fixed it  </Text>
-              </TouchableOpacity>
             </View>
           </View>
         </Modal>
