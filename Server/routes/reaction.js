@@ -1,105 +1,44 @@
 import express from 'express'
-import {createOrUpdateReaction} from "../controllers/reaction.js"
 import multer from "multer";
-import axios from 'axios';
-import fs from 'fs';
+import axios from "axios";
+import FormData from 'form-data';
+import fs from "fs";
+import {createOrUpdateReaction} from "../controllers/reaction.js";
 
 const router = express.Router();
 
 const storage = multer.diskStorage({
-    destination: 'uploads/',
-    filename: function (req, file, cb) {
+    destination: 'uploads/', filename: function (req, file, cb) {
         cb(null, file.fieldname + '-' + Date.now() + '-' + file.originalname);
     }
 });
 const upload = multer({storage: storage});
 
+// TODO: maybe proxy to facial recognition api and then work on the result
 router.post('', upload.single('photo'), async (req, res) => {
-    console.log("got to reacting");
     const {reactionTo, userReacting, timestamp} = req.body;
+    let formData = new FormData();
 
-    console.log(reactionTo, userReacting, timestamp);
+    formData.append('image', fs.createReadStream(`./${req.file.path}`));
 
-    try {
-        console.log(req.file);
+    await axios.post('http://localhost:3001/emotions', formData, {
+        headers: {'Content-Type': 'multipart/form-data'},
+    }).then(async (response) => {
+        let reactionData = response.data.ReactionMetadata;
 
-        let formData = new FormData();
-        // const imagelocation = req.path;
-        // let type = `image/jpeg`;
-        //
-        // formData.append('image', req.file, req.file.filename);
+        reactionData = {
+            ...reactionData, timestamp: timestamp,
+        };
 
-
-        console.log(`./${req.file.path}`);
         try {
-            // // const file = await fs.readFileSync(`./${req.file.path}`);
-            // // console.log(file);
-            //
-            // let type = `image/jpeg`;
-            // // formData.append('photo', { uri: uri, name: 'filename', type});
-            //
-            // let fileData = req.file.buffer;
-            // // formData.append('image', fileData, req.file.originalname);
-            // formData.append('image', {uri: `./${req.file.path}`, name: req.file.filename, type});
-
-
-            let data = new FormData();
-            data.append('image', fs.createReadStream(`./${req.file.path}`));
-
-            let config = {
-                method: 'post',
-                maxBodyLength: Infinity,
-                url: 'http://localhost:3001/emotions',
-                headers: {
-                    ...data.getHeaders()
-                },
-                data : data
-            };
-
-            axios.request(config)
-                .then(async (response) => {
-                    let reactionData = response;
-                    console.log(reactionData);
-
-                    reactionData = {
-                        ...reactionData,
-                        timestamp: timestamp,
-                    };
-
-                    await createOrUpdateReaction(userReacting, reactionTo, reactionData);
-                    res.send('reaction saved successfully!');
-                })
-                .catch((error) => {
-                    console.log(error);
-                });
-
-
-            // await axios.post('http://localhost:3001/emotions', formData, {
-            //     headers: {'Content-Type': 'multipart/form-data'}
-            // }).then(async res => {
-            //     let reactionData = res;
-            //     console.log(reactionData);
-            //
-            //     reactionData = {
-            //         ...reactionData,
-            //         timestamp: timestamp,
-            //     };
-            //
-            //     await createOrUpdateReaction(userReacting, reactionTo, reactionData);
-            //     res.send('reaction saved successfully!');
-            // }).catch(err => {
-            //     console.log(err);
-            // });
-
-        } catch (error) {
-            // Handle the error appropriately
-            console.error(error);
+            await createOrUpdateReaction(userReacting, reactionTo, reactionData);
+        } catch (e) {
+            res.status(400).send("couldn't save reaction properly");
         }
-
-    } catch (e) {
-        console.log(e);
-        res.send('reaction save failed');
-    }
+        res.send('reaction saved successfully!');
+    }).catch((error) => {
+        res.status(400).send({error: "cant analyse image"});
+    });
 });
 
 export {router as reactRoute};
