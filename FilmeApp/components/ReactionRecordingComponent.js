@@ -1,5 +1,5 @@
 import { Camera, CameraType } from 'expo-camera';
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { Button, StyleSheet, Text, View } from 'react-native';
 import * as FileSystem from 'expo-file-system';
 import { sendReactions } from '../services/ReactionsService';
@@ -12,7 +12,46 @@ export default function ReactionRecording(props) {
     const [reactionsArray, setReactionsArray] = useState([]);
     const [initTime, setInitTime] = useState(Date.now());
     const intervalId = useRef();
+    const [counter, setCounter] = useState(1);
     const [isFaceDetected, setIsFaceDetected] = useState(false);
+
+    const intervalDuration = 4000; //milliseconds
+
+    useEffect(() => {
+      if(camera) { 
+        var intervalValue;  
+        //const reactions = [];   
+        if(props.isPlaying) {
+          if(intervalId.current == null) {
+            //setReactionsArray([]);
+            intervalValue = setInterval(async () => {
+              try {
+                let result = await camera.takePictureAsync();
+  
+                //let encodedPicture = await FileSystem.readAsStringAsync(result.uri, {encoding: 'base64'})
+                // reactions.push(encodedPicture);
+                // setReactionsArray(reactions);
+    
+                setCounter(counter + 1);
+                let pictureTime = (counter * intervalDuration)/1000;
+                console.log("counter: " + counter + " time: " + pictureTime);
+                sendReactions(result.uri, pictureTime, props.mediaId);
+              }
+              catch(err) {
+                console.log("Error while taking picture: " + err);
+              }
+            }, 
+            intervalDuration);
+  
+            intervalId.current = intervalValue;
+          }
+        }
+      }
+      return () => {
+        clearInterval(intervalId.current);
+        intervalId.current = null;
+      }
+    }, [camera, counter, props.isPlaying]);
 
     const handleFacesDetected = ({ faces }) => {
       const faceDetected = faces.length > 0;
