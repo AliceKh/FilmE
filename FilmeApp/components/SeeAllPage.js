@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, Image, FlatList } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import { LinearGradient } from 'expo-linear-gradient';
 
 export default class SeeAllPage extends React.Component {
   constructor(props) {
@@ -42,7 +43,10 @@ export default class SeeAllPage extends React.Component {
 
   render() {
     return (
-      <View style={styles.container}>
+      <LinearGradient
+         colors={['#29024f', '#000000', '#29024f']}
+         style={styles.container}
+        >
         <View style={styles.header}>
             <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
                 <Image source={require('../images/previous.png')} 
@@ -75,7 +79,7 @@ export default class SeeAllPage extends React.Component {
           )}
           keyExtractor={item => item._id}
         />
-      </View>
+      </LinearGradient>
     );
   }
 }
@@ -83,12 +87,11 @@ export default class SeeAllPage extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundImage: 'linear-gradient(to right, #29024f, #000000, #29024f)',
     paddingHorizontal: 20,
     paddingTop: 40,
   },
   searchBar: {
-    flexDirection: 'row',
+    flexDirection: 'row-reverse',
     alignItems: 'center',
     backgroundColor: '#584177',
     borderRadius: 5,
@@ -104,7 +107,7 @@ const styles = StyleSheet.create({
     color: 'white'
   },
   header: {
-    flexDirection: 'row',
+    flexDirection: 'row-reverse',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 10,
@@ -124,7 +127,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   recentlyPlayedContainer: {
-    flexDirection: 'row',
+    flexDirection: 'row-reverse',
     justifyContent: 'space-between',
     marginBottom: 20,
   },
@@ -149,7 +152,7 @@ const styles = StyleSheet.create({
     color: 'gray'
   },
   songItem: {
-    flexDirection: 'row',
+    flexDirection: 'row-reverse',
     alignItems: 'center',
     paddingVertical: 10,
     borderBottomWidth: 1,

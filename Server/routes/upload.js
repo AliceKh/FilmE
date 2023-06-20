@@ -1,4 +1,4 @@
-import express from 'express'
+import express, { response } from 'express'
 import multer from 'multer';
 import {insertUpload} from "../controllers/db/upload.js";
 import {uploadVideoMulter} from "../controllers/firebaseStorageUpload/uploadVideo.js";
@@ -48,25 +48,51 @@ router.route('/video').post(upload.single('file'), (req, res) => {
     try {
         const currentUser = auth.currentUser;
         const file = req.file;
-        console.log(file);
 
         if (currentUser) {
-        const storageRef = ref(storage, `video/test.mp4`);
-        console.log(req.file);
-
+        const storageRef = ref(storage, `video/${file.originalname}.mp4`);
         fs.readFile(req.file.path, (err, data) => {
             if(err){
-                console.log(req.file.path)
                 console.log(err);
                 return;
             }
             else{
-                uploadBytes(storageRef, data).then((snapshot) => {
+                uploadBytes(storageRef, data, {contentType: 'video/mp4'}).then((snapshot) => {
                     console.log('Uploaded a file!');
                 })
             }
         })
-        res.status(201).json(req.file);
+        res.status(201).json(file);
+      }
+     else{
+        res.status(401).json({ error: 'User is not authenticated' });
+     }
+
+     }catch (error) {
+        console.error('Error uploading file:', error);
+        res.status(500).json({ error: 'Internal server error' });
+      }   
+  });
+    
+router.route('/audio').post(upload.single('file'), (req,res) => {
+    try {
+        const currentUser = auth.currentUser;
+        const file = req.file;
+
+        if (currentUser) {
+        const storageRef = ref(storage, `audio/${file.originalname}.mp3`);
+        fs.readFile(req.file.path, (err, data) => {
+            if(err){
+                console.log(err);
+                return;
+            }
+            else{
+                uploadBytes(storageRef, data, {contentType: 'audio/mp3'}).then((snapshot) => {
+                    console.log('Uploaded a file!');
+                })
+            }
+        })
+        res.status(201).json(file);
       }
      else{
         res.status(401).json({ error: 'User is not authenticated' });
@@ -77,12 +103,10 @@ router.route('/video').post(upload.single('file'), (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
       }
     
-  });
-    
-router.route('/audio')
-    .post(uploadAudioMulter.single('file'), (req, res) => {
-        res.status(201).json(req.file)
-    });
+})
+    //.post(uploadAudioMulter.single('file'), (req, res) => {
+    //    res.status(201).json(req.file)
+    //});
 
 router.route('/preview')
     .post(uploadPreviewMulter.single('file'), (req, res) => {
