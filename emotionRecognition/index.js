@@ -26,6 +26,8 @@ const upload = multer({storage: storage});
 const processImageLink = async (imageUrl) => {
     const [result] = await client.faceDetection(imageUrl);
     const annotations = result.faceAnnotations;
+    console.log("annotations");
+    console.log(annotations);
     return annotations;
 };
 
@@ -38,7 +40,9 @@ const processBase64Image = async (imageBase64) => {
 
 // Function to process image file
 const processImageFile = async (imageFile) => {
+    console.log("process image");
     const imageUrl = `./uploads/${imageFile.filename}`;
+    console.log(imageUrl);
     return await processImageLink(imageUrl);
 };
 
@@ -51,9 +55,11 @@ app.post('/emotions', upload.single('image'), async (req, res) => {
             const annotations = await processBase64Image(req.body.imageBase64);
             filteredSend(annotations, res);
         } else if (req.file) {
+            console.log("req.file started");
             const annotations = await processImageFile(req.file);
             filteredSend(annotations, res);
         } else {
+            console.log("failed analyse");
             throw new Error('No image specified');
         }
     } catch (error) {
@@ -70,7 +76,8 @@ function filteredSend(annotations, res) {
         LIKELY: 4,
         VERY_LIKELY: 5,
     };
-
+    console.log("annotations:");
+    console.log(annotations);
     if (annotations.length > 0) {
         const ReactionMetadata = {
             joyLikelihood: annotations[0].joyLikelihood,

@@ -9,13 +9,15 @@ const router = express.Router();
 
 const storage = multer.diskStorage({
     destination: 'uploads/', filename: function (req, file, cb) {
-        cb(null, file.fieldname + '-' + Date.now() + '-' + file.originalname);
+        cb(null, file.fieldname + '-' + Date.now() + '-' + file.originalname + ".jpg");
     }
 });
 const upload = multer({storage: storage});
 
 // TODO: maybe proxy to facial recognition api and then work on the result
 router.post('', upload.single('photo'), async (req, res) => {
+console.log("started reaction");
+
     const {reactionTo, userReacting, timestamp} = req.body;
     let formData = new FormData();
 
@@ -30,6 +32,9 @@ router.post('', upload.single('photo'), async (req, res) => {
             ...reactionData, timestamp: timestamp,
         };
 
+        console.log("saving reaction");
+        console.log(reactionData);
+
         try {
             await createOrUpdateReaction(userReacting, reactionTo, reactionData);
         } catch (e) {
@@ -37,6 +42,7 @@ router.post('', upload.single('photo'), async (req, res) => {
         }
         res.send('reaction saved successfully!');
     }).catch((error) => {
+        console.log("failed reaction");
         res.status(400).send({error: "cant analyse image"});
     });
 });
