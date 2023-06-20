@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Dimensions, Image, Modal, ActivityIndicator } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, Dimensions, Image, Modal, ActivityIndicator, BackHandler  } from 'react-native';
 import { Video, Audio, ResizeMode } from 'expo-av';
 import * as FileSystem from 'expo-file-system';
 import * as MediaLibrary from 'expo-media-library';
@@ -29,6 +29,26 @@ class AudioReactionPage extends React.Component {
 
         this.downloadFile(audio);
     }
+
+    componentDidMount() {
+        BackHandler.addEventListener(
+            'hardwareBackPress',
+            this.handleBackButtonPressAndroid
+        );
+    }
+    componentWillUnmount() {
+        BackHandler.removeEventListener(
+          'hardwareBackPress',
+          this.handleBackButtonPressAndroid
+        );
+    }
+    handleBackButtonPressAndroid = () => {
+        this.state.sound.pauseAsync();
+    
+        // We have handled the back button
+        // Return `false` to navigate to the previous screen
+        return false;
+    };
 
     downloadFile = async (audio) => {
         const { status } = await MediaLibrary.requestPermissionsAsync();
@@ -75,12 +95,14 @@ class AudioReactionPage extends React.Component {
 
         if (isPlaying) {
             sound.pauseAsync();
-            video.pauseAsync()
+            video.pauseAsync();
+            this.setState({ isPlaying: !isPlaying });
         } else {
             sound.playAsync();
             video.playAsync();
+            this.setState({ isPlaying: !isPlaying });
         }
-        this.setState({ isPlaying: !isPlaying });
+      
     };
 
     handleFaceDetectionChange = (isFaceDetected) => {
@@ -88,13 +110,13 @@ class AudioReactionPage extends React.Component {
         this.setState({ isFaceDetected });
         
         const video = this.videoRef.current;
-        if (video) {
-            if (isFaceDetected) {
-                video.playAsync();
-                sound.playAsync();
-            } else {
-                video.pauseAsync();
-                sound.pauseAsync();
+        
+        console.log(this.state.isPlaying)
+        if (video && sound) {
+            if (isFaceDetected && !this.state.isPlaying) {
+                this.handlePlayPause();
+            } else if (!isFaceDetected && this.state.isPlaying){
+                this.handlePlayPause();
             }
         }
       };
@@ -114,7 +136,7 @@ class AudioReactionPage extends React.Component {
         return (
         <View style={styles.container}>
             <View style={styles.header}>
-            <TouchableOpacity onPress={() => {this.state.sound.stopAsync();
+            <TouchableOpacity onPress={() => {this.state.sound.pauseAsync();
                                               this.props.navigation.goBack()}}>
                     <Image source={require('../images/previous.png')} 
                         style={{ width: 20, height: 20, color: 'white' }} />
