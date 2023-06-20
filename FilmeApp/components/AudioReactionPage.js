@@ -5,7 +5,7 @@ import * as FileSystem from 'expo-file-system';
 import * as MediaLibrary from 'expo-media-library';
 import ReactionRecording from './ReactionRecordingComponent';
 
-const { height } = Dimensions.get('window');
+const { height } = Dimensions.get('screen');
 const width = height * 0.5625; // 16:9 aspect ratio
 
 
