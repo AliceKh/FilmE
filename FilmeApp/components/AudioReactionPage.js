@@ -111,7 +111,6 @@ class AudioReactionPage extends React.Component {
         
         const video = this.videoRef.current;
         
-        console.log(this.state.isPlaying)
         if (video && sound) {
             if (isFaceDetected && !this.state.isPlaying) {
                 this.handlePlayPause();
