@@ -15,6 +15,8 @@ export default class GraphPage extends React.Component {
   }
 
   componentDidMount() {
+    console.log("recieved object id:");
+    console.log(this.props);
     const { objectId } = this.props;
     this.setState({ contentObjectID: objectId }, () => {
       this.fetchAnalyticsData();
@@ -22,6 +24,8 @@ export default class GraphPage extends React.Component {
   }
 
   fetchAnalyticsData = () => {
+    console.log("fetching analytics for");
+    console.log(this.state.contentObjectID);
     axios
       .get(`http://${global.server}:4000/analytics/${this.state.contentObjectID}`)
       .then(response => {
