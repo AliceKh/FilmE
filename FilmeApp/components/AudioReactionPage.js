@@ -25,7 +25,6 @@ class AudioReactionPage extends React.Component {
 
         const { navigation } = this.props;
         const audio = navigation.state.params.selectedItem;
-        console.log(JSON.stringify(audio));
 
         this.downloadFile(audio);
     }
@@ -86,7 +85,7 @@ class AudioReactionPage extends React.Component {
         console.log('Playing Sound');
         await sound.playAsync();
         this.setState({isLoading: false});
-        this.handlePlayPause();
+        this.setState({ isPlaying: true });
     }
 
     handlePlayPause = () => {
@@ -96,27 +95,28 @@ class AudioReactionPage extends React.Component {
         if (isPlaying) {
             sound.pauseAsync();
             video.pauseAsync();
-            this.setState({ isPlaying: !isPlaying });
         } else {
             sound.playAsync();
             video.playAsync();
-            this.setState({ isPlaying: !isPlaying });
         }
-      
+
+
+        this.setState({ isPlaying: !isPlaying });
     };
 
     handleFaceDetectionChange = (isFaceDetected) => {
         const { sound } = this.state;
         this.setState({ isFaceDetected });
-        
+
         const video = this.videoRef.current;
-        
-        if (video && sound) {
-            if (isFaceDetected && !this.state.isPlaying) {
-                this.handlePlayPause();
-            } else if (!isFaceDetected && this.state.isPlaying){
-                this.handlePlayPause();
-            }
+        if (video) {
+          if (isFaceDetected && this.state.isPlaying) {
+            sound.playAsync();
+            video.playAsync();            
+          } else {
+            sound.pauseAsync();
+            video.pauseAsync();
+          }
         }
       };
 
@@ -135,10 +135,12 @@ class AudioReactionPage extends React.Component {
         return (
         <View style={styles.container}>
             <View style={styles.header}>
-            <TouchableOpacity onPress={() => {this.state.sound.pauseAsync();
-                                              this.props.navigation.goBack()}}>
+                <TouchableOpacity onPress={() => {
+                    this.state.sound.pauseAsync();
+                    this.setState({ isPlaying: !isPlaying })
+                    this.props.navigation.goBack()}}>
                     <Image source={require('../images/previous.png')} 
-                        style={{ width: 20, height: 20, color: 'white' }} />
+                        style={{ width: 20, height: 20}} />
                 </TouchableOpacity> 
                 <TouchableOpacity onPress={this.toggleMenu}>
                 <Image source={require('../images/menu.png')} style={{ width: 30, height: 30 }} />
