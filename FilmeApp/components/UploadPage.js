@@ -225,10 +225,10 @@ export default function UploadPage(props) {
             </View>
             <View style={{
                 marginHorizontal: 55,
-                paddingHorizontal: 10,
+                paddingHorizontal: 5,
                 alignItems: "center",
                 justifyContent: "center",
-                marginTop: 50,
+                marginTop: 30,
                 paddingVertical: 10
             }}>
                 <Button mode="contained" onPress={handlePublish}>
@@ -240,8 +240,8 @@ export default function UploadPage(props) {
                 style={{
                     alignSelf: "center",
                     margin: "5%",
-                    height: 240,
-                    width: 135
+                    height: 170,
+                    width: 120
                 }}
 
                 source={require("../assets/mainLogo2.png")}
