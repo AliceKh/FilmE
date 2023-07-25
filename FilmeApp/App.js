@@ -4,16 +4,8 @@ import { Button, StyleSheet, Text, View } from 'react-native';
 
 
 export default function App() {
-  global.server="10.10.192.134";
+  global.server="192.168.1.10";
   return (
     <AppNavigator/>
   );
 }
-
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     alignItems: 'center',
-//     justifyContent: 'center',
-//   },
-// });
