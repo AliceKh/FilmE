@@ -39,19 +39,12 @@ export default function Login(props) {
 
     function getLogin() {
         try {
-            Promise.all([
-                AsyncStorage.getItem(storageName.email),
-                AsyncStorage.getItem(storageName.password)]).then(value => {
+            Promise.all([AsyncStorage.getItem(storageName.email), AsyncStorage.getItem(storageName.password)]).then(value => {
                 setEmail(value[1]);
                 setPassword(value[0]);
-                console.log(email + password);
-                if (!!email && !!password) {
-                    console.log(email + password);
-                    submitLogin();
-                }
             })
         } catch (e) {
-
+            console.log(e);
         }
     }
 
