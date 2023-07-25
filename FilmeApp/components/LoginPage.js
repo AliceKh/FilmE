@@ -13,14 +13,13 @@ export default function Login (props) {
             navigate('ExplorePage', { previousRouteName: 'LoginPage' });
             })
             .catch((error) => {
-                console.log(error); 
-                //alert("Login Failed");
+                console.log(error);
                 loginFailedAlert();
             });
     }
 
     function loginFailedAlert (){
-        Alert.alert('Oops!', 'Login failed', [{text: 'OK', onPress: ()=>console.log('')}]);
+        Alert.alert('Oops!', 'Login failed', [{text: 'OK', onPress: ()=>console.log('')}]); // TODO console.log
     }
 
         return(

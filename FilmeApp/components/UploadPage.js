@@ -35,7 +35,6 @@ export default function UploadPage(props) {
         const uploadyContext = useContext(UploadyContext);
         useItemFinishListener((item) => {
             const response = item.uploadResponse.data;
-            console.log(`item ${item.id} finished uploading, response was: `, response);
             const nametype = response.mimetype.split("/")[0];
             var type = response.mimetype.split("/")[1];
             type = (type == "mpeg")? "mp3" : "mpeg"; 
@@ -44,15 +43,13 @@ export default function UploadPage(props) {
             const linkToMongo = "https://firebasestorage.googleapis.com/v0/b/filme-4277e.appspot.com/o/"
             + nametype + "%2F" + filename + "." + type + "?alt=media"
 
-            console.log("link: " + linkToMongo)
             setLinkToStorage(linkToMongo);
         });
         useItemErrorListener(async (item) => {
-            console.log(`item ${item.id} upload error !!!! `, item);
             setChosenFile('');
         });
         useItemStartListener(async (item) => {
-            console.log(`item ${item.id} starting to upload, name = ${item.file.name} ${item.file.type}`);
+            console.log(`item ${item.id} starting to upload, name = ${item.file.name} ${item.file.type}`); // TODO console.log
         });
         let progress = useItemProgressListener((item) => {
 
@@ -76,7 +73,7 @@ export default function UploadPage(props) {
                     }
                 } catch (err) {
                     if (DocumentPicker.isCancel(err)) {
-                        console.log("User cancelled the picker, exit any dialogs or menus and move on");
+                        console.log("User cancelled the picker, exit any dialogs or menus and move on"); // TODO console.log
                     } else {
                         throw err;
                     }
@@ -118,7 +115,6 @@ export default function UploadPage(props) {
     }
 
     const handlePublish = () => {
-        console.log("pressed publish");
         axios.post(`http://${global.server}:4000/upload/`, {
             LinkToStorage:linkToStorage,
             LinkToPreviewImage:linkToPreviewImage,
@@ -128,7 +124,7 @@ export default function UploadPage(props) {
             Tags:tags,
             TimeStamps:timeStamps
         })
-            .then(r => console.log("uploaded!!"))
+            .then(r => console.log("uploaded!!")) // TODO console.log
     }
 
     return (
