@@ -1,25 +1,19 @@
 import React, {useEffect, useState} from 'react';
 import {Alert, Button, Image, StyleSheet, Text, TextInput, TouchableOpacity, View} from 'react-native';
 import {login} from '../services/AuthService';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import {getLogin, saveLogin} from "../services/AsyncStorageService";
 
 export default function Login(props) {
-    useEffect(() => getLogin(), []);
-
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const {navigate} = props.navigation;
 
-    const storageName = {
-        email: "userEmail", password: "userPass"
-    }
-
+    useEffect(() => getLogin(setEmail, setPassword), []);
 
     function submitLogin() {
-        console.log("login");
         login(email, password)
             .then(async () => {
-                await saveLogin();
+                await saveLogin(email, password);
                 navigate('ExplorePage', {previousRouteName: 'LoginPage'});
             })
             .catch((error) => {
@@ -30,22 +24,6 @@ export default function Login(props) {
 
     function loginFailedAlert() {
         Alert.alert('Oops!', 'Login failed', [{text: 'OK', onPress: () => console.log('')}]); // TODO console.log
-    }
-
-    async function saveLogin() {
-        await AsyncStorage.setItem(storageName.email, password).then();
-        await AsyncStorage.setItem(storageName.password, email).then();
-    }
-
-    function getLogin() {
-        try {
-            Promise.all([AsyncStorage.getItem(storageName.email), AsyncStorage.getItem(storageName.password)]).then(value => {
-                setEmail(value[1]);
-                setPassword(value[0]);
-            })
-        } catch (e) {
-            console.log(e);
-        }
     }
 
     return (<View style={{height: "100%"}}>
