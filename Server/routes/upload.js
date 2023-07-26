@@ -58,7 +58,7 @@ router.route('/video').post(upload.single('file'), (req, res) => {
             }
             else{
                 uploadBytes(storageRef, data, {contentType: 'video/mp4'}).then((snapshot) => {
-                    console.log('Uploaded a file!');
+                    console.log('Uploaded a file!'); // TODO console.log
                 })
             }
         })
@@ -88,7 +88,7 @@ router.route('/audio').post(upload.single('file'), (req,res) => {
             }
             else{
                 uploadBytes(storageRef, data, {contentType: 'audio/mp3'}).then((snapshot) => {
-                    console.log('Uploaded a file!');
+                    console.log('Uploaded a file!'); // TODO console.log
                 })
             }
         })

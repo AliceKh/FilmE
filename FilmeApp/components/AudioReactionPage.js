@@ -53,18 +53,15 @@ class AudioReactionPage extends React.Component {
         const { status } = await MediaLibrary.requestPermissionsAsync();
 
         if(status != 'granted') {
-            console.log("Permissions error");
             return;
         }
 
         try {
         fileUrl = FileSystem.cacheDirectory + audio.Title + '.mp3';
-        console.log("statrting download " + fileUrl);
 
         const downloadResumable = FileSystem.createDownloadResumable(audio.LinkToStorage, fileUrl, {}, false);
         const { uri } = await downloadResumable.downloadAsync(null, {shouldCache: false});
 
-        console.log("completed: " + uri);
         this.setState({audioFile: uri});
         this.playSound(audio);
         }
@@ -74,15 +71,12 @@ class AudioReactionPage extends React.Component {
     }
 
     playSound = async (audio) => {
-        console.log('Loading Sound');
         const sound = new Audio.Sound()
 
         await sound.loadAsync({
             uri: this.state.audioFile
         })
         this.setState({sound: sound});
-
-        console.log('Playing Sound');
         await sound.playAsync();
         this.setState({isLoading: false});
         this.setState({ isPlaying: true });

@@ -26,7 +26,7 @@ export default function Login (props) {
     }
 
     function loginFailedAlert (error){
-        Alert.alert('Oops!', 'Login failed: ' + error, [{text: 'OK', onPress: ()=>{}}]);
+        Alert.alert('Oops!', 'Login failed: ' + error, [{text: 'OK', onPress: ()=>console.log(error)}]);
     }
 
     changePasswordVisibility = () => {

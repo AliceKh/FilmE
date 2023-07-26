@@ -15,8 +15,6 @@ export default class GraphPage extends React.Component {
   }
 
   componentDidMount() {
-    console.log("recieved object id:");
-    console.log(this.props);
     const { objectId } = this.props;
     this.setState({ contentObjectID: objectId }, () => {
       this.fetchAnalyticsData();
@@ -24,8 +22,6 @@ export default class GraphPage extends React.Component {
   }
 
   fetchAnalyticsData = () => {
-    console.log("fetching analytics for");
-    console.log(this.state.contentObjectID);
     axios
       .get(`http://${global.server}:4000/analytics/${this.state.contentObjectID}`)
       .then(response => {
@@ -122,7 +118,7 @@ export default class GraphPage extends React.Component {
               </View>
             )}
 
-            <View style={styles.closeButtonContainer} onPress={console.log(this.props.closeGraph)}>
+            <View style={styles.closeButtonContainer} onPress={console.log(this.props.closeGraph)}> // TODO console.log
               <TouchableOpacity style={styles.closeButton}>
                 <Text style={styles.closeButtonText} >Close</Text>
               </TouchableOpacity>

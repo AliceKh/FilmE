@@ -6,16 +6,15 @@ import { createCanvas } from "canvas";
 dotenv.config();
 
 export function connectToMongo() {
-  console.log("DATABASE_URL: ", process.env.DATABASE_URL);
   mongoose.connect(
         process.env.DATABASE_URL,
       { useNewUrlParser: true }
     )
     .then(() => {
-      console.log("mongodb connection open!");
+      console.log("mongodb connection open!"); // TODO console.log
     })
     .catch((err) => {
-      console.log("error connecting to mongodb");
+      console.log("error connecting to mongodb"); // TODO console.log
     });
 }
 
