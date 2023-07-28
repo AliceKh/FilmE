@@ -1,6 +1,6 @@
 import React from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
-import { View, Modal, Text, Image, StyleSheet, FlatList, TouchableOpacity, Dimensions} from 'react-native';
+import { View, Modal, Text, Image, StyleSheet, FlatList, TouchableOpacity, Dimensions } from 'react-native';
 import axios from 'axios';
 import GraphPage from './GraphPage';
 
@@ -14,28 +14,28 @@ export default class ProfileScreen extends React.Component {
       showList: true,
       user: null,
       songs: [],
-      isGraphVisible: false, // Added state for graph visibility
+      isGraphVisible: false,
     };
     this.toggleList = this.toggleList.bind(this);
   }
 
-      componentDidMount() {
-        axios.get(`http://${global.server}:4000/profileuser`)
-          .then(response => {
-            this.setState({ user: response.data });
-          })
-          .catch(error => {
-            console.log(error);
-          });
-          
-        axios.get(`http://${global.server}:4000/uploads`)
-          .then(response => {
-            this.setState({ songs: response.data });
-          })
-          .catch(error => {
-            console.log(error);
-          });
-      }
+  componentDidMount() {
+    axios.get(`http://${global.server}:4000/profileuser`)
+      .then(response => {
+        this.setState({ user: response.data });
+      })
+      .catch(error => {
+        console.log(error);
+      });
+
+    axios.get(`http://${global.server}:4000/uploads`)
+      .then(response => {
+        this.setState({ songs: response.data });
+      })
+      .catch(error => {
+        console.log(error);
+      });
+  }
 
   renderItem = ({ item, index }) => {
     const column = index % 3;
@@ -49,7 +49,7 @@ export default class ProfileScreen extends React.Component {
           item.id === this.state.selectedImageId && styles.selectedItemContainer,
         ]}
         onPress={() => {
-          this.setState({ selectedImageId: item._id, isGraphVisible: true }); // Show graph on block click
+          this.setState({ selectedImageId: item._id, isGraphVisible: true });
         }}
       >
         <Image style={[styles.itemImage, { width: itemWidth }]} source={{ uri: item.LinkToPreviewImage }} />
@@ -91,33 +91,32 @@ export default class ProfileScreen extends React.Component {
       <Modal visible={this.state.isGraphVisible} transparent animationType="slide">
         <TouchableOpacity
           style={styles.modalBackground}
-          activeOpacity={1} // Prevents TouchableOpacity from handling touch events
+          activeOpacity={1}
           onPress={() => this.setState({ isGraphVisible: false })}
         >
           <View style={styles.modalContent}>
-            <GraphPage objectId={this.state.selectedImageId}/>
+            <GraphPage objectId={this.state.selectedImageId} onClose={() => this.setState({ isGraphVisible: false })} />
           </View>
         </TouchableOpacity>
       </Modal>
     );
   };
 
-
   render() {
     const { showList, user } = this.state;
     return (
-        <LinearGradient
-         colors={['#29024f', '#000000', '#29024f']}
-         style={styles.body}
-        >
+      <LinearGradient
+        colors={['#29024f', '#000000', '#29024f']}
+        style={styles.body}
+      >
         {/* Header section */}
         <View style={styles.header}>
           <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
-              <Image source={require('../images/previous.png')} 
-                      style={{ width: 20, height: 20 }} />
-          </TouchableOpacity>  
+            <Image source={require('../images/previous.png')}
+              style={{ width: 20, height: 20 }} />
+          </TouchableOpacity>
           <TouchableOpacity onPress={() => this.props.navigation.navigate('ExplorePage', { previousRouteName: 'ProfilePage' })}>
-            <Text style={ styles.headerText }>{"  Explore Page "}
+            <Text style={styles.headerText}>{"  Explore Page "}
               <Image source={require('../images/up.png')} style={{ width: 16, height: 16 }} />
             </Text>
           </TouchableOpacity>
@@ -145,20 +144,20 @@ export default class ProfileScreen extends React.Component {
             <Text style={styles.infoStatic}>{user && user.NumberOfFollowers}</Text>
             <Text style={styles.infoName}>Followers</Text>
           </View>
-          <View style={[{ alignItems: 'center' },{marginRight: 8}]}>
+          <View style={[{ alignItems: 'center' }, { marginRight: 8 }]}>
             <Text style={styles.infoStatic}>{user && user.NumberOfReactions}</Text>
             <Text style={styles.infoName}>Reactions</Text>
           </View>
         </View>
 
         {/* Buttons section */}
-        <View style={[styles.centerStyle, {marginVertical: 16, marginBottom: 20 }]}>
+        <View style={[styles.centerStyle, { marginVertical: 16, marginBottom: 20 }]}>
           <TouchableOpacity style={styles.followBtn}>
-            <Text style={ styles.headerText }>Follow</Text>
+            <Text style={styles.headerText}>Follow</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={() => this.props.navigation.navigate('UploadPage',
-                                                     { previousRouteName: 'ProfilePage' })}
-                            style={[styles.iconBtn,{ marginHorizontal: 25}]}>
+            { previousRouteName: 'ProfilePage' })}
+            style={[styles.iconBtn, { marginHorizontal: 25 }]}>
             <Image source={require('../images/plus.png')} style={{ width: 30, height: 30 }} />
           </TouchableOpacity>
           <TouchableOpacity style={styles.iconBtn}>
@@ -166,7 +165,7 @@ export default class ProfileScreen extends React.Component {
           </TouchableOpacity>
         </View>
         <View style={{ flexDirection: 'row-reverse', justifyContent: 'space-evenly' }}>
-          <TouchableOpacity onPress={() => this.setState({showList : true})}>
+          <TouchableOpacity onPress={() => this.setState({ showList: true })}>
             <Image source={require('../images/grid.png')} style={{ width: 30, height: 30 }} />
           </TouchableOpacity>
           <TouchableOpacity onPress={() => this.setState({ showList: false })}>
@@ -184,70 +183,71 @@ export default class ProfileScreen extends React.Component {
             <Text style={{ color: 'white' }}>Notifications</Text>
           </View>
         )}
-        </LinearGradient>
-);
-    }
+      </LinearGradient>
+    );
+  }
 }
 
 const styles = StyleSheet.create({
-    header:{
-        flexDirection: 'row-reverse',
-        alignItems: 'center', 
-        justifyContent: 'space-between', 
-        paddingTop: 25,
-        paddingHorizontal: 10
-    },
-    body:{
-        flex: 1,
-    },
-    container: {
-      flex: 1,
-      padding: 16,
-    },
-    itemContainer: {
-      flex: 1,
-      margin: 4,
-      borderRadius: 2,
-      overflow: 'hidden',
-      alignItems: 'center'
-    },
-    itemImage: {
-      flex: 1,
-      width: 210,
-      height: 235,
-      aspectRatio: 1,
-    },
-    infoName:{
-        fontSize: 16,
-        color: 'gray',
-    },
-    infoStatic:{
-        fontWeight: 'bold',
-        fontSize: 14,
-        color: 'white',
-    },
-    profileName:{
-        fontWeight: 'bold',
-        fontSize: 18,
-        marginTop: 8,
-        color: 'white',
-    },
-    headerText:{
-        fontSize: 16,
-        color: 'white'
-    },
-    followBtn:{
-        backgroundColor: 'red',
-        paddingVertical: 8,
-        paddingHorizontal: 16, 
-        borderRadius: 20
-    },
-    centerStyle:{
-        flexDirection: 'row-reverse', 
-        justifyContent: 'center', 
-        alignItems: 'center'
-    },
-    iconBtn:{
-        borderColor: '#686060', borderWidth: 1, borderRadius: 3
-    },
-  });
+  header: {
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingTop: 25,
+    paddingHorizontal: 10
+  },
+  body: {
+    flex: 1,
+  },
+  container: {
+    flex: 1,
+    padding: 16,
+  },
+  itemContainer: {
+    flex: 1,
+    margin: 4,
+    borderRadius: 2,
+    overflow: 'hidden',
+    alignItems: 'center'
+  },
+  itemImage: {
+    flex: 1,
+    width: 210,
+    height: 235,
+    aspectRatio: 1,
+  },
+  infoName: {
+    fontSize: 16,
+    color: 'gray',
+  },
+  infoStatic: {
+    fontWeight: 'bold',
+    fontSize: 14,
+    color: 'white',
+  },
+  profileName: {
+    fontWeight: 'bold',
+    fontSize: 18,
+    marginTop: 8,
+    color: 'white',
+  },
+  headerText: {
+    fontSize: 16,
+    color: 'white'
+  },
+  followBtn: {
+    backgroundColor: 'red',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 20
+  },
+  centerStyle: {
+    flexDirection: 'row-reverse',
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  iconBtn: {
+    borderColor: '#686060', borderWidth: 1, borderRadius: 3
+  },
+});
+
