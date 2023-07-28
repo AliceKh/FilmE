@@ -38,11 +38,35 @@ export default class GraphPage extends React.Component {
     this.setState({ activeDatasetIndex: index });
   };
 
+  parseTimestampToSeconds = (timestamp) => {
+    const parts = timestamp.split(':').map((part) => parseInt(part));
+    if (parts.length === 3) {
+      // Timestamp with "XX:YY:ZZ" format
+      const [hours, minutes, seconds] = parts;
+      return (hours * 60 * 60) + (minutes * 60) + seconds;
+    } else if (parts.length === 2) {
+      // Timestamp with "XX:YY" format
+      const [minutes, seconds] = parts;
+      return (minutes * 60) + seconds;
+    } else {
+      // Invalid timestamp format, return 0
+      return 0;
+    }
+  };
+
   renderTimestampButtons = () => {
     const { activeDatasetIndex, datasets } = this.state;
 
     const activeDataset = datasets[activeDatasetIndex];
-    const buttons = datasets.map((dataset, index) => (
+
+    // Sort timestamps based on their converted values (in seconds)
+    const sortedButtons = datasets.sort((a, b) => {
+      const timeA = this.parseTimestampToSeconds(a.timestamp);
+      const timeB = this.parseTimestampToSeconds(b.timestamp);
+      return timeA - timeB;
+    });
+
+    const buttons = sortedButtons.map((dataset, index) => (
       <TouchableOpacity
         key={index}
         style={[
