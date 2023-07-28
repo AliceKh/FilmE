@@ -29,7 +29,6 @@ export default class GraphPage extends React.Component {
         this.setState({ datasets: reactions, isLoading: false });
       })
       .catch(error => {
-        console.error('Error fetching analytics data:', error);
         this.setState({ isLoading: false });
       });
   };
