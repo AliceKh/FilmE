@@ -34,7 +34,7 @@ export default class ExplorePage extends React.Component {
     .catch((error) => {
       console.log(error);
     });
-    BackHandler.addEventListener('hardwareBackPress', this.handleBackPress);
+    this.backHandler = BackHandler.addEventListener('hardwareBackPress', this.handleBackPress);
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -47,7 +47,7 @@ export default class ExplorePage extends React.Component {
   }
 
   componentWillUnmount() {
-    BackHandler.removeEventListener('hardwareBackPress', this.handleBackPress);
+    this.backHandler.remove();
   }
 
   handleBackPress = () => {
