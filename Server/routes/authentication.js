@@ -15,7 +15,7 @@ router.post('/register', (req, res) => {
     })
     .catch((error) => {
       console.log(error);
-      res.send(500, error.code);
+      res.status(500).send(error.code);
     });
  });
 
@@ -27,7 +27,7 @@ router.post('/register', (req, res) => {
     })
     .catch((error) => {
       console.log(error);
-      res.send(500, error.code);
+      res.status(500).send(error.code);
     });
  }); 
 

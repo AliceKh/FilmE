@@ -15,7 +15,7 @@ export default function Login (props) {
         setIsLoading(true);
         login(email, password)
             .then(() => {
-                navigate('ExplorePage', { previousRouteName: 'LoginPage' });
+                navigate('ExplorePage', { previousRouteName: 'Login' });
             })
             .catch((error) => {
                 loginFailedAlert(error);
