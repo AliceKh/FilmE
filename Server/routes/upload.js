@@ -26,6 +26,7 @@ const upload = multer({ storage: multerStorage });
 router.post('/', function (req, res) {
     let upload = req.body;
     console.log(upload);
+    console.log("Server upload: " + upload['LinkToPreviewImage']);
     upload['DateWhenUploaded'] = Date.now();
     upload['NumberOfReactions'] = 0;
     upload['ListOfReactions'] = [];
@@ -38,11 +39,6 @@ router.post('/', function (req, res) {
     insertUpload(req.body).then(r => console.log(r));
     res.send('respond with a resource');
 });
-
-// router.route('/video')
-//     .post(uploadVideoMulter.single('file'), (req, res) => {
-//         res.status(201).json(req.file)
-//     });
 
 router.route('/video').post(upload.single('file'), (req, res) => {
     try {
@@ -58,7 +54,7 @@ router.route('/video').post(upload.single('file'), (req, res) => {
             }
             else{
                 uploadBytes(storageRef, data, {contentType: 'video/mp4'}).then((snapshot) => {
-                    console.log('Uploaded a file!'); // TODO console.log
+                    console.log('video uploaded!');
                 })
             }
         })
@@ -88,7 +84,7 @@ router.route('/audio').post(upload.single('file'), (req,res) => {
             }
             else{
                 uploadBytes(storageRef, data, {contentType: 'audio/mp3'}).then((snapshot) => {
-                    console.log('Uploaded a file!'); // TODO console.log
+                    console.log('audio uploaded!');
                 })
             }
         })
@@ -104,13 +100,36 @@ router.route('/audio').post(upload.single('file'), (req,res) => {
       }
     
 })
-    //.post(uploadAudioMulter.single('file'), (req, res) => {
-    //    res.status(201).json(req.file)
-    //});
 
-router.route('/preview')
-    .post(uploadPreviewMulter.single('file'), (req, res) => {
-        res.status(201).json(req.file)
+router.route('/image').post(upload.single('file'), (req, res) => {
+    try {
+        const currentUser = auth.currentUser;
+        const file = req.file;
+
+        if (currentUser) {
+        const storageRef = ref(storage, `preview/${file.originalname}.jpeg`);
+        fs.readFile(req.file.path, (err, data) => {
+            if(err){
+                console.log(err);
+                return;
+            }
+            else{
+                uploadBytes(storageRef, data, {contentType: 'image/jpeg'}).then((snapshot) => {
+                    console.log('preview image uploaded!');
+                })
+            }
+        })
+        res.status(201).json(file);
+      }
+     else{
+        res.status(401).json({ error: 'User is not authenticated' });
+     }
+
+     }catch (error) {
+        console.error('Error uploading file:', error);
+        res.status(500).json({ error: 'Internal server error' });
+      }
+    
     });
 
 export {router as uploadRoute};
