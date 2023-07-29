@@ -1,28 +1,60 @@
 import React, { useState } from 'react';
-import {Button, Image, Text, TextInput, View, Alert} from 'react-native';
+import {Button, Image, Text, TextInput, View, Alert, ActivityIndicator, Dimensions} from 'react-native';
 import { register } from '../services/AuthService';
+import { passwordValidation, confirmValidation, usernameValidation, emailValidation } from '../services/Validation';
 
 export default function Register(props) {
+    const { height } = Dimensions.get('screen');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [username, setUsername] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
     const {navigate} = props.navigation;
 
-    function submitRegistration(){
-        register(email, password, username)
-            .then(() => navigate('ExplorePage'))
-            .catch((error) => {
-                console.log(error); 
-                registrationFailedAlert();
-            });
+    const [passwordErrorMessage, setPasswordErrorMessage] = useState('');
+    const [confirmPasswordErrorMessage, setConfirmPasswordMessage] = useState('');
+    const [usernameErrorMessage, setUsernameErrorMessage] = useState('');
+    const [emailErrorMessage, setEmailErrorMessage] = useState('');
+
+    const [isLoading, setIsLoading] = useState(false);
+
+    async function submitRegistration(){
+        await validation();
+        if(!passwordErrorMessage && !confirmPasswordErrorMessage && !usernameErrorMessage && !emailErrorMessage) {
+            setIsLoading(true);
+
+            register(email, password, username)
+                .then(() => navigate('ExplorePage'))
+                .catch((error) => {
+                    registrationFailedAlert(error);
+                })
+                .finally(()=>{
+                    setIsLoading(false);
+                });
+                
+        }
     }
 
-    function registrationFailedAlert(){
-        Alert.alert('Oops!', 'Registration failed', [{text: 'OK', onPress: ()=>console.log('')}]); // TODO console.log
+    function validation() {
+        setPasswordErrorMessage(passwordValidation(password));
+        setConfirmPasswordMessage(confirmValidation(confirmPassword, password));
+        setUsernameErrorMessage(usernameValidation(username));
+        setEmailErrorMessage(emailValidation(email));
+    }
+    
+
+    function registrationFailedAlert(error){
+        Alert.alert('Oops!', 'Registration failed ' + error, [{text: 'OK', onPress: ()=>console.log(error)}]);
     }
 
         return (
             <View style={{height: "100%"}}>
+                {isLoading ?
+                <View style={{paddingTop: height/2}}>
+                    <ActivityIndicator size="large" color="#9960D2" /> 
+                </View>
+                :
+                <View>
                 <View style={{
                     marginHorizontal: 55,
                     alignItems: "center",
@@ -53,9 +85,12 @@ export default function Register(props) {
                         placeholderTextColor="#909580"
                         textAlign='left'
                         style={{width: "100%"}}
-                        onChangeText={username => setUsername(username)}
+                        onChangeText={username => {setUsernameErrorMessage(''); setUsername(username)}}
                     />
                 </View>
+
+                {usernameErrorMessage.length > 0 && <Text style={{color: "#dc3545", paddingHorizontal: 35,}}>{usernameErrorMessage}</Text>}
+
                 <View style={{
                     flexDirection: "row",
                     alignItems: "center",
@@ -72,9 +107,11 @@ export default function Register(props) {
                         placeholderTextColor="#909580"
                         textAlign='left'
                         style={{width: "100%"}}
-                        onChangeText={email => setEmail(email)}
+                        onChangeText={email => {setEmailErrorMessage(''); setEmail(email)}}
                     />
                 </View>
+
+                {emailErrorMessage.length > 0 && <Text style={{color: "#dc3545", paddingHorizontal: 35,}}>{emailErrorMessage}</Text>}
 
                 <View style={{
                     flexDirection: "row",
@@ -94,9 +131,12 @@ export default function Register(props) {
                         color='#6E2E76'
                         textAlign='left'
                         style={{width: "100%"}}
-                        onChangeText={pass => setPassword(pass)}
+                        onChangeText={pass => {setPasswordErrorMessage(''); setPassword(pass);}}
                     />
+                    
                 </View>
+                
+                {passwordErrorMessage.length > 0 && <Text style={{color: "#dc3545", paddingHorizontal: 35,}}>{passwordErrorMessage}</Text>}
 
                 <View style={{
                     flexDirection: "row",
@@ -116,8 +156,11 @@ export default function Register(props) {
                         color='#6E2E76'
                         textAlign='left'
                         style={{width: "100%"}}
+                        onChangeText={conPass => {setConfirmPasswordMessage(''); setConfirmPassword(conPass);}}
                     />
                 </View>
+
+                {confirmPasswordErrorMessage.length > 0 && <Text style={{color: "#dc3545", paddingHorizontal: 35}}>{confirmPasswordErrorMessage}</Text>}
 
                 <View style={{
                     marginHorizontal: 55,
@@ -152,6 +195,8 @@ export default function Register(props) {
                         paddingBottom: "5%"
                     }}>Login
                 </Text>
+                </View>
+                }
             </View>
         )
 }
