@@ -25,7 +25,6 @@ class AudioReactionPage extends React.Component {
 
         const { navigation } = this.props;
         const audio = navigation.state.params.selectedItem;
-        console.log(JSON.stringify(audio));
 
         this.downloadFile(audio);
     }
@@ -55,18 +54,15 @@ class AudioReactionPage extends React.Component {
         const { status } = await MediaLibrary.requestPermissionsAsync();
 
         if(status != 'granted') {
-            console.log("Permissions error");
             return;
         }
 
         try {
         fileUrl = FileSystem.cacheDirectory + audio.Title + '.mp3';
-        console.log("statrting download " + fileUrl);
 
         const downloadResumable = FileSystem.createDownloadResumable(audio.LinkToStorage, fileUrl, {}, false);
         const { uri } = await downloadResumable.downloadAsync(null, {shouldCache: false});
 
-        console.log("completed: " + uri);
         this.setState({audioFile: uri});
         this.playSound(audio);
         }
@@ -76,18 +72,15 @@ class AudioReactionPage extends React.Component {
     }
 
     playSound = async (audio) => {
-        console.log('Loading Sound');
         const sound = new Audio.Sound()
 
         await sound.loadAsync({
             uri: this.state.audioFile
         })
         this.setState({sound: sound});
-
-        console.log('Playing Sound');
         await sound.playAsync();
         this.setState({isLoading: false});
-        this.handlePlayPause();
+        this.setState({ isPlaying: true });
     }
 
     handlePlayPause = () => {
@@ -97,27 +90,28 @@ class AudioReactionPage extends React.Component {
         if (isPlaying) {
             sound.pauseAsync();
             video.pauseAsync();
-            this.setState({ isPlaying: !isPlaying });
         } else {
             sound.playAsync();
             video.playAsync();
-            this.setState({ isPlaying: !isPlaying });
         }
-      
+
+
+        this.setState({ isPlaying: !isPlaying });
     };
 
     handleFaceDetectionChange = (isFaceDetected) => {
         const { sound } = this.state;
         this.setState({ isFaceDetected });
-        
+
         const video = this.videoRef.current;
-        
-        if (video && sound) {
-            if (isFaceDetected && !this.state.isPlaying) {
-                this.handlePlayPause();
-            } else if (!isFaceDetected && this.state.isPlaying){
-                this.handlePlayPause();
-            }
+        if (video) {
+          if (isFaceDetected && this.state.isPlaying) {
+            sound.playAsync();
+            video.playAsync();            
+          } else {
+            sound.pauseAsync();
+            video.pauseAsync();
+          }
         }
       };
 

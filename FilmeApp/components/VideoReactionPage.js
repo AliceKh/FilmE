@@ -54,18 +54,16 @@ class VideoReactionPage extends React.Component {
     const { status } = await MediaLibrary.requestPermissionsAsync();
 
     if(status != 'granted') {
-        console.log("Permissions error");
+        console.log("Permissions error"); // TODO console.log
         return;
     }
 
     try {
       fileUrl = FileSystem.cacheDirectory + video.Title + '.mp4';
-      console.log("statrting download " + fileUrl);
 
       const downloadResumable = FileSystem.createDownloadResumable(video.LinkToStorage, fileUrl, {}, false);
       const { uri } = await downloadResumable.downloadAsync(null, {shouldCache: false});
 
-      console.log("completed: " + uri);
       this.setState({videoFile: uri});
       this.setState({isLoading: false});
       this.handlePlayPause();

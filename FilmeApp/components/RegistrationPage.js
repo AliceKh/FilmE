@@ -18,7 +18,7 @@ export default function Register(props) {
     }
 
     function registrationFailedAlert(){
-        Alert.alert('Oops!', 'Registration failed', [{text: 'OK', onPress: ()=>console.log('')}]);
+        Alert.alert('Oops!', 'Registration failed', [{text: 'OK', onPress: ()=>console.log('')}]); // TODO console.log
     }
 
         return (

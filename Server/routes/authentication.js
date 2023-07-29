@@ -9,7 +9,6 @@ router.post('/register', (req, res) => {
   createUserWithEmailAndPassword(auth, req.body.email, req.body.password)
     .then(async (userCredential) => {
       const user = userCredential.user;
-      console.log(user.UserImpl, user.uid);
       await insertUser(req.body, user.uid);
 
       res.sendStatus(200);

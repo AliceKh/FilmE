@@ -34,7 +34,6 @@ export default function ReactionRecording(props) {
     
                 setCounter(counter + 1);
                 let pictureTime = (counter * intervalDuration)/1000;
-                console.log("counter: " + counter + " time: " + pictureTime);
                 sendReactions(result.uri, pictureTime, props.mediaId);
               }
               catch(err) {

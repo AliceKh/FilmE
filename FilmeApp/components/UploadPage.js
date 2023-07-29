@@ -70,7 +70,7 @@ export default function UploadPage(props) {
             //setChosenPlayFile('');
         });
         useItemStartListener(async (item) => {
-            console.log(`item ${item.id} starting to upload, name = ${item.file.name} ${item.file.type}`);
+            console.log(`item ${item.id} starting to upload, name = ${item.file.name} ${item.file.type}`); // TODO console.log
         });
         let progress = useItemProgressListener((item) => {
 
@@ -113,7 +113,7 @@ export default function UploadPage(props) {
                     }
                 } catch (err) {
                     if (DocumentPicker.isCancel(err)) {
-                        console.log("User cancelled the picker, exit any dialogs or menus and move on");
+                        console.log("User cancelled the picker, exit any dialogs or menus and move on"); // TODO console.log
                     } else {
                         throw err;
                     }
@@ -159,7 +159,6 @@ export default function UploadPage(props) {
     }
 
     const handlePublish = () => {
-        console.log("pressed publish");
         axios.post(`http://${global.server}:4000/upload/`, {
             LinkToStorage:linkToStorage,
             LinkToPreviewImage:linkToPreviewImage,
@@ -169,7 +168,7 @@ export default function UploadPage(props) {
             Tags:tags,
             TimeStamps:timeStamps
         })
-            .then(r => console.log("uploaded!!"))
+            .then(r => console.log("uploaded!!")) // TODO console.log
     }
 
     return (
@@ -267,10 +266,10 @@ export default function UploadPage(props) {
             </View>
             <View style={{
                 marginHorizontal: 55,
-                paddingHorizontal: 10,
+                paddingHorizontal: 5,
                 alignItems: "center",
                 justifyContent: "center",
-                marginTop: 50,
+                marginTop: 30,
                 paddingVertical: 10
             }}>
                 <Button mode="contained" onPress={handlePublish}>
@@ -282,8 +281,8 @@ export default function UploadPage(props) {
                 style={{
                     alignSelf: "center",
                     margin: "5%",
-                    height: 240,
-                    width: 135
+                    height: 170,
+                    width: 120
                 }}
 
                 source={require("../assets/mainLogo2.png")}
