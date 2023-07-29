@@ -4,6 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import axios from 'axios'
+import SearchResultsPage from './SearchResultsPage';
 
 export default class ExplorePage extends React.Component {
   constructor(props) {
@@ -13,6 +14,7 @@ export default class ExplorePage extends React.Component {
       songs: [],
       lastTwoClicked: [],
       AllSongs: [],
+      showSearchResults: false,
     };
   }
 
@@ -55,7 +57,15 @@ export default class ExplorePage extends React.Component {
   }
 
   handleSearch = () => {
-    console.log(`Searching for "${this.state.searchTerm}"`);
+    const { searchTerm, songs } = this.state;
+
+    // Filter songs based on the search term
+    const filteredSongs = songs.filter((item) => {
+      return item.Title.toLowerCase().includes(searchTerm.toLowerCase());
+    });
+
+    // Update the state with the filtered songs and set showSearchResults flag
+    this.setState({ AllSongs: filteredSongs, showSearchResults: true });
   };
 
   handleRecentlyPlayed = (item) =>{
@@ -105,83 +115,92 @@ export default class ExplorePage extends React.Component {
     };
 
   render() {
-    return (
-      <LinearGradient
-         colors={['#29024f', '#000000', '#29024f']}
-         style={styles.container}
-        >
-        <View style={styles.header}>
-        <View style={styles.centeredButton}>
-          <TouchableOpacity onPress={() => this.props.navigation.navigate('ProfilePage', { previousRouteName: 'ExplorePage' })}>
-            <Text style={styles.headerText}>
-              {"  Profile Page "}
-              <Image source={require('../images/up.png')} style={{ width: 30, height: 30 }} />
-            </Text>
-          </TouchableOpacity>
+    const { showSearchResults, AllSongs } = this.state;
+    
+    if (!this.state.searchTerm || !showSearchResults) {
+      return (
+        <LinearGradient
+          colors={['#29024f', '#000000', '#29024f']}
+          style={styles.container}
+          >
+          <View style={styles.header}>
+          <View style={styles.centeredButton}>
+            <TouchableOpacity onPress={() => this.props.navigation.navigate('ProfilePage', { previousRouteName: 'ExplorePage' })}>
+              <Text style={styles.headerText}>
+                {"  Profile Page "}
+                <Image source={require('../images/up.png')} style={{ width: 30, height: 30 }} />
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
 
-        <View style={styles.searchBar}>
-          <Ionicons name="search-outline" size={24} color="gray" style={styles.searchIcon} />
-          <TextInput
-            placeholder="Search"
-            style={styles.searchInput}
-            value={this.state.searchTerm}
-            onChangeText={(searchTerm) => this.setState({ searchTerm })}
-            onSubmitEditing={this.handleSearch}
-          />
-        </View>
-        <View style={styles.body}>
-          <Text style={styles.recentlyPlayed}>Recently Played</Text>
-          <Text style={styles.seeAll} onPress={() => this.props.navigation.navigate('SeeAllPage',
-                                                     { selectedItem: this.state.AllSongs,
-                                                       type: "recently" })}>See All</Text>
-        </View>
-        <View style={styles.recentlyPlayedContainer}>
+          <View style={styles.searchBar}>
+            <Ionicons name="search-outline" size={24} color="gray" style={styles.searchIcon} />
+            <TextInput
+              placeholder="Search"
+              style={styles.searchInput}
+              value={this.state.searchTerm}
+              onChangeText={(searchTerm) => this.setState({ searchTerm })}
+              onSubmitEditing={this.handleSearch}
+            />
+          </View>
+          <View style={styles.body}>
+            <Text style={styles.recentlyPlayed}>Recently Played</Text>
+            <Text style={styles.seeAll} onPress={() => this.props.navigation.navigate('SeeAllPage',
+                                                      { selectedItem: this.state.AllSongs,
+                                                        type: "recently" })}>See All</Text>
+          </View>
+          <View style={styles.recentlyPlayedContainer}>
+            <FlatList
+              data={this.state.AllSongs.slice(0,2)}
+              renderItem={({item}) => (
+                <TouchableOpacity style={styles.recentlyPlayedItem} onPress={() => this.props.navigation.navigate('VideoReactionPage', { selectedItem: item })}>
+                  <Image style={styles.recentlyPlayedImage} source={{uri : item.LinkToPreviewImage}} />
+                  <View style={styles.songDetails}>
+                    <Text style={styles.recentlyPlayedName}>{item.Title}</Text>
+                    <Text style={styles.recentlyPlayedArtist}>{item.Uploader.Username}</Text>
+                  </View>
+                </TouchableOpacity>
+              )}
+              keyExtractor={item => item._id}
+              horizontal={true}
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{ paddingLeft: 20 }}
+            />
+          </View>
+          <View style={styles.body}>
+            <Text style={styles.heading}>Recommendation</Text>
+            <Text style={styles.seeAll} onPress={() => this.props.navigation.navigate('SeeAllPage',
+                                                      { selectedItem: this.state.songs,
+                                                        type: "all" })}>See All</Text>
+          </View>
           <FlatList
-            data={this.state.AllSongs.slice(0,2)}
-            renderItem={({item}) => (
-              <TouchableOpacity style={styles.recentlyPlayedItem} onPress={() => this.props.navigation.navigate('VideoReactionPage', { selectedItem: item })}>
-                <Image style={styles.recentlyPlayedImage} source={{uri : item.LinkToPreviewImage}} />
+            data={this.state.songs.slice(0,7)}
+            renderItem={({item}) =>(
+              <View style={styles.songItem}>
+                <Image style={styles.songImage} source={{uri : item.LinkToPreviewImage}} />
                 <View style={styles.songDetails}>
-                  <Text style={styles.recentlyPlayedName}>{item.Title}</Text>
-                  <Text style={styles.recentlyPlayedArtist}>{item.Uploader.Username}</Text>
+                  <Text style={styles.songName}>{item.Title}</Text>
+                  <Text style={styles.artistName}>{item.Uploader.Username}</Text>
                 </View>
-              </TouchableOpacity>
+                <TouchableOpacity onPress={() => {
+                  this.handleRecentlyPlayed(item);
+                  item.Type == 'video' ? 
+                  this.props.navigation.navigate('VideoReactionPage', { selectedItem: item })
+                  : this.props.navigation.navigate('AudioReactionPage', { selectedItem: item });}
+                }>
+                  <Image source={require('../images/right.png')} style={{ width: 30, height: 30 }} />
+                </TouchableOpacity>
+              </View>
             )}
             keyExtractor={item => item._id}
-            horizontal={true}
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ paddingLeft: 20 }}
           />
-        </View>
-        <View style={styles.body}>
-          <Text style={styles.heading}>Recommendation</Text>
-          <Text style={styles.seeAll} onPress={() => this.props.navigation.navigate('SeeAllPage',
-                                                     { selectedItem: this.state.songs,
-                                                       type: "all" })}>See All</Text>
-        </View>
-        <FlatList
-          data={this.state.songs.slice(0,7)}
-          renderItem={({item}) =>(
-            <View style={styles.songItem}>
-              <Image style={styles.songImage} source={{uri : item.LinkToPreviewImage}} />
-              <View style={styles.songDetails}>
-                <Text style={styles.songName}>{item.Title}</Text>
-                <Text style={styles.artistName}>{item.Uploader.Username}</Text>
-              </View>
-              <TouchableOpacity onPress={() => {
-                this.handleRecentlyPlayed(item);
-                item.Type == 'video' ? 
-                this.props.navigation.navigate('VideoReactionPage', { selectedItem: item })
-                : this.props.navigation.navigate('AudioReactionPage', { selectedItem: item });}
-              }>
-                <Image source={require('../images/right.png')} style={{ width: 30, height: 30 }} />
-              </TouchableOpacity>
-            </View>
-          )}
-          keyExtractor={item => item._id}
-        />
+        </LinearGradient>
+      );
+    }
+    return (
+      <LinearGradient colors={['#29024f', '#000000', '#29024f']} style={styles.container}>
+        <SearchResultsPage searchData={AllSongs} navigation={this.props.navigation} />
       </LinearGradient>
     );
   }
