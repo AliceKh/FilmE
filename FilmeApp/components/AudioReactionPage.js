@@ -42,7 +42,8 @@ class AudioReactionPage extends React.Component {
         );
     }
     handleBackButtonPressAndroid = () => {
-        this.state.sound.pauseAsync();
+        if(this.state.sound)
+            this.state.sound.pauseAsync();
     
         // We have handled the back button
         // Return `false` to navigate to the previous screen
@@ -57,21 +58,30 @@ class AudioReactionPage extends React.Component {
         }
 
         try {
-        fileUrl = FileSystem.cacheDirectory + audio.Title + '.mp3';
+            fileUrl = FileSystem.cacheDirectory + audio.Title + '.mp3';
 
-        const downloadResumable = FileSystem.createDownloadResumable(audio.LinkToStorage, fileUrl, {}, false);
-        const { uri } = await downloadResumable.downloadAsync(null, {shouldCache: false});
+            console.log("starting download " + fileUrl);
+            const downloadResumable = FileSystem.createDownloadResumable(audio.LinkToStorage, fileUrl, {}, false);
+            const { uri } = await downloadResumable.downloadAsync(null, {shouldCache: false});
 
-        this.setState({audioFile: uri});
-        this.playSound(audio);
+            console.log("download completed " + uri);
+            this.setState({audioFile: uri});
+            this.playSound();
         }
         catch (err) {
             console.log(err);
         }
     }
 
-    playSound = async (audio) => {
-        const sound = new Audio.Sound()
+    playSound = async () => {
+        const sound = new Audio.Sound();
+
+        sound.setOnPlaybackStatusUpdate((status) => {
+            if(status.didJustFinish) {
+                this.setState({ isPlaying: false });
+                sound.unloadAsync();
+            }
+        });
 
         await sound.loadAsync({
             uri: this.state.audioFile
@@ -112,14 +122,13 @@ class AudioReactionPage extends React.Component {
             video.pauseAsync();
           }
         }
-      };
+    };
 
-    /*toggleDialog = () => {
-        this.setState((prevState) => ({
-          isDialogVisible: !prevState.isDialogVisible,
-
-        }));
-      };*/
+    handleEndOfVideo = (status) => {
+        if(status.didJustFinish) {
+            this.setState({isPlaying: false});
+        }
+    }
 
     render() {
         const { isDialogVisible, isPlaying, isFaceDetected  } = this.state;

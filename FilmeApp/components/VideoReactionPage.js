@@ -79,11 +79,12 @@ class VideoReactionPage extends React.Component {
     }
   };
 
-  /*toggleDialog = () => {
-    const { isDialogVisible } = this.state;
-    this.setState({ isDialogVisible: !isDialogVisible });
-  };*/
-
+  handleEndOfVideo = (status) => {
+    if(status.didJustFinish) {
+      this.setState({isPlaying: false});
+      this.videoRef.current.unloadAsync();
+    }
+  }
 
   render() {
     const { isDialogVisible, isPlaying, isFaceDetected } = this.state;
@@ -116,6 +117,7 @@ class VideoReactionPage extends React.Component {
           onReadyForDisplay={videoData => {
             //videoData.srcElement.style.position = "initial"
           }}
+          onPlaybackStatusUpdate={(status) => this.handleEndOfVideo(status)}
         />     
         }   
         <View style={styles.overlay}>
