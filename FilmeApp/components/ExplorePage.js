@@ -4,7 +4,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import axios from 'axios'
-import SearchResultsPage from './SearchResultsPage';
 
 export default class ExplorePage extends React.Component {
   constructor(props) {
@@ -13,8 +12,9 @@ export default class ExplorePage extends React.Component {
       searchTerm: '',
       songs: [],
       lastTwoClicked: [],
-      AllSongs: [],
+      RecentlySongs: [],
       showSearchResults: false,
+      searchResults: [],
     };
   }
 
@@ -40,8 +40,8 @@ export default class ExplorePage extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (prevState.AllSongs !== this.state.AllSongs) {
-      AsyncStorage.setItem('AllSongs', JSON.stringify(this.state.AllSongs))
+    if (prevState.AllSongs !== this.state.RecentlySongs) {
+      AsyncStorage.setItem('AllSongs', JSON.stringify(this.state.RecentlySongs))
         .catch((error) => {
           console.log(error);
         });
@@ -59,17 +59,15 @@ export default class ExplorePage extends React.Component {
   handleSearch = () => {
     const { searchTerm, songs } = this.state;
 
-    // Filter songs based on the search term
-    const filteredSongs = songs.filter((item) => {
-      return item.Title.toLowerCase().includes(searchTerm.toLowerCase());
-    });
+    const filteredSongs = songs.filter(
+      (song) => song.Title.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
-    // Update the state with the filtered songs and set showSearchResults flag
-    this.setState({ AllSongs: filteredSongs, showSearchResults: true });
+    this.setState({ searchResults: filteredSongs });
   };
 
   handleRecentlyPlayed = (item) =>{
-    const { AllSongs } = this.state;
+    const { RecentlySongs: AllSongs } = this.state;
     let song = "";
     const foundIndex = AllSongs.findIndex(song => song._id === item._id);
           if (foundIndex !== -1) {
@@ -115,7 +113,10 @@ export default class ExplorePage extends React.Component {
     };
 
   render() {
-    const { showSearchResults, AllSongs } = this.state;
+    const { showSearchResults, RecentlySongs: AllSongs } = this.state;
+    const { searchResults } = this.state;
+    const songsToDisplay = searchResults.length > 0 ? searchResults : this.state.songs;
+
     
     if (!this.state.searchTerm || !showSearchResults) {
       return (
@@ -140,19 +141,20 @@ export default class ExplorePage extends React.Component {
               placeholder="Search"
               style={styles.searchInput}
               value={this.state.searchTerm}
-              onChangeText={(searchTerm) => this.setState({ searchTerm })}
+              //onChangeText={(searchTerm) => this.setState({ searchTerm })}
+              onChangeText={(searchTerm) => this.setState({ searchTerm }, this.handleSearch)}
               onSubmitEditing={this.handleSearch}
             />
           </View>
           <View style={styles.body}>
             <Text style={styles.recentlyPlayed}>Recently Played</Text>
             <Text style={styles.seeAll} onPress={() => this.props.navigation.navigate('SeeAllPage',
-                                                      { selectedItem: this.state.AllSongs,
+                                                      { selectedItem: this.state.RecentlySongs,
                                                         type: "recently" })}>See All</Text>
           </View>
           <View style={styles.recentlyPlayedContainer}>
             <FlatList
-              data={this.state.AllSongs.slice(0,2)}
+              data={this.state.RecentlySongs.slice(0,2)}
               renderItem={({item}) => (
                 <TouchableOpacity style={styles.recentlyPlayedItem} onPress={() => this.props.navigation.navigate('VideoReactionPage', { selectedItem: item })}>
                   <Image style={styles.recentlyPlayedImage} source={{uri : item.LinkToPreviewImage}} />
@@ -171,11 +173,11 @@ export default class ExplorePage extends React.Component {
           <View style={styles.body}>
             <Text style={styles.heading}>Recommendation</Text>
             <Text style={styles.seeAll} onPress={() => this.props.navigation.navigate('SeeAllPage',
-                                                      { selectedItem: this.state.songs,
+                                                      { selectedItem: songsToDisplay,
                                                         type: "all" })}>See All</Text>
           </View>
           <FlatList
-            data={this.state.songs.slice(0,7)}
+            data={songsToDisplay.slice(0,7)}
             renderItem={({item}) =>(
               <View style={styles.songItem}>
                 <Image style={styles.songImage} source={{uri : item.LinkToPreviewImage}} />

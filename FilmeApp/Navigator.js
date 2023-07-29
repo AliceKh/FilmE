@@ -11,7 +11,6 @@ import VideoReactionPage from './components/VideoReactionPage';
 import UploadPage from "./components/UploadPage";
 import AudioReactionPage from './components/AudioReactionPage';
 import SeeAllPage from './components/SeeAllPage';
-import SearchResultsPage from './components/SearchResultsPage';
 
 const stackNavigatorOptions = {
     headerShown: false,
@@ -32,7 +31,6 @@ const AppNavigator = createStackNavigator({
     VideoReactionPage:{screen:VideoReactionPage},
     AudioReactionPage: {screen:AudioReactionPage},
     SeeAllPage: {screen:SeeAllPage},
-    SearchResultsPage: {screen:SearchResultsPage}
 },
 {
     defaultNavigationOptions : stackNavigatorOptions
