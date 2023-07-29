@@ -10,7 +10,7 @@ export default function Login (props) {
     function submitLogin(){
         login(email, password)
             .then(() => {
-            navigate('ExplorePage', { previousRouteName: 'LoginPage' });
+            navigate('ExplorePage', { previousRouteName: 'Login' });
             })
             .catch((error) => {
                 console.log(error); 
@@ -26,7 +26,7 @@ export default function Login (props) {
         return(
             <View style={{height:"100%"}}>
                 <View style={styles.header}>
-                    <TouchableOpacity onPress={() => navigate.goBack()}>
+                    <TouchableOpacity onPress={() => navigate("Home")}>
                         <Image source={require('../images/previous.png')} 
                             style={{ width: 20, height: 20 }} />
                     </TouchableOpacity>

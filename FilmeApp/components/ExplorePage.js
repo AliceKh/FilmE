@@ -1,10 +1,9 @@
 import React, { Component } from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, Image, FlatList } from 'react-native';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, Image, FlatList, BackHandler } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import axios from 'axios'
-import { BackHandler } from 'react-native';
 
 export default class ExplorePage extends React.Component {
   constructor(props) {
@@ -35,6 +34,7 @@ export default class ExplorePage extends React.Component {
     .catch((error) => {
       console.log(error);
     });
+    BackHandler.addEventListener('hardwareBackPress', this.handleBackPress);
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -44,6 +44,14 @@ export default class ExplorePage extends React.Component {
           console.log(error);
         });
     }
+  }
+
+  componentWillUnmount() {
+    BackHandler.removeEventListener('hardwareBackPress', this.handleBackPress);
+  }
+
+  handleBackPress = () => {
+    BackHandler.exitApp();
   }
 
   handleSearch = () => {
@@ -103,18 +111,16 @@ export default class ExplorePage extends React.Component {
          style={styles.container}
         >
         <View style={styles.header}>
-        <TouchableOpacity onPress={() => BackHandler.exitApp()}>
-        <Image source={require('../images/previous.png')} style={{ width: 20, height: 20 }}/>
-      </TouchableOpacity>
-        <TouchableOpacity onPress={() => this.props.navigation.navigate('ProfilePage', { previousRouteName: 'ExplorePage' })}>
-            <Text style={ styles.headerText }>{"  Profile Page "}
-              <Image source={require('../images/up.png')} style={{ width: 16, height: 16 }} />
+        <View style={styles.centeredButton}>
+          <TouchableOpacity onPress={() => this.props.navigation.navigate('ProfilePage', { previousRouteName: 'ExplorePage' })}>
+            <Text style={styles.headerText}>
+              {"  Profile Page "}
+              <Image source={require('../images/up.png')} style={{ width: 30, height: 30 }} />
             </Text>
-          </TouchableOpacity>   
-            <TouchableOpacity onPress={this.toggleMenu}>
-            <Image source={require('../images/menu.png')} style={{ width: 30, height: 30 }} />
           </TouchableOpacity>
         </View>
+      </View>
+
         <View style={styles.searchBar}>
           <Ionicons name="search-outline" size={24} color="gray" style={styles.searchIcon} />
           <TextInput
@@ -125,7 +131,7 @@ export default class ExplorePage extends React.Component {
             onSubmitEditing={this.handleSearch}
           />
         </View>
-        <View style={styles.header}>
+        <View style={styles.body}>
           <Text style={styles.recentlyPlayed}>Recently Played</Text>
           <Text style={styles.seeAll} onPress={() => this.props.navigation.navigate('SeeAllPage',
                                                      { selectedItem: this.state.AllSongs,
@@ -149,7 +155,7 @@ export default class ExplorePage extends React.Component {
             contentContainerStyle={{ paddingLeft: 20 }}
           />
         </View>
-        <View style={styles.header}>
+        <View style={styles.body}>
           <Text style={styles.heading}>Recommendation</Text>
           <Text style={styles.seeAll} onPress={() => this.props.navigation.navigate('SeeAllPage',
                                                      { selectedItem: this.state.songs,
@@ -213,6 +219,19 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: 'white'
   },
+  backButton: {
+    marginRight: 10, 
+  },
+  centeredButton: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  body: {
+    flexDirection: 'row-reverse',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
   heading: {
     fontSize: 24,
     fontWeight: 'bold',
@@ -234,6 +253,7 @@ const styles = StyleSheet.create({
   },
   recentlyPlayedItem: {
     alignItems: 'center',
+    margin: 10,
   },
   recentlyPlayedImage: {
     width: 150,

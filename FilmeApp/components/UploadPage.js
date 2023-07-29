@@ -1,16 +1,21 @@
-import React, {useContext, useState} from 'react';
+import React, {useContext, useState, useEffect} from 'react';
 import {Image, StyleSheet, Text, TextInput, View, TouchableOpacity} from 'react-native';
 import {Button, FAB, ProgressBar, SegmentedButtons} from "react-native-paper";
 import * as DocumentPicker from 'expo-document-picker';
 import { LinearGradient } from 'expo-linear-gradient';
+import { retryMethod } from "@rpldy/retry";
 
 import NativeUploady, {
     UploadyContext,
     useItemErrorListener,
     useItemFinishListener,
     useItemProgressListener,
-    useItemStartListener
+    useItemStartListener,
+    useUploady
 } from "@rpldy/native-uploady";
+
+//import retryEnhancer, { useBatchRetry, useRetry, useRetryListener } from "@rpldy/retry-hooks";
+
 import axios from "axios";
 
 export default function UploadPage(props) {
@@ -25,31 +30,44 @@ export default function UploadPage(props) {
     const [type, setType] = useState('');
     const [tags, setTags] = useState('');
     const [timeStamps, setTimeStamps] = useState('');
-
-    const [chosenFile, setChosenFile] = useState('');
+    
+    const [isImagePicked, setIsImagePicked] = useState(false);
+    const [chosenPlayFile, setChosenPlayFile] = useState('');
+    const [chosenImageFile, setChosenImageFile] = useState('');
     const [chosenPreviewFile, setChosenPreviewFile] = useState('');
 
     const { navigate } = props.navigation
 
     const FileUpload = () => {
         const uploadyContext = useContext(UploadyContext);
+        const [failedItems, setFailedItems] = useState([]);
+
         useItemFinishListener((item) => {
             const response = item.uploadResponse.data;
             console.log(`item ${item.id} finished uploading, response was: `, response);
-            const nametype = response.mimetype.split("/")[0];
+            var nametype = response.mimetype.split("/")[0];
             var type = response.mimetype.split("/")[1];
-            type = (type == "mpeg")? "mp3" : "mpeg"; 
+            type = (type == "mpeg")? "mp3" : type;
+            nametype = (nametype == "image")? "preview" : nametype
             const filename = response.originalname
 
             const linkToMongo = "https://firebasestorage.googleapis.com/v0/b/filme-4277e.appspot.com/o/"
             + nametype + "%2F" + filename + "." + type + "?alt=media"
 
-            console.log("link: " + linkToMongo)
-            setLinkToStorage(linkToMongo);
+            if(!isImagePicked){
+                setLinkToStorage(linkToMongo);
+            }
+            else{
+                setLinkToPreviewImage(linkToMongo);
+            }      
         });
-        useItemErrorListener(async (item) => {
-            console.log(`item ${item.id} upload error !!!! `, item);
-            setChosenFile('');
+        useItemErrorListener(async (item, error) => {
+            console.error(`Error occurred while uploading ${item.file.name}`);
+            console.error(`Error occurred while uploading ${item.id}`);
+            //console.log(`item ${item.id} upload error... trying agian `, item);
+            //setFailedItems((prevFailedItems) => [...prevFailedItems, item]);
+            //setChosenImageFile('');
+            //setChosenPlayFile('');
         });
         useItemStartListener(async (item) => {
             console.log(`item ${item.id} starting to upload, name = ${item.file.name} ${item.file.type}`);
@@ -57,8 +75,26 @@ export default function UploadPage(props) {
         let progress = useItemProgressListener((item) => {
 
         });
+        
+        /*useEffect(() => {
+            const retryFailedItems = async () => {
+              await Promise.all(
+                failedItems.map((item) => {
+                  if (item && item.id) {
+                    return retryMethod(item.id);
+                  }
+                  return Promise.resolve();
+                })
+              );
+              setFailedItems([]);
+            };
+            if (failedItems.length > 0) {
+                retryFailedItems();
+              }
+            }, [failedItems]);*/
 
         function handleDocumentSelection(setFunc, type) {
+            console.log("enter:" + type);
             return async () => {
                 try {
                     const result = await DocumentPicker.getDocumentAsync({
@@ -73,6 +109,7 @@ export default function UploadPage(props) {
                         setServerUploadDestUrl(serverUploadDestUrl + type)
                         result.type = result.mimeType // uploady needs mimetype
                         uploadyContext.upload(result);
+                        setServerUploadDestUrl(server);
                     }
                 } catch (err) {
                     if (DocumentPicker.isCancel(err)) {
@@ -90,9 +127,17 @@ export default function UploadPage(props) {
                     icon="upload"
                     size={"large"}
                     loading={false}
-                    disabled={!type || !!chosenFile}
+                    disabled={!type || (!!chosenPlayFile && !!chosenImageFile)}
                     style={styles.uploadFAB}
-                    onPress={handleDocumentSelection(setChosenFile, type)}
+                    onPress={async () => {
+                        console.log(isImagePicked)
+                        if (!isImagePicked) {
+                            console.log("test: " + type);
+                            await handleDocumentSelection(setChosenPlayFile, type)();
+                        } else {
+                            await handleDocumentSelection(setChosenImageFile, 'image')();
+                        }
+                    }}
                 />
                 {progress &&
                     <View>
@@ -106,10 +151,6 @@ export default function UploadPage(props) {
                             progress={progress.completed * 0.01}/>
                     </View>
                 }
-                {/*<Text*/}
-                {/*    ellipsizeMode={'middle'}>*/}
-                {/*    {{uploadFile}}*/}
-                {/*</Text>*/}
             </View>
         )
     }
@@ -137,7 +178,7 @@ export default function UploadPage(props) {
          style={styles.page}
         >
         <View style={styles.header}>
-          <TouchableOpacity onPress={ () => navigate.goBack()}>
+          <TouchableOpacity onPress={ () => navigate('ExplorePage')}>
             <Text style={ styles.headerText }>{"  Explore Page "}
               <Image source={require('../images/up.png')} style={{ width: 20, height: 20}} />
             </Text>
@@ -155,13 +196,13 @@ export default function UploadPage(props) {
                             value: 'audio',
                             label: 'Audio',
                             icon: 'headphones',
-                            disabled: !!chosenFile,
+                            disabled: !!chosenPlayFile,
                             uncheckedColor: "#9960D2"
                         }, {
                             value: 'video',
                             label: 'Video',
                             icon: 'video',
-                            disabled: !!chosenFile,
+                            disabled: !!chosenPlayFile,
                             uncheckedColor: "#9960D2"
                         },
                     ]}
@@ -182,7 +223,8 @@ export default function UploadPage(props) {
                 <Button
                     icon="camera"
                     mode="outlined"
-                    // onPress={handleDocumentSelection(setPreviewFile, 'image')}
+                    onPress={() => setIsImagePicked(true)}
+                    
                 >
                     choose preview image
                 </Button>
