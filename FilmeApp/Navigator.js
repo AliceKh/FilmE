@@ -30,7 +30,7 @@ const AppNavigator = createStackNavigator({
     UploadPage:{screen:UploadPage},
     VideoReactionPage:{screen:VideoReactionPage},
     AudioReactionPage: {screen:AudioReactionPage},
-    SeeAllPage: {screen:SeeAllPage}
+    SeeAllPage: {screen:SeeAllPage},
 },
 {
     defaultNavigationOptions : stackNavigatorOptions
