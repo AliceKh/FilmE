@@ -30,21 +30,23 @@ class AudioReactionPage extends React.Component {
     }
 
     componentDidMount() {
-        BackHandler.addEventListener(
+        this.backHandler = BackHandler.addEventListener(
             'hardwareBackPress',
             this.handleBackButtonPressAndroid
         );
     }
     componentWillUnmount() {
-        BackHandler.removeEventListener(
-          'hardwareBackPress',
-          this.handleBackButtonPressAndroid
-        );
+        this.backHandler.remove()
     }
     handleBackButtonPressAndroid = () => {
         if(this.state.sound)
             this.state.sound.pauseAsync();
     
+        if (navigation && navigation.navigate) {
+          navigation.navigate('ExplorePage');
+          this.state.sound.pauseAsync();
+          return true;
+        }
         // We have handled the back button
         // Return `false` to navigate to the previous screen
         return false;
@@ -131,24 +133,12 @@ class AudioReactionPage extends React.Component {
     }
 
     render() {
-        const { isDialogVisible, isPlaying, isFaceDetected  } = this.state;
+        const { isPlaying, isFaceDetected  } = this.state;
         const { navigation } = this.props;
         const item = navigation.state.params.selectedItem
 
         return (
         <View style={styles.container}>
-            <View style={styles.header}>
-                <TouchableOpacity onPress={() => {
-                    this.state.sound.pauseAsync();
-                    this.setState({ isPlaying: !isPlaying })
-                    this.props.navigation.goBack()}}>
-                    <Image source={require('../images/previous.png')} 
-                        style={{ width: 20, height: 20}} />
-                </TouchableOpacity> 
-                <TouchableOpacity onPress={this.toggleMenu}>
-                <Image source={require('../images/menu.png')} style={{ width: 30, height: 30 }} />
-            </TouchableOpacity>
-            </View>
             {this.state.isLoading ?
                 <View style={{paddingTop: height/2}}>
                     <ActivityIndicator size="large" color="#9960D2" /> 

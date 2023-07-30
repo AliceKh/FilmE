@@ -7,7 +7,8 @@ export function register(email, password, username) {
         resolve();
       })
       .catch(error => {
-        reject(error);
+        errorMessage = error.response ? error.response.data : error;
+        reject(JSON.stringify(errorMessage));      
       });
   });
 }
@@ -19,7 +20,8 @@ export function login(email, password) {
       resolve();
     })
     .catch(error => {
-      reject(error);
+      errorMessage = error.response ? error.response.data : error;
+      reject(JSON.stringify(errorMessage));
     });
   });
 }
