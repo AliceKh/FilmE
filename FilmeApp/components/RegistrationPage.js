@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import {Button, Image, Text, TextInput, View, Alert, ActivityIndicator, Dimensions} from 'react-native';
 import { register } from '../services/AuthService';
 import { passwordValidation, confirmValidation, usernameValidation, emailValidation } from '../services/Validation';
+import { styles, stylesLogin } from '../styles/style';
 
 export default function Register(props) {
     const { height } = Dimensions.get('screen');
@@ -20,6 +21,7 @@ export default function Register(props) {
 
     async function submitRegistration(){
         await validation();
+
         if(!passwordErrorMessage && !confirmPasswordErrorMessage && !usernameErrorMessage && !emailErrorMessage) {
             setIsLoading(true);
 
@@ -35,7 +37,7 @@ export default function Register(props) {
         }
     }
 
-    function validation() {
+    async function validation() {
         setPasswordErrorMessage(passwordValidation(password));
         setConfirmPasswordMessage(confirmValidation(confirmPassword, password));
         setUsernameErrorMessage(usernameValidation(username));
@@ -47,156 +49,89 @@ export default function Register(props) {
         Alert.alert('Oops!', 'Registration failed ' + error, [{text: 'OK', onPress: ()=>console.log(error)}]);
     }
 
-        return (
-            <View style={{height: "100%"}}>
-                {isLoading ?
-                <View style={{paddingTop: height/2}}>
-                    <ActivityIndicator size="large" color="#9960D2" /> 
-                </View>
-                :
-                <View>
-                <View style={{
-                    marginHorizontal: 55,
-                    alignItems: "center",
-                    justifyContent: "center",
-                    marginTop: 45,
-                    paddingVertical: 10,
-                    borderRadius: 23
-                }}>
-                    <Text style={{
-                        color: "#9960D2",
-                        margin: 5,
-                        fontSize: 24
-                    }}>Welcome!</Text>
-                </View>
-                <View style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    marginHorizontal: 55,
-                    borderWidth: 2,
-                    marginTop: 25,
-                    paddingHorizontal: 10,
-                    borderColor: "#9960D2",
-                    borderRadius: 12,
-                    paddingVertical: 2
-                }}>
-                    <TextInput
-                        placeholder="User Name"
-                        placeholderTextColor="#909580"
-                        textAlign='left'
-                        style={{width: "100%"}}
-                        onChangeText={username => {setUsernameErrorMessage(''); setUsername(username)}}
-                    />
-                </View>
-
-                {usernameErrorMessage.length > 0 && <Text style={{color: "#dc3545", paddingHorizontal: 35,}}>{usernameErrorMessage}</Text>}
-
-                <View style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    marginHorizontal: 55,
-                    borderWidth: 2,
-                    marginTop: 25,
-                    paddingHorizontal: 10,
-                    borderColor: "#9960D2",
-                    borderRadius: 12,
-                    paddingVertical: 2
-                }}>
-                    <TextInput
-                        placeholder="Email"
-                        placeholderTextColor="#909580"
-                        textAlign='left'
-                        style={{width: "100%"}}
-                        onChangeText={email => {setEmailErrorMessage(''); setEmail(email)}}
-                    />
-                </View>
-
-                {emailErrorMessage.length > 0 && <Text style={{color: "#dc3545", paddingHorizontal: 35,}}>{emailErrorMessage}</Text>}
-
-                <View style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    marginHorizontal: 55,
-                    borderWidth: 2,
-                    marginTop: 25,
-                    paddingHorizontal: 10,
-                    borderColor: "#9960D2",
-                    borderRadius: 12,
-                    paddingVertical: 2
-                }}>
-                    <TextInput
-                        placeholder="Password"
-                        placeholderTextColor="#909580"
-                        secureTextEntry={true}
-                        color='#6E2E76'
-                        textAlign='left'
-                        style={{width: "100%"}}
-                        onChangeText={pass => {setPasswordErrorMessage(''); setPassword(pass);}}
-                    />
-                    
-                </View>
-                
-                {passwordErrorMessage.length > 0 && <Text style={{color: "#dc3545", paddingHorizontal: 35,}}>{passwordErrorMessage}</Text>}
-
-                <View style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    marginHorizontal: 55,
-                    borderWidth: 2,
-                    marginTop: 25,
-                    paddingHorizontal: 10,
-                    borderColor: "#9960D2",
-                    borderRadius: 12,
-                    paddingVertical: 2
-                }}>
-                    <TextInput
-                        placeholder="Confirm Password"
-                        placeholderTextColor="#909580"
-                        secureTextEntry={true}
-                        color='#6E2E76'
-                        textAlign='left'
-                        style={{width: "100%"}}
-                        onChangeText={conPass => {setConfirmPasswordMessage(''); setConfirmPassword(conPass);}}
-                    />
-                </View>
-
-                {confirmPasswordErrorMessage.length > 0 && <Text style={{color: "#dc3545", paddingHorizontal: 35}}>{confirmPasswordErrorMessage}</Text>}
-
-                <View style={{
-                    marginHorizontal: 55,
-                    paddingHorizontal: 10,
-                    alignItems: "center",
-                    justifyContent: "center",
-                    marginTop: 50,
-                    paddingVertical: 10
-                }}>
-                    <Button title='Sign Up'
-                            color="#9960D2"
-                            onPress={submitRegistration}
-                    ></Button>
-                </View>
-
-                <Image
-                    style={{
-                        alignSelf: "center",
-                        margin: "5%",
-                        height: 240,
-                        width: 135
-                    }}
-
-                    source={require("../assets/blackLogo.png")}
-                />
-                <Text
-                    onPress={() => navigate('Login')}
-
-                    style={{
-                        alignSelf: "center",
-                        color: "#9960D2",
-                        paddingBottom: "5%"
-                    }}>Login
-                </Text>
-                </View>
-                }
+    return (
+        <View>
+            {isLoading ?
+            <View style={{paddingTop: height/2}}>
+                <ActivityIndicator size="large" color="#9960D2" /> 
             </View>
-        )
+            :
+            <View>
+            <View style={stylesLogin.title}>
+                <Text style={stylesLogin.titleText}>Welcome!</Text>
+            </View>
+            <View style={stylesLogin.inputContainer}>
+                <TextInput
+                    placeholder="User Name"
+                    placeholderTextColor="#909580"
+                    textAlign='left'
+                    style={stylesLogin.inputText}
+                    onChangeText={username => {setUsernameErrorMessage(''); setUsername(username)}}
+                />
+            </View>
+
+            {usernameErrorMessage.length > 0 && <Text style={stylesLogin.error}>{usernameErrorMessage}</Text>}
+
+            <View style={stylesLogin.inputContainer}>
+                <TextInput
+                    placeholder="Email"
+                    placeholderTextColor="#909580"
+                    textAlign='left'
+                    style={stylesLogin.inputText}
+                    onChangeText={email => {setEmailErrorMessage(''); setEmail(email)}}
+                />
+            </View>
+
+            {emailErrorMessage.length > 0 && <Text style={stylesLogin.error}>{emailErrorMessage}</Text>}
+
+            <View style={stylesLogin.inputContainer}>
+                <TextInput
+                    placeholder="Password"
+                    placeholderTextColor="#909580"
+                    secureTextEntry={true}
+                    color='#6E2E76'
+                    textAlign='left'
+                    style={stylesLogin.inputText}
+                    onChangeText={pass => {setPasswordErrorMessage(''); setPassword(pass);}}
+                />
+                
+            </View>
+            
+            {passwordErrorMessage.length > 0 && <Text style={stylesLogin.error}>{passwordErrorMessage}</Text>}
+
+            <View style={stylesLogin.inputContainer}>
+                <TextInput
+                    placeholder="Confirm Password"
+                    placeholderTextColor="#909580"
+                    secureTextEntry={true}
+                    color='#6E2E76'
+                    textAlign='left'
+                    style={stylesLogin.inputText}
+                    onChangeText={conPass => {setConfirmPasswordMessage(''); setConfirmPassword(conPass);}}
+                />
+            </View>
+
+            {confirmPasswordErrorMessage.length > 0 && <Text style={stylesLogin.error}>{confirmPasswordErrorMessage}</Text>}
+
+            <View style={stylesLogin.buttonContainer}>
+                <Button title='Sign Up'
+                        color="#9960D2"
+                        onPress={submitRegistration}
+                ></Button>
+            </View>
+
+            <Image
+                style={stylesLogin.logo}
+
+                source={require("../assets/blackLogo.png")}
+            />
+            <Text
+                onPress={() => navigate('Login')}
+
+                style={stylesLogin.linkButton}>Login
+            </Text>
+            </View>
+            }
+        </View>
+    )
 }
