@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Dimensions, Image, Modal, ActivityIndicator, BackHandler  } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, Dimensions, Image, Modal, ActivityIndicator, BackHandler, Alert } from 'react-native';
 import { Video, Audio, ResizeMode } from 'expo-av';
 import * as FileSystem from 'expo-file-system';
 import * as MediaLibrary from 'expo-media-library';
@@ -10,14 +10,17 @@ const width = height * 0.5625; // 16:9 aspect ratio
 
 
 class AudioReactionPage extends React.Component {
+
     constructor(props){
         super(props);
+
+        this.sound = React.createRef();
+        this.sound.current = new Audio.Sound();
 
         this.videoRef = React.createRef();
         this.state = {
             isPlaying: false,
             isLoading: true,
-            sound: undefined,
             audioFile: "",
             isDialogVisible: false,
             isFaceDetected: true
@@ -39,9 +42,14 @@ class AudioReactionPage extends React.Component {
         this.backHandler.remove()
     }
     handleBackButtonPressAndroid = () => {
+        const { navigation } = this.props;
+
+        if(this.sound.current)
+            this.sound.current.pauseAsync();
+    
         if (navigation && navigation.navigate) {
           navigation.navigate('ExplorePage');
-          this.state.sound.pauseAsync();
+          this.sound.current.pauseAsync();
           return true;
         }
         // We have handled the back button
@@ -57,40 +65,47 @@ class AudioReactionPage extends React.Component {
         }
 
         try {
-        fileUrl = FileSystem.cacheDirectory + audio.Title + '.mp3';
+            fileUrl = FileSystem.cacheDirectory + audio.Title + '.mp3';
 
-        const downloadResumable = FileSystem.createDownloadResumable(audio.LinkToStorage, fileUrl, {}, false);
-        const { uri } = await downloadResumable.downloadAsync(null, {shouldCache: false});
+            console.log("starting download");
+            const downloadResumable = FileSystem.createDownloadResumable(audio.LinkToStorage, fileUrl, {}, false);
+            const { uri } = await downloadResumable.downloadAsync(null, {shouldCache: false});
 
-        this.setState({audioFile: uri});
-        this.playSound(audio);
+            console.log("download completed");
+            this.setState({audioFile: uri});
+            this.playSound();
         }
         catch (err) {
             console.log(err);
         }
     }
 
-    playSound = async (audio) => {
-        const sound = new Audio.Sound()
+    playSound = async () => {
+        this.sound.current.setOnPlaybackStatusUpdate((status) => {
+            if(status.didJustFinish) {
+                this.setState({ isPlaying: false });
+                Alert.alert('Thank You!', 'Your reaction received', [{text: 'OK', onPress: () => this.props.navigation.navigate('ExplorePage')}]);
+            }
+        });
 
-        await sound.loadAsync({
+        await this.sound.current.loadAsync({
             uri: this.state.audioFile
         })
-        this.setState({sound: sound});
-        await sound.playAsync();
+
+        await this.sound.current.playAsync();
         this.setState({isLoading: false});
         this.setState({ isPlaying: true });
     }
 
     handlePlayPause = () => {
-        const { isPlaying, sound } = this.state;
+        const { isPlaying } = this.state;
         const video = this.videoRef.current;
 
         if (isPlaying) {
-            sound.pauseAsync();
+            this.sound.current.pauseAsync();
             video.pauseAsync();
         } else {
-            sound.playAsync();
+            this.sound.current.playAsync();
             video.playAsync();
         }
 
@@ -99,7 +114,7 @@ class AudioReactionPage extends React.Component {
     };
 
     handleFaceDetectionChange = (isFaceDetected) => {
-        const { sound } = this.state;
+        const sound = this.sound.current;
         this.setState({ isFaceDetected });
 
         const video = this.videoRef.current;
@@ -112,7 +127,7 @@ class AudioReactionPage extends React.Component {
             video.pauseAsync();
           }
         }
-      };
+    };
 
     render() {
         const { isPlaying, isFaceDetected  } = this.state;
@@ -131,12 +146,8 @@ class AudioReactionPage extends React.Component {
                 source={require('../assets/audioBackground.mp4')}
                 style={styles.backgroundVideo}
                 resizeMode={ResizeMode.CONTAIN}
-                shouldPlay={this.state.isPlaying}
+                shouldPlay={isPlaying}
                 isLooping={true}
-                onReadyForDisplay={videoData => {
-                    //videoData.srcElement.style.position = "initial"
-                    //console.log(videoData)
-                }}
                 />     
             }       
             <View style={styles.overlay}>
