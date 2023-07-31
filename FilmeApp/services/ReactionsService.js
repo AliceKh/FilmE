@@ -28,7 +28,7 @@ export function sendReactions(uri, time, mediaId) {
         }).then(res => {
             console.log(res);
         }).catch(err => {
-            console.log(err);
+            console.log(JSON.stringify(err.response.data));
         });
     })
     .catch(error => {
