@@ -13,9 +13,8 @@ export function getLogin(setEmail, setPassword) {
         Promise.all([AsyncStorage.getItem(storageName.email), AsyncStorage.getItem(storageName.password)]).then(value => {
             setEmail(value[1]);
             setPassword(value[0]);
-            console.log(value);
         })
     } catch (e) {
-        console.log(e);
+        console.log('error at getting saved username and password');
     }
 }
