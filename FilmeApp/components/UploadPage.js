@@ -3,7 +3,6 @@ import {Image, StyleSheet, Text, TextInput, View, TouchableOpacity} from 'react-
 import {Button, FAB, ProgressBar, SegmentedButtons} from "react-native-paper";
 import * as DocumentPicker from 'expo-document-picker';
 import { LinearGradient } from 'expo-linear-gradient';
-import { retryMethod } from "@rpldy/retry";
 
 import NativeUploady, {
     UploadyContext,
@@ -14,7 +13,7 @@ import NativeUploady, {
     useUploady
 } from "@rpldy/native-uploady";
 
-//import retryEnhancer, { useBatchRetry, useRetry, useRetryListener } from "@rpldy/retry-hooks";
+import retryEnhancer, { useBatchRetry, useRetry, useRetryListener } from "@rpldy/retry-hooks";
 
 import axios from "axios";
 
@@ -36,11 +35,16 @@ export default function UploadPage(props) {
     const [chosenImageFile, setChosenImageFile] = useState('');
     const [chosenPreviewFile, setChosenPreviewFile] = useState('');
 
+    const retry = useRetry();
+
     const { navigate } = props.navigation
 
     const FileUpload = () => {
         const uploadyContext = useContext(UploadyContext);
         const [failedItems, setFailedItems] = useState([]);
+        const [failedBatches, setFailedBatches] = useState([]);
+        const [uploadResult, setUploadResult] = useState(null);
+        const retryBatch = useBatchRetry();
 
         useItemFinishListener((item) => {
             const response = item.uploadResponse.data;
@@ -60,40 +64,56 @@ export default function UploadPage(props) {
             else{
                 setLinkToPreviewImage(linkToMongo);
             }      
+
+            setUploadedResult(item.uploadResponse.data);
         });
+        
         useItemErrorListener(async (item, error) => {
-            console.error(`Error occurred while uploading ${item.file.name}`);
-            console.error(`Error occurred while uploading ${item.id}`);
-            //console.log(`item ${item.id} upload error... trying agian `, item);
-            //setFailedItems((prevFailedItems) => [...prevFailedItems, item]);
-            //setChosenImageFile('');
-            //setChosenPlayFile('');
+            console.error(`Error occurred while uploading ${item.file.name}: ${error}`);
+            if (!failedItems.some((failedItem) => failedItem.id === item.id)) {
+                setFailedItems((prevFailedItems) => [...prevFailedItems, item]);
+                setFailedBatches((batches) =>
+                !batches.includes(item.batchId) ? batches.concat(item.batchId) : batches
+                );
+            }
+
+            if (retry.uploadResult) {
+                await retry(retry.uploadResult);
+            }
         });
+
         useItemStartListener(async (item) => {
-            console.log(`item ${item.id} starting to upload, name = ${item.file.name} ${item.file.type}`); // TODO console.log
+            console.log(`item ${item.id} starting to upload, name = ${item.file.name} ${item.file.type}`);
         });
         let progress = useItemProgressListener((item) => {
 
         });
         
-        /*useEffect(() => {
+        useEffect(() => {
             const retryFailedItems = async () => {
-              await Promise.all(
-                failedItems.map((item) => {
-                  if (item && item.id) {
-                    return retryMethod(item.id);
-                  }
-                  return Promise.resolve();
-                })
-              );
+              for (const item of failedItems) {
+                await retry(item.file);
+              }
               setFailedItems([]);
             };
-            if (failedItems.length > 0) {
-                retryFailedItems();
+      
+            const retryFailedBatches = async () => {
+              for (const batchId of failedBatches) {
+                console.log(`Retry ${JSON.stringify(batchId)}`);
+                await retryBatch(batchId);
               }
-            }, [failedItems]);*/
+              setFailedBatches([]);
+            };
+      
+            if (failedItems.length > 0) {
+              retryFailedItems();
+            }
+            if (failedBatches.length > 0) {
+              retryFailedBatches();
+            }
+          }, [failedItems, failedBatches, retry, retryBatch]);
 
-        function handleDocumentSelection(setFunc, type) {
+         const handleDocumentSelection = (setFunc, type) => {
             console.log("enter:" + type);
             return async () => {
                 try {
@@ -106,16 +126,19 @@ export default function UploadPage(props) {
                     if (result.type === 'success') {
                         console.warn('res : ' + JSON.stringify(result));
                         setFunc(result);
-                        setServerUploadDestUrl(serverUploadDestUrl + type)
+                        setServerUploadDestUrl(serverUploadDestUrl + type)                        
                         result.type = result.mimeType // uploady needs mimetype
                         uploadyContext.upload(result);
-                        setServerUploadDestUrl(server);
+                        setServerUploadDestUrl(server)
                     }
                 } catch (err) {
                     if (DocumentPicker.isCancel(err)) {
                         console.log("User cancelled the picker, exit any dialogs or menus and move on"); // TODO console.log
                     } else {
-                        throw err;
+                        console.error(`Error occurred while uploading ${result.name}: ${err}`);
+                        retry.uploadResult = result;
+                        await retry(result.id);
+                        retry.uploadResult = null;
                     }
                 }
             };
@@ -214,6 +237,7 @@ export default function UploadPage(props) {
                     method: 'POST',
                     headers: {'content-type': 'multipart/form-data'}
                 }}
+                enhancer={retryEnhancer}
                 forceJsonResponse={true}>
                 <FileUpload/>
             </NativeUploady>

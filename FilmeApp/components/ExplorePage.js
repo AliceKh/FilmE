@@ -113,7 +113,7 @@ export default class ExplorePage extends React.Component {
     };
 
   render() {
-    const { showSearchResults, RecentlySongs: AllSongs } = this.state;
+    const { showSearchResults } = this.state;
     const { searchResults } = this.state;
     const songsToDisplay = searchResults.length > 0 ? searchResults : this.state.songs;
 
@@ -141,7 +141,6 @@ export default class ExplorePage extends React.Component {
               placeholder="Search"
               style={styles.searchInput}
               value={this.state.searchTerm}
-              //onChangeText={(searchTerm) => this.setState({ searchTerm })}
               onChangeText={(searchTerm) => this.setState({ searchTerm }, this.handleSearch)}
               onSubmitEditing={this.handleSearch}
             />
@@ -200,11 +199,6 @@ export default class ExplorePage extends React.Component {
         </LinearGradient>
       );
     }
-    return (
-      <LinearGradient colors={['#29024f', '#000000', '#29024f']} style={styles.container}>
-        <SearchResultsPage searchData={AllSongs} navigation={this.props.navigation} />
-      </LinearGradient>
-    );
   }
 }
 
