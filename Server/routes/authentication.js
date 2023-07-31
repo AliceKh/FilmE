@@ -14,10 +14,8 @@ router.post('/register', (req, res) => {
       res.sendStatus(200);
     })
     .catch((error) => {
-      const errorCode = error.code;
-      const errorMessage = error.message;
       console.log(error);
-      res.status(500).json({error: error.code});
+      res.status(500).send(error.code);
     });
  });
 
@@ -28,10 +26,8 @@ router.post('/register', (req, res) => {
       res.sendStatus(200);
     })
     .catch((error) => {
-      const errorCode = error.code;
-      const errorMessage = error.message;
       console.log(error);
-      res.status(500).json({error: error.code});
+      res.status(500).send(error.code);
     });
  }); 
 

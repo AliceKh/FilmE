@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, Image, FlatList } from 'react-native';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, Image, FlatList, BackHandler } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { LinearGradient } from 'expo-linear-gradient';
 
@@ -21,6 +21,23 @@ export default class SeeAllPage extends React.Component {
         });
     }
   }
+
+  componentDidMount(){
+    this.backHandler = BackHandler.addEventListener('hardwareBackPress', this.handleBackPress);
+  }
+
+  componentWillUnmount() {
+    this.backHandler.remove()
+  }
+
+  handleBackPress = () => {
+    const { navigation } = this.props;
+    if (navigation && navigation.navigate) {
+      navigation.navigate('ExplorePage');
+      return true;
+    }
+    return false;
+  };
 
   handleRecentlyPlayed = (item) =>{
     const { AllSongs } = this.state;
@@ -52,9 +69,7 @@ export default class SeeAllPage extends React.Component {
                 <Image source={require('../images/previous.png')} 
                         style={{ width: 20, height: 20 }} />
             </TouchableOpacity> 
-            <TouchableOpacity onPress={this.toggleMenu}>
-                <Image source={require('../images/menu.png')} style={{ width: 30, height: 30 }} />
-            </TouchableOpacity>
+            
         </View>
 
         <FlatList

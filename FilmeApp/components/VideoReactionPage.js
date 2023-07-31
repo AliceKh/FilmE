@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Dimensions, Image, Modal, ActivityIndicator } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, Dimensions, Image, Modal, ActivityIndicator, BackHandler, Alert } from 'react-native';
 import { Video } from 'expo-av';
 import * as FileSystem from 'expo-file-system';
 import * as MediaLibrary from 'expo-media-library';
@@ -30,6 +30,26 @@ class VideoReactionPage extends React.Component {
     this.downloadFile(video);
   }
 
+  componentDidMount() {
+        this.backHandler = BackHandler.addEventListener(
+            'hardwareBackPress',
+            this.handleBackButtonPressAndroid
+        );
+    }
+    componentWillUnmount() {
+        this.backHandler.remove()
+    }
+    handleBackButtonPressAndroid = () => {
+        const { navigation } = this.props;
+        if (navigation && navigation.navigate) {
+          navigation.navigate('ExplorePage');
+          return true;
+        }
+        // We have handled the back button
+        // Return `false` to navigate to the previous screen
+        return false;
+    };
+  
   downloadFile = async (video) => {
     const { status } = await MediaLibrary.requestPermissionsAsync();
 
@@ -41,9 +61,11 @@ class VideoReactionPage extends React.Component {
     try {
       fileUrl = FileSystem.cacheDirectory + video.Title + '.mp4';
 
+      console.log("starting download");
       const downloadResumable = FileSystem.createDownloadResumable(video.LinkToStorage, fileUrl, {}, false);
       const { uri } = await downloadResumable.downloadAsync(null, {shouldCache: false});
 
+      console.log("download completed");
       this.setState({videoFile: uri});
       this.setState({isLoading: false});
       this.handlePlayPause();
@@ -79,28 +101,21 @@ class VideoReactionPage extends React.Component {
     }
   };
 
-  /*toggleDialog = () => {
-    const { isDialogVisible } = this.state;
-    this.setState({ isDialogVisible: !isDialogVisible });
-  };*/
-
+  handleEndOfVideo = (status) => {
+    if(status.didJustFinish) {
+      this.setState({isPlaying: false});
+      this.videoRef.current.unloadAsync();
+      Alert.alert('Thank You!', 'Your reaction received', [{text: 'OK', onPress: () => this.props.navigation.navigate('ExplorePage')}]);
+    }
+  }
 
   render() {
-    const { isDialogVisible, isPlaying, isFaceDetected } = this.state;
+    const {isPlaying, isFaceDetected } = this.state;
     const { navigation } = this.props;
     const item = navigation.state.params.selectedItem
 
     return (
       <View style={styles.container}>
-        <View style={styles.header}>
-        <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
-                <Image source={require('../images/previous.png')} 
-                       style={{ width: 20, height: 20, color: 'white' }} />
-            </TouchableOpacity> 
-            <TouchableOpacity onPress={this.toggleDialog}>
-            <Image source={require('../images/menu.png')} style={{ width: 30, height: 30 }} />
-          </TouchableOpacity>
-        </View>
         {this.state.isLoading ?
           <View style={{paddingTop: height/2}}>
               <ActivityIndicator size="large" color="#9960D2" /> 
@@ -113,9 +128,7 @@ class VideoReactionPage extends React.Component {
           resizeMode="contain"
           shouldPlay={this.state.isPlaying}
           isLooping={false}
-          onReadyForDisplay={videoData => {
-            //videoData.srcElement.style.position = "initial"
-          }}
+          onPlaybackStatusUpdate={(status) => this.handleEndOfVideo(status)}
         />     
         }   
         <View style={styles.overlay}>
