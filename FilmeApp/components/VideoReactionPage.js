@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Dimensions, Image, Modal, ActivityIndicator, BackHandler } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, Dimensions, Image, Modal, ActivityIndicator, BackHandler, Alert } from 'react-native';
 import { Video } from 'expo-av';
 import * as FileSystem from 'expo-file-system';
 import * as MediaLibrary from 'expo-media-library';
@@ -61,9 +61,11 @@ class VideoReactionPage extends React.Component {
     try {
       fileUrl = FileSystem.cacheDirectory + video.Title + '.mp4';
 
+      console.log("starting download");
       const downloadResumable = FileSystem.createDownloadResumable(video.LinkToStorage, fileUrl, {}, false);
       const { uri } = await downloadResumable.downloadAsync(null, {shouldCache: false});
 
+      console.log("download completed");
       this.setState({videoFile: uri});
       this.setState({isLoading: false});
       this.handlePlayPause();
@@ -103,6 +105,7 @@ class VideoReactionPage extends React.Component {
     if(status.didJustFinish) {
       this.setState({isPlaying: false});
       this.videoRef.current.unloadAsync();
+      Alert.alert('Thank You!', 'Your reaction received', [{text: 'OK', onPress: () => this.props.navigation.navigate('ExplorePage')}]);
     }
   }
 
@@ -125,9 +128,6 @@ class VideoReactionPage extends React.Component {
           resizeMode="contain"
           shouldPlay={this.state.isPlaying}
           isLooping={false}
-          onReadyForDisplay={videoData => {
-            //videoData.srcElement.style.position = "initial"
-          }}
           onPlaybackStatusUpdate={(status) => this.handleEndOfVideo(status)}
         />     
         }   
