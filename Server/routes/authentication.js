@@ -9,16 +9,13 @@ router.post('/register', (req, res) => {
   createUserWithEmailAndPassword(auth, req.body.email, req.body.password)
     .then(async (userCredential) => {
       const user = userCredential.user;
-      console.log(user.UserImpl, user.uid);
       await insertUser(req.body, user.uid);
 
       res.sendStatus(200);
     })
     .catch((error) => {
-      const errorCode = error.code;
-      const errorMessage = error.message;
       console.log(error);
-      res.status(500).json({error: error.code});
+      res.status(500).send(error.code);
     });
  });
 
@@ -29,10 +26,8 @@ router.post('/register', (req, res) => {
       res.sendStatus(200);
     })
     .catch((error) => {
-      const errorCode = error.code;
-      const errorMessage = error.message;
       console.log(error);
-      res.status(500).json({error: error.code});
+      res.status(500).send(error.code);
     });
  }); 
 

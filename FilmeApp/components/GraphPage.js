@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, Dimensions, TouchableOpacity, Modal } from 'react-native';
+import { View, Text, StyleSheet, Dimensions, TouchableOpacity, Modal, ScrollView } from 'react-native';
 import { BarChart } from 'react-native-chart-kit';
 import axios from 'axios';
 
@@ -23,19 +23,73 @@ export default class GraphPage extends React.Component {
 
   fetchAnalyticsData = () => {
     axios
-      .get(`http://192.168.1.247:4000/analytics/${this.state.contentObjectID}`)
+      .get(`http://${global.server}:4000/analytics/${this.state.contentObjectID}`)
       .then(response => {
         const { reactions } = response.data;
         this.setState({ datasets: reactions, isLoading: false });
       })
       .catch(error => {
-        console.error('Error fetching analytics data:', error);
         this.setState({ isLoading: false });
       });
   };
 
-  handleClick = index => {
+  handleClick = (index) => {
     this.setState({ activeDatasetIndex: index });
+  };
+
+  parseTimestampToSeconds = (timestamp) => {
+    const parts = timestamp.split(':').map((part) => parseInt(part));
+    if (parts.length === 3) {
+      // Timestamp with "XX:YY:ZZ" format
+      const [hours, minutes, seconds] = parts;
+      return (hours * 60 * 60) + (minutes * 60) + seconds;
+    } else if (parts.length === 2) {
+      // Timestamp with "XX:YY" format
+      const [minutes, seconds] = parts;
+      return (minutes * 60) + seconds;
+    } else {
+      // Invalid timestamp format, return 0
+      return 0;
+    }
+  };
+
+  renderTimestampButtons = () => {
+    const { activeDatasetIndex, datasets } = this.state;
+
+    const activeDataset = datasets[activeDatasetIndex];
+
+    // Sort timestamps based on their converted values (in seconds)
+    const sortedButtons = datasets.sort((a, b) => {
+      const timeA = this.parseTimestampToSeconds(a.timestamp);
+      const timeB = this.parseTimestampToSeconds(b.timestamp);
+      return timeA - timeB;
+    });
+
+    const buttons = sortedButtons.map((dataset, index) => (
+      <TouchableOpacity
+        key={index}
+        style={[
+          styles.button,
+          index === activeDatasetIndex && styles.activeButton,
+        ]}
+        onPress={() => this.handleClick(index)}
+      >
+        <Text style={styles.buttonText}>{dataset.timestamp}</Text>
+      </TouchableOpacity>
+    ));
+
+    return (
+      <View style={styles.timestampContainer}>
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollViewContent}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+        >
+          {buttons}
+        </ScrollView>
+      </View>
+    );
   };
 
   render() {
@@ -97,30 +151,14 @@ export default class GraphPage extends React.Component {
               </View>
             )}
 
-            {datasets.length > 0 && (
-              <View style={styles.timestampContainer}>
-                <Text style={styles.timestampTitle}>Timestamps:</Text>
+            {datasets.length > 0 && this.renderTimestampButtons()}
 
-                <View style={styles.buttonContainer}>
-                  {datasets.map((dataset, index) => (
-                    <TouchableOpacity
-                      key={index}
-                      style={[
-                        styles.button,
-                        index === activeDatasetIndex && styles.activeButton,
-                      ]}
-                      onPress={() => this.handleClick(index)}
-                    >
-                      <Text style={styles.buttonText}>{dataset.timestamp}</Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              </View>
-            )}
-
-            <View style={styles.closeButtonContainer} onPress={this.props.closeGraph}>
-              <TouchableOpacity style={styles.closeButton}>
-                <Text style={styles.closeButtonText} >Close</Text>
+            <View style={styles.closeButtonContainer}>
+              <TouchableOpacity
+                style={styles.closeButton}
+                onPress={this.props.onClose}
+              >
+                <Text style={styles.closeButtonText}>Close</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -136,11 +174,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  title: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 16,
-  },
   popupContainer: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
@@ -152,11 +185,8 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 16,
     marginBottom: 16,
-  },
-  timestampTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 8,
+    flexDirection: 'row', // Arrange the timestamps in a row
+    alignItems: 'center', // Center the timestamps horizontally
   },
   chartContainer: {
     alignItems: 'center',
@@ -215,5 +245,14 @@ const styles = StyleSheet.create({
   closeButtonText: {
     color: 'black',
     fontWeight: 'bold',
+  },
+  scrollView: {
+    // Add some spacing to the top and bottom of the ScrollView
+    marginTop: 8,
+    marginBottom: 8,
+  },
+  scrollViewContent: {
+    flexDirection: 'row', // Arrange the timestamps horizontally
+    alignItems: 'center', // Center the timestamps vertically
   },
 });

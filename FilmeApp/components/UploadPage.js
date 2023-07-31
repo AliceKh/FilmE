@@ -1,18 +1,25 @@
-import React, {useContext, useState} from 'react';
-import {Image, StyleSheet, Text, TextInput, View} from 'react-native';
+import React, {useContext, useState, useEffect} from 'react';
+import {Image, StyleSheet, Text, TextInput, View, TouchableOpacity} from 'react-native';
 import {Button, FAB, ProgressBar, SegmentedButtons} from "react-native-paper";
 import * as DocumentPicker from 'expo-document-picker';
+import { LinearGradient } from 'expo-linear-gradient';
+import { retryMethod } from "@rpldy/retry";
+
 import NativeUploady, {
     UploadyContext,
     useItemErrorListener,
     useItemFinishListener,
     useItemProgressListener,
-    useItemStartListener
+    useItemStartListener,
+    useUploady
 } from "@rpldy/native-uploady";
+
+//import retryEnhancer, { useBatchRetry, useRetry, useRetryListener } from "@rpldy/retry-hooks";
+
 import axios from "axios";
 
-export default function UploadPage() {
-    const server = 'http://localhost:4000/upload/';
+export default function UploadPage(props) {
+    const server = `http://${global.server}:4000/upload/`;
     const [serverUploadDestUrl, setServerUploadDestUrl] = React.useState(server);
 
     const [linkToStorage, setLinkToStorage] = useState('');
@@ -23,30 +30,71 @@ export default function UploadPage() {
     const [type, setType] = useState('');
     const [tags, setTags] = useState('');
     const [timeStamps, setTimeStamps] = useState('');
-
-    const [chosenFile, setChosenFile] = useState('');
+    
+    const [isImagePicked, setIsImagePicked] = useState(false);
+    const [chosenPlayFile, setChosenPlayFile] = useState('');
+    const [chosenImageFile, setChosenImageFile] = useState('');
     const [chosenPreviewFile, setChosenPreviewFile] = useState('');
+
+    const { navigate } = props.navigation
 
     const FileUpload = () => {
         const uploadyContext = useContext(UploadyContext);
+        const [failedItems, setFailedItems] = useState([]);
+
         useItemFinishListener((item) => {
             const response = item.uploadResponse.data;
             console.log(`item ${item.id} finished uploading, response was: `, response);
-            console.log(item.uploadResponse.data.fileRef.metadata.selfLink);
-            setLinkToStorage(item.uploadResponse.data.fileRef.metadata.selfLink);
+            var nametype = response.mimetype.split("/")[0];
+            var type = response.mimetype.split("/")[1];
+            type = (type == "mpeg")? "mp3" : type;
+            nametype = (nametype == "image")? "preview" : nametype
+            const filename = response.originalname
+
+            const linkToMongo = "https://firebasestorage.googleapis.com/v0/b/filme-4277e.appspot.com/o/"
+            + nametype + "%2F" + filename + "." + type + "?alt=media"
+
+            if(!isImagePicked){
+                setLinkToStorage(linkToMongo);
+            }
+            else{
+                setLinkToPreviewImage(linkToMongo);
+            }      
         });
-        useItemErrorListener((item) => {
-            console.log(`item ${item.id} upload error !!!! `, item);
-            setChosenFile('');
+        useItemErrorListener(async (item, error) => {
+            console.error(`Error occurred while uploading ${item.file.name}`);
+            console.error(`Error occurred while uploading ${item.id}`);
+            //console.log(`item ${item.id} upload error... trying agian `, item);
+            //setFailedItems((prevFailedItems) => [...prevFailedItems, item]);
+            //setChosenImageFile('');
+            //setChosenPlayFile('');
         });
-        useItemStartListener((item) => {
-            console.log(`item ${item.id} starting to upload, name = ${item.file.name} ${item.file.type}`);
+        useItemStartListener(async (item) => {
+            console.log(`item ${item.id} starting to upload, name = ${item.file.name} ${item.file.type}`); // TODO console.log
         });
         let progress = useItemProgressListener((item) => {
 
         });
+        
+        /*useEffect(() => {
+            const retryFailedItems = async () => {
+              await Promise.all(
+                failedItems.map((item) => {
+                  if (item && item.id) {
+                    return retryMethod(item.id);
+                  }
+                  return Promise.resolve();
+                })
+              );
+              setFailedItems([]);
+            };
+            if (failedItems.length > 0) {
+                retryFailedItems();
+              }
+            }, [failedItems]);*/
 
         function handleDocumentSelection(setFunc, type) {
+            console.log("enter:" + type);
             return async () => {
                 try {
                     const result = await DocumentPicker.getDocumentAsync({
@@ -61,10 +109,11 @@ export default function UploadPage() {
                         setServerUploadDestUrl(serverUploadDestUrl + type)
                         result.type = result.mimeType // uploady needs mimetype
                         uploadyContext.upload(result);
+                        setServerUploadDestUrl(server);
                     }
                 } catch (err) {
                     if (DocumentPicker.isCancel(err)) {
-                        console.log("User cancelled the picker, exit any dialogs or menus and move on");
+                        console.log("User cancelled the picker, exit any dialogs or menus and move on"); // TODO console.log
                     } else {
                         throw err;
                     }
@@ -78,9 +127,17 @@ export default function UploadPage() {
                     icon="upload"
                     size={"large"}
                     loading={false}
-                    disabled={!type || !!chosenFile}
+                    disabled={!type || (!!chosenPlayFile && !!chosenImageFile)}
                     style={styles.uploadFAB}
-                    onPress={handleDocumentSelection(setChosenFile, type)}
+                    onPress={async () => {
+                        console.log(isImagePicked)
+                        if (!isImagePicked) {
+                            console.log("test: " + type);
+                            await handleDocumentSelection(setChosenPlayFile, type)();
+                        } else {
+                            await handleDocumentSelection(setChosenImageFile, 'image')();
+                        }
+                    }}
                 />
                 {progress &&
                     <View>
@@ -94,10 +151,6 @@ export default function UploadPage() {
                             progress={progress.completed * 0.01}/>
                     </View>
                 }
-                {/*<Text*/}
-                {/*    ellipsizeMode={'middle'}>*/}
-                {/*    {{uploadFile}}*/}
-                {/*</Text>*/}
             </View>
         )
     }
@@ -106,8 +159,7 @@ export default function UploadPage() {
     }
 
     const handlePublish = () => {
-        console.log("pressed publish");
-        axios.post('http://localhost:4000/upload', {
+        axios.post(`http://${global.server}:4000/upload/`, {
             LinkToStorage:linkToStorage,
             LinkToPreviewImage:linkToPreviewImage,
             Title:title,
@@ -116,11 +168,21 @@ export default function UploadPage() {
             Tags:tags,
             TimeStamps:timeStamps
         })
-            .then(r => console.log("uploaded!!"))
+            .then(r => console.log("uploaded!!")) // TODO console.log
     }
 
     return (
-        <View style={styles.page}>
+        <LinearGradient
+         colors={['#29024f', '#000000', '#29024f']}
+         style={styles.page}
+        >
+        <View style={styles.header}>
+          <TouchableOpacity onPress={ () => navigate('ExplorePage')}>
+            <Text style={ styles.headerText }>{"  Explore Page "}
+              <Image source={require('../images/up.png')} style={{ width: 20, height: 20}} />
+            </Text>
+          </TouchableOpacity>
+        </View>
             <View style={styles.titleView}>
                 <Text style={styles.title}>Upload</Text>
             </View>
@@ -133,12 +195,14 @@ export default function UploadPage() {
                             value: 'audio',
                             label: 'Audio',
                             icon: 'headphones',
-                            disabled: !!chosenFile
+                            disabled: !!chosenPlayFile,
+                            uncheckedColor: "#9960D2"
                         }, {
                             value: 'video',
                             label: 'Video',
                             icon: 'video',
-                            disabled: !!chosenFile
+                            disabled: !!chosenPlayFile,
+                            uncheckedColor: "#9960D2"
                         },
                     ]}
                 />
@@ -158,7 +222,8 @@ export default function UploadPage() {
                 <Button
                     icon="camera"
                     mode="outlined"
-                    // onPress={handleDocumentSelection(setPreviewFile, 'image')}
+                    onPress={() => setIsImagePicked(true)}
+                    
                 >
                     choose preview image
                 </Button>
@@ -174,7 +239,7 @@ export default function UploadPage() {
                     placeholder="Title"
                     placeholderTextColor="#909580"
                     textAlign='left'
-                    style={{width: "100%"}}
+                    style={{width: "100%", color: "white"}}
                     value={title}
                     onChangeText={value => setTitle(value)}
                 />
@@ -184,7 +249,7 @@ export default function UploadPage() {
                     placeholder="Tags (split by ' ')"
                     placeholderTextColor="#909580"
                     textAlign='left'
-                    style={{width: "100%"}}
+                    style={{width: "100%", color: "white"}}
                     value={tags}
                     onChangeText={value => setTags(value)}
                 />
@@ -194,17 +259,17 @@ export default function UploadPage() {
                     placeholder="TimeStamps (split by ' ')"
                     placeholderTextColor="#909580"
                     textAlign='left'
-                    style={{width: "100%"}}
+                    style={{width: "100%", color: "white"}}
                     value={timeStamps}
                     onChangeText={value => setTimeStamps(value)}
                 />
             </View>
             <View style={{
                 marginHorizontal: 55,
-                paddingHorizontal: 10,
+                paddingHorizontal: 5,
                 alignItems: "center",
                 justifyContent: "center",
-                marginTop: 50,
+                marginTop: 30,
                 paddingVertical: 10
             }}>
                 <Button mode="contained" onPress={handlePublish}>
@@ -212,16 +277,16 @@ export default function UploadPage() {
                 </Button>
             </View>
 
-            <Image
+            {<Image
                 style={{
                     alignSelf: "center",
                     margin: "5%",
-                    height: 240,
-                    width: 135
+                    height: 170,
+                    width: 120
                 }}
 
-                source={require("../assets/blackLogo.png")}
-            />
+                source={require("../assets/mainLogo2.png")}
+            />}
             {/*<Text*/}
             {/*    onPress={() => navigate('Login')}*/}
 
@@ -231,13 +296,24 @@ export default function UploadPage() {
             {/*        paddingBottom: "5%"*/}
             {/*    }}>Login*/}
             {/*</Text>*/}
-        </View>
+        </LinearGradient>
     );
 }
 
 const styles = StyleSheet.create({
     page: {
-        paddingTop: 25
+        paddingTop: 30,
+        flex: 1,
+    },
+    header:{
+        flexDirection: 'row',
+        alignItems: 'center', 
+        justifyContent: 'center', 
+        paddingHorizontal: 10
+    },
+    headerText:{
+        fontSize: 16,
+        color: 'white'
     },
     titleView: {
         display: 'flex',
@@ -280,5 +356,3 @@ const styles = StyleSheet.create({
     }
 
 })
-
-

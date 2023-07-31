@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, Image, FlatList } from 'react-native';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, Image, FlatList, BackHandler } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import axios from 'axios'
 
 export default class ExplorePage extends React.Component {
@@ -11,131 +12,198 @@ export default class ExplorePage extends React.Component {
       searchTerm: '',
       songs: [],
       lastTwoClicked: [],
+      RecentlySongs: [],
+      showSearchResults: false,
+      searchResults: [],
     };
   }
 
   componentDidMount() {
-    axios.get('http://localhost:4000/uploads')
+    axios.get(`http://${global.server}:4000/exploreuploads`)
       .then(response => {
         this.setState({ songs: response.data });
       })
       .catch(error => {
         console.log(error);
       });
+
+    AsyncStorage.getItem('AllSongs')
+    .then((value) => {
+      if (value) {
+        this.setState({ AllSongs: JSON.parse(value) });
+      }
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+    this.backHandler = BackHandler.addEventListener('hardwareBackPress', this.handleBackPress);
   }
 
-  handleSearch = () => {
-    console.log(`Searching for "${this.state.searchTerm}"`);
-  };
-
-  handleSongClick = (item) => {
-    const { lastTwoSongs } = this.state;
-    if (lastTwoSongs.length < 2) {
-      // If there are less than two songs, simply add the new song
-      this.setState({ lastTwoSongs: [ ...lastTwoSongs, item ] });
-    } else {
-      // If there are already two songs, shift out the oldest one and add the new one
-      this.setState({ lastTwoSongs: [ lastTwoSongs[1], item ] });
+  componentDidUpdate(prevProps, prevState) {
+    if (prevState.AllSongs !== this.state.RecentlySongs) {
+      AsyncStorage.setItem('AllSongs', JSON.stringify(this.state.RecentlySongs))
+        .catch((error) => {
+          console.log(error);
+        });
     }
   }
 
-  handleRecentlyPlayed = (item) =>{
-    let {lastTwoClicked} = this.state;
-                let foundIndex = lastTwoClicked.findIndex(song => song._id === item._id);
-                if (foundIndex !== -1 && foundIndex < 2) {
-                  // If song is already in the list, swap the position with the last item
-                  if (foundIndex == 0 || foundIndex == 1) {
-                    if(foundIndex == 1){
-                    let temp = lastTwoClicked[foundIndex];
-                    lastTwoClicked[foundIndex] = lastTwoClicked[0];
-                    lastTwoClicked[0] = temp;
-                  }
-                }
-                }
-                else if (foundIndex >= 2) {
-                  lastTwoClicked.push(lastTwoClicked.shift());
-                }
-                else {
-                  // If song is not in the list, add it to the end
-                  lastTwoClicked.push(item);
-                  if (lastTwoClicked.length > 2) {
-                    lastTwoClicked.push(lastTwoClicked.shift());
-                  }
-                } 
-                // Update state with the new recently played songs list
-                this.setState({lastTwoClicked});
+  componentWillUnmount() {
+    this.backHandler.remove();
   }
 
-  render() {
-    return (
-      <View style={styles.container}>
-        <View style={styles.header}>
-        <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
-                <Image source={require('../images/previous.png')} 
-                       style={{ width: 20, height: 20, color: 'white' }} />
-            </TouchableOpacity> 
-            <TouchableOpacity onPress={this.toggleMenu}>
-            <Image source={require('../images/menu.png')} style={{ width: 30, height: 30 }} />
-          </TouchableOpacity>
-        </View>
-        <View style={styles.searchBar}>
-          <Ionicons name="search-outline" size={24} color="gray" style={styles.searchIcon} />
-          <TextInput
-            placeholder="Search"
-            style={styles.searchInput}
-            value={this.state.searchTerm}
-            onChangeText={(searchTerm) => this.setState({ searchTerm })}
-            onSubmitEditing={this.handleSearch}
+  handleBackPress = () => {
+    BackHandler.exitApp();
+  }
+
+  handleSearch = () => {
+    const { searchTerm, songs } = this.state;
+
+    const filteredSongs = songs.filter(
+      (song) => song.Title.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    this.setState({ searchResults: filteredSongs });
+  };
+
+  handleRecentlyPlayed = (item) =>{
+    const { RecentlySongs: AllSongs } = this.state;
+    let song = "";
+    const foundIndex = AllSongs.findIndex(song => song._id === item._id);
+          if (foundIndex !== -1) {
+            if(foundIndex !== 0){
+              song = AllSongs.splice(foundIndex,1)[0];
+              AllSongs.unshift(song);
+            }
+
+          }
+          else {
+            // If song is not in the list, add it to the end
+            AllSongs.unshift(item);
+          } 
+          // Update state with the new recently played songs list
+          this.setState({ AllSongs: [...AllSongs] });
+    }
+
+    generateAvatar = (name) => {
+      const initials = name.substr(0, 2).toUpperCase();
+      const avatarSize = 200;
+      const circleRadius = avatarSize / 2;
+  
+      return (
+        <Svg width={avatarSize} height={avatarSize}>
+          <Circle
+            cx={circleRadius}
+            cy={circleRadius}
+            r={circleRadius}
+            fill="gray"
           />
+          <Text
+            x={circleRadius}
+            y={circleRadius + 8}
+            textAnchor="middle"
+            fontSize="72"
+            fontWeight="bold"
+            fill="white"
+          >
+            {initials}
+          </Text>
+        </Svg>
+      );
+    };
+
+  render() {
+    const { showSearchResults, RecentlySongs: AllSongs } = this.state;
+    const { searchResults } = this.state;
+    const songsToDisplay = searchResults.length > 0 ? searchResults : this.state.songs;
+
+    
+    if (!this.state.searchTerm || !showSearchResults) {
+      return (
+        <LinearGradient
+          colors={['#29024f', '#000000', '#29024f']}
+          style={styles.container}
+          >
+          <View style={styles.header}>
+          <View style={styles.centeredButton}>
+            <TouchableOpacity onPress={() => this.props.navigation.navigate('ProfilePage', { previousRouteName: 'ExplorePage' })}>
+              <Text style={styles.headerText}>
+                {"  Profile Page "}
+                <Image source={require('../images/up.png')} style={{ width: 30, height: 30 }} />
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
-        <View style={styles.header}>
-          <Text style={styles.recentlyPlayed}>Recently Played</Text>
-          <Text style={styles.seeAll}>See All</Text>
-        </View>
-        <View style={styles.recentlyPlayedContainer}>
+
+          <View style={styles.searchBar}>
+            <Ionicons name="search-outline" size={24} color="gray" style={styles.searchIcon} />
+            <TextInput
+              placeholder="Search"
+              style={styles.searchInput}
+              value={this.state.searchTerm}
+              //onChangeText={(searchTerm) => this.setState({ searchTerm })}
+              onChangeText={(searchTerm) => this.setState({ searchTerm }, this.handleSearch)}
+              onSubmitEditing={this.handleSearch}
+            />
+          </View>
+          <View style={styles.body}>
+            <Text style={styles.recentlyPlayed}>Recently Played</Text>
+            <Text style={styles.seeAll} onPress={() => this.props.navigation.navigate('SeeAllPage',
+                                                      { selectedItem: this.state.RecentlySongs,
+                                                        type: "recently" })}>See All</Text>
+          </View>
+          <View style={styles.recentlyPlayedContainer}>
+            <FlatList
+              data={this.state.RecentlySongs.slice(0,2)}
+              renderItem={({item}) => (
+                <TouchableOpacity style={styles.recentlyPlayedItem} onPress={() => this.props.navigation.navigate('VideoReactionPage', { selectedItem: item })}>
+                  <Image style={styles.recentlyPlayedImage} source={{uri : item.LinkToPreviewImage}} />
+                  <View style={styles.songDetails}>
+                    <Text style={styles.recentlyPlayedName}>{item.Title}</Text>
+                    <Text style={styles.recentlyPlayedArtist}>{item.Uploader.Username}</Text>
+                  </View>
+                </TouchableOpacity>
+              )}
+              keyExtractor={item => item._id}
+              horizontal={true}
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{ paddingLeft: 20 }}
+            />
+          </View>
+          <View style={styles.body}>
+            <Text style={styles.heading}>Recommendation</Text>
+            <Text style={styles.seeAll} onPress={() => this.props.navigation.navigate('SeeAllPage',
+                                                      { selectedItem: songsToDisplay,
+                                                        type: "all" })}>See All</Text>
+          </View>
           <FlatList
-            data={this.state.lastTwoClicked.slice(0,2)}
-            renderItem={({item}) => (
-              <TouchableOpacity style={styles.recentlyPlayedItem} onPress={() => this.props.navigation.navigate('VideoReactionPage', { selectedItem: item })}>
-                <Image style={styles.recentlyPlayedImage} source={{uri : item.LinkToPreviewImage}} />
+            data={songsToDisplay.slice(0,7)}
+            renderItem={({item}) =>(
+              <View style={styles.songItem}>
+                <Image style={styles.songImage} source={{uri : item.LinkToPreviewImage}} />
                 <View style={styles.songDetails}>
-                  <Text style={styles.recentlyPlayedName}>{item.Title}</Text>
-                  <Text style={styles.recentlyPlayedArtist}>{item.Uploader.Username}</Text>
+                  <Text style={styles.songName}>{item.Title}</Text>
+                  <Text style={styles.artistName}>{item.Uploader.Username}</Text>
                 </View>
-              </TouchableOpacity>
+                <TouchableOpacity onPress={() => {
+                  this.handleRecentlyPlayed(item);
+                  item.Type == 'video' ? 
+                  this.props.navigation.navigate('VideoReactionPage', { selectedItem: item })
+                  : this.props.navigation.navigate('AudioReactionPage', { selectedItem: item });}
+                }>
+                  <Image source={require('../images/right.png')} style={{ width: 30, height: 30 }} />
+                </TouchableOpacity>
+              </View>
             )}
             keyExtractor={item => item._id}
-            horizontal={true}
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ paddingLeft: 20 }}
           />
-        </View>
-        <View style={styles.header}>
-          <Text style={styles.heading}>Recommendation</Text>
-          <Text style={styles.seeAll}>See All</Text>
-        </View>
-        <FlatList
-          data={this.state.songs.slice(0,4)}
-          renderItem={({item}) =>(
-            <View style={styles.songItem}>
-              <Image style={styles.songImage} source={{uri : item.LinkToPreviewImage}} />
-              <View style={styles.songDetails}>
-                <Text style={styles.songName}>{item.Title}</Text>
-                <Text style={styles.artistName}>{item.Uploader.Username}</Text>
-              </View>
-              <TouchableOpacity onPress={() => {
-                this.handleRecentlyPlayed(item);
-                item.Type == 'video' ? 
-                this.props.navigation.navigate('VideoReactionPage', { selectedItem: item })
-                : this.props.navigation.navigate('AudioReactionPage', { selectedItem: item });}
-              }>
-                <Image source={require('../images/right.png')} style={{ width: 30, height: 30 }} />
-              </TouchableOpacity>
-            </View>
-          )}
-          keyExtractor={item => item._id}
-        />
-      </View>
+        </LinearGradient>
+      );
+    }
+    return (
+      <LinearGradient colors={['#29024f', '#000000', '#29024f']} style={styles.container}>
+        <SearchResultsPage searchData={AllSongs} navigation={this.props.navigation} />
+      </LinearGradient>
     );
   }
 }
@@ -143,12 +211,11 @@ export default class ExplorePage extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundImage: 'linear-gradient(to right, #29024f, #000000, #29024f)',
     paddingHorizontal: 20,
     paddingTop: 40,
   },
   searchBar: {
-    flexDirection: 'row',
+    flexDirection: 'row-reverse',
     alignItems: 'center',
     backgroundColor: '#584177',
     borderRadius: 5,
@@ -164,7 +231,24 @@ const styles = StyleSheet.create({
     color: 'white'
   },
   header: {
-    flexDirection: 'row',
+    flexDirection: 'row-reverse',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  headerText:{
+    fontSize: 16,
+    color: 'white'
+  },
+  backButton: {
+    marginRight: 10, 
+  },
+  centeredButton: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  body: {
+    flexDirection: 'row-reverse',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 10,
@@ -184,12 +268,13 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   recentlyPlayedContainer: {
-    flexDirection: 'row',
+    flexDirection: 'row-reverse',
     justifyContent: 'space-between',
     marginBottom: 20,
   },
   recentlyPlayedItem: {
     alignItems: 'center',
+    margin: 10,
   },
   recentlyPlayedImage: {
     width: 150,
@@ -209,7 +294,7 @@ const styles = StyleSheet.create({
     color: 'gray'
   },
   songItem: {
-    flexDirection: 'row',
+    flexDirection: 'row-reverse',
     alignItems: 'center',
     paddingVertical: 10,
     borderBottomWidth: 1,

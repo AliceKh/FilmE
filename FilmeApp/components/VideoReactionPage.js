@@ -1,8 +1,11 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Dimensions, Image } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, Dimensions, Image, Modal, ActivityIndicator, BackHandler, Alert } from 'react-native';
 import { Video } from 'expo-av';
+import * as FileSystem from 'expo-file-system';
+import * as MediaLibrary from 'expo-media-library';
+import ReactionRecording from './ReactionRecordingComponent';
 
-const { height } = Dimensions.get('window');
+const { height } = Dimensions.get('screen');
 const width = height * 0.5625; // 16:9 aspect ratio
 
 
@@ -14,10 +17,63 @@ class VideoReactionPage extends React.Component {
     this.videoRef = React.createRef();
     this.state = {
       videoUrl: '',
-      isPlaying: true
+      isPlaying: false,
+      isLoading: true,
+      isDialogVisible: false,
+      videoFile: "",
+      isFaceDetected: true,
     };
+
+    const { navigation } = this.props;
+    const video = navigation.state.params.selectedItem
+
+    this.downloadFile(video);
   }
 
+  componentDidMount() {
+        this.backHandler = BackHandler.addEventListener(
+            'hardwareBackPress',
+            this.handleBackButtonPressAndroid
+        );
+    }
+    componentWillUnmount() {
+        this.backHandler.remove()
+    }
+    handleBackButtonPressAndroid = () => {
+        const { navigation } = this.props;
+        if (navigation && navigation.navigate) {
+          navigation.navigate('ExplorePage');
+          return true;
+        }
+        // We have handled the back button
+        // Return `false` to navigate to the previous screen
+        return false;
+    };
+  
+  downloadFile = async (video) => {
+    const { status } = await MediaLibrary.requestPermissionsAsync();
+
+    if(status != 'granted') {
+        console.log("Permissions error"); // TODO console.log
+        return;
+    }
+
+    try {
+      fileUrl = FileSystem.cacheDirectory + video.Title + '.mp4';
+
+      console.log("starting download");
+      const downloadResumable = FileSystem.createDownloadResumable(video.LinkToStorage, fileUrl, {}, false);
+      const { uri } = await downloadResumable.downloadAsync(null, {shouldCache: false});
+
+      console.log("download completed");
+      this.setState({videoFile: uri});
+      this.setState({isLoading: false});
+      this.handlePlayPause();
+    }
+    catch (err) {
+        console.log(err);
+    }
+  }
 
   handlePlayPause = () => {
     const { isPlaying } = this.state;
@@ -32,33 +88,49 @@ class VideoReactionPage extends React.Component {
     this.setState({ isPlaying: !isPlaying });
   };
 
+  handleFaceDetectionChange = (isFaceDetected) => {
+    this.setState({ isFaceDetected });
+
+    const video = this.videoRef.current;
+    if (video) {
+      if (isFaceDetected && this.state.isPlaying) {
+        video.playAsync();
+      } else {
+        video.pauseAsync();
+      }
+    }
+  };
+
+  handleEndOfVideo = (status) => {
+    if(status.didJustFinish) {
+      this.setState({isPlaying: false});
+      this.videoRef.current.unloadAsync();
+      Alert.alert('Thank You!', 'Your reaction received', [{text: 'OK', onPress: () => this.props.navigation.navigate('ExplorePage')}]);
+    }
+  }
+
   render() {
-    const { videoUrl, isPlaying } = this.state;
+    const {isPlaying, isFaceDetected } = this.state;
     const { navigation } = this.props;
     const item = navigation.state.params.selectedItem
 
     return (
       <View style={styles.container}>
-        <View style={styles.header}>
-        <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
-                <Image source={require('../images/previous.png')} 
-                       style={{ width: 20, height: 20, color: 'white' }} />
-            </TouchableOpacity> 
-            <TouchableOpacity onPress={this.toggleMenu}>
-            <Image source={require('../images/menu.png')} style={{ width: 30, height: 30 }} />
-          </TouchableOpacity>
-        </View>
-        <Video
+        {this.state.isLoading ?
+          <View style={{paddingTop: height/2}}>
+              <ActivityIndicator size="large" color="#9960D2" /> 
+          </View>
+          :
+          <Video
           ref={this.videoRef}
-          source={{uri: item.LinkToStorage}}
+          source={{uri: this.state.videoFile}}
           style={styles.backgroundVideo}
           resizeMode="contain"
-          shouldPlay={isPlaying}
-          isLooping={true}
-          onReadyForDisplay={videoData => {
-            videoData.srcElement.style.position = "initial"
-          }}
-        />
+          shouldPlay={this.state.isPlaying}
+          isLooping={false}
+          onPlaybackStatusUpdate={(status) => this.handleEndOfVideo(status)}
+        />     
+        }   
         <View style={styles.overlay}>
           <Text style={styles.title}>{item.Title}</Text>
           <Text style={styles.artist}>{item.Uploader.Username}</Text>
@@ -84,6 +156,22 @@ class VideoReactionPage extends React.Component {
           </TouchableOpacity>
         </View>
         </View>
+        <ReactionRecording isPlaying={this.state.isPlaying} 
+                               uploaderId={item.Uploader._id}
+                               mediaId={item._id}
+                               onFaceDetectionChange={this.handleFaceDetectionChange} 
+                               >
+                        
+        </ReactionRecording>
+        <Modal visible={!isFaceDetected} animationType="slide" transparent={true}>
+          <View style={styles.dialogContainer}>
+            <View style={styles.dialogContent}>
+              <Image source={require('../images/inFrame.png')} style={styles.dialogImage} />
+              <Text style={styles.dialogText}>You're Not in Frame</Text>
+              <Text style={styles.paraText}>Please adjust your position so that your face is centered within the square on the screen for optimal facial recognition.</Text>
+            </View>
+          </View>
+        </Modal>
       </View>
     );
   }
@@ -102,7 +190,7 @@ const styles = StyleSheet.create({
     left: 16,
     right: 16,
     height: 50,
-    flexDirection: 'row',
+    flexDirection: 'row-reverse',
     justifyContent: 'space-between',
     alignItems: 'center',
     zIndex: 1,
@@ -136,7 +224,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   controls: {
-    flexDirection: 'row',
+    flexDirection: 'row-reverse',
     justifyContent: 'space-between',
     marginTop: 10,
   },
@@ -145,6 +233,65 @@ const styles = StyleSheet.create({
     height: 30,
     marginHorizontal: 5,
   },
+  dialogContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.5)',
+    marginVertical: height / 6,
+    marginHorizontal: width / 15,
+    borderRadius: 20,
+    borderWidth:1
+  },
+  dialogContent: {
+    flex: 1,
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    width: '100%',
+  },  
+  dialogImageContainer: {
+    flex: 4,
+    justifyContent: 'center',
+    alignItems: 'center',
+    aspectRatio: 1,
+  },
+  dialogTextContainer: {
+    flex: 4,
+    justifyContent: 'center',
+    alignItems: 'center',
+    aspectRatio: 1,
+  },
+  dialogButtonContainer: {
+    flex: 2,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  dialogImage: {
+    width: '100%',
+    height: '60%',
+    resizeMode: 'cover',
+    borderRadius: 20
+  },
+  dialogText: {
+    fontSize: 16,
+    textAlign: 'left',
+    color: '#807e7e',
+    marginTop : 20
+  },
+  paraText: {
+    marginTop: 10,
+    color: '#cccccc',
+    
+  },
+  dialogButton: {
+    marginTop: 55,
+    backgroundColor: 'red',
+    borderRadius: 10,
+  },
+  headerText: {
+    fontSize: 16,
+    color: 'white'
+  }
 });
 
 export default VideoReactionPage;
