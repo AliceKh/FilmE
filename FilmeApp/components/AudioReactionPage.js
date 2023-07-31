@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Dimensions, Image, Modal, ActivityIndicator, BackHandler  } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, Dimensions, Image, Modal, ActivityIndicator, BackHandler, Alert } from 'react-native';
 import { Video, Audio, ResizeMode } from 'expo-av';
 import * as FileSystem from 'expo-file-system';
 import * as MediaLibrary from 'expo-media-library';
@@ -10,14 +10,17 @@ const width = height * 0.5625; // 16:9 aspect ratio
 
 
 class AudioReactionPage extends React.Component {
+
     constructor(props){
         super(props);
+
+        this.sound = React.createRef();
+        this.sound.current = new Audio.Sound();
 
         this.videoRef = React.createRef();
         this.state = {
             isPlaying: false,
             isLoading: true,
-            sound: undefined,
             audioFile: "",
             isDialogVisible: false,
             isFaceDetected: true
@@ -30,20 +33,28 @@ class AudioReactionPage extends React.Component {
     }
 
     componentDidMount() {
-        BackHandler.addEventListener(
+        this.backHandler = BackHandler.addEventListener(
             'hardwareBackPress',
             this.handleBackButtonPressAndroid
         );
     }
     componentWillUnmount() {
-        BackHandler.removeEventListener(
-          'hardwareBackPress',
-          this.handleBackButtonPressAndroid
-        );
+        if(this.sound.current)
+            this.sound.current.stopAsync();
+
+        this.backHandler.remove()
     }
     handleBackButtonPressAndroid = () => {
-        this.state.sound.pauseAsync();
+        const { navigation } = this.props;
+
+        if(this.sound.current)
+            this.sound.current.stopAsync();
     
+        if (navigation && navigation.navigate) {
+          navigation.navigate('ExplorePage');
+          this.sound.current.pauseAsync();
+          return true;
+        }
         // We have handled the back button
         // Return `false` to navigate to the previous screen
         return false;
@@ -57,40 +68,47 @@ class AudioReactionPage extends React.Component {
         }
 
         try {
-        fileUrl = FileSystem.cacheDirectory + audio.Title + '.mp3';
+            fileUrl = FileSystem.cacheDirectory + audio.Title + '.mp3';
 
-        const downloadResumable = FileSystem.createDownloadResumable(audio.LinkToStorage, fileUrl, {}, false);
-        const { uri } = await downloadResumable.downloadAsync(null, {shouldCache: false});
+            console.log("starting download");
+            const downloadResumable = FileSystem.createDownloadResumable(audio.LinkToStorage, fileUrl, {}, false);
+            const { uri } = await downloadResumable.downloadAsync(null, {shouldCache: false});
 
-        this.setState({audioFile: uri});
-        this.playSound(audio);
+            console.log("download completed");
+            this.setState({audioFile: uri});
+            this.playSound();
         }
         catch (err) {
             console.log(err);
         }
     }
 
-    playSound = async (audio) => {
-        const sound = new Audio.Sound()
+    playSound = async () => {
+        this.sound.current.setOnPlaybackStatusUpdate((status) => {
+            if(status.didJustFinish) {
+                this.setState({ isPlaying: false });
+                Alert.alert('Thank You!', 'Your reaction received', [{text: 'OK', onPress: () => this.props.navigation.navigate('ExplorePage')}]);
+            }
+        });
 
-        await sound.loadAsync({
+        await this.sound.current.loadAsync({
             uri: this.state.audioFile
         })
-        this.setState({sound: sound});
-        await sound.playAsync();
+
+        await this.sound.current.playAsync();
         this.setState({isLoading: false});
         this.setState({ isPlaying: true });
     }
 
     handlePlayPause = () => {
-        const { isPlaying, sound } = this.state;
+        const { isPlaying } = this.state;
         const video = this.videoRef.current;
 
         if (isPlaying) {
-            sound.pauseAsync();
+            this.sound.current.pauseAsync();
             video.pauseAsync();
         } else {
-            sound.playAsync();
+            this.sound.current.playAsync();
             video.playAsync();
         }
 
@@ -99,7 +117,7 @@ class AudioReactionPage extends React.Component {
     };
 
     handleFaceDetectionChange = (isFaceDetected) => {
-        const { sound } = this.state;
+        const sound = this.sound.current;
         this.setState({ isFaceDetected });
 
         const video = this.videoRef.current;
@@ -112,34 +130,15 @@ class AudioReactionPage extends React.Component {
             video.pauseAsync();
           }
         }
-      };
-
-    /*toggleDialog = () => {
-        this.setState((prevState) => ({
-          isDialogVisible: !prevState.isDialogVisible,
-
-        }));
-      };*/
+    };
 
     render() {
-        const { isDialogVisible, isPlaying, isFaceDetected  } = this.state;
+        const { isPlaying, isFaceDetected  } = this.state;
         const { navigation } = this.props;
         const item = navigation.state.params.selectedItem
 
         return (
         <View style={styles.container}>
-            <View style={styles.header}>
-                <TouchableOpacity onPress={() => {
-                    this.state.sound.pauseAsync();
-                    this.setState({ isPlaying: !isPlaying })
-                    this.props.navigation.goBack()}}>
-                    <Image source={require('../images/previous.png')} 
-                        style={{ width: 20, height: 20}} />
-                </TouchableOpacity> 
-                <TouchableOpacity onPress={this.toggleMenu}>
-                <Image source={require('../images/menu.png')} style={{ width: 30, height: 30 }} />
-            </TouchableOpacity>
-            </View>
             {this.state.isLoading ?
                 <View style={{paddingTop: height/2}}>
                     <ActivityIndicator size="large" color="#9960D2" /> 
@@ -150,12 +149,8 @@ class AudioReactionPage extends React.Component {
                 source={require('../assets/audioBackground.mp4')}
                 style={styles.backgroundVideo}
                 resizeMode={ResizeMode.CONTAIN}
-                shouldPlay={this.state.isPlaying}
+                shouldPlay={isPlaying}
                 isLooping={true}
-                onReadyForDisplay={videoData => {
-                    //videoData.srcElement.style.position = "initial"
-                    //console.log(videoData)
-                }}
                 />     
             }       
             <View style={styles.overlay}>
