@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, Image, FlatList, BackHandler } from 'react-native';
+import { Text, View, TextInput, TouchableOpacity, Image, FlatList, BackHandler } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -128,7 +128,7 @@ export default class ExplorePage extends React.Component {
           <View style={styles.header}>
           <View style={stylesExplore.centeredButton}>
             <TouchableOpacity onPress={() => this.props.navigation.navigate('ProfilePage', { previousRouteName: 'ExplorePage' })}>
-              <Text style={stylesExplore.headerText}>
+              <Text style={styles.headerText}>
                 {"  Profile Page "}
                 <Image source={require('../images/up.png')} style={{ width: 30, height: 30 }} />
               </Text>

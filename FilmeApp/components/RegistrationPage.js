@@ -1,4 +1,4 @@
-import { default as React, default as React, useState } from 'react';
+import React, {useState} from 'react';
 import { ActivityIndicator, Alert, Button, Dimensions, Image, Text, TextInput, View } from 'react-native';
 import { saveLogin } from "../services/AsyncStorageService";
 import { register } from '../services/AuthService';

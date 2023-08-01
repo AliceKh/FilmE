@@ -76,6 +76,16 @@ const stylesLogin = StyleSheet.create({
     error:{
         color: "#dc3545", 
         paddingHorizontal: 35
+    },
+    mainBackground:{ 
+      height: "100%",
+      backgroundColor:"rgba(20,8,32, 1.0)"
+    },
+    mainLogo: {
+      alignSelf:"center",
+        margin:"15%",
+        height:240,
+        width:140
     }
 });
 
@@ -373,92 +383,93 @@ const stylesExplore = StyleSheet.create({
     });
 
     const stylesGraph = StyleSheet.create({
-        container: {
-          flex: 1,
-          alignItems: 'center',
-          justifyContent: 'center',
-        },
-        title: {
-          fontSize: 18,
-          fontWeight: 'bold',
-          marginBottom: 16,
-        },
-        popupContainer: {
-          flex: 1,
-          backgroundColor: 'rgba(0, 0, 0, 0.5)',
-          alignItems: 'center',
-          justifyContent: 'center',
-        },
-        timestampContainer: {
-          backgroundColor: 'white',
-          borderRadius: 16,
-          padding: 16,
-          marginBottom: 16,
-        },
-        timestampTitle: {
-          fontSize: 16,
-          fontWeight: 'bold',
-          marginBottom: 8,
-        },
-        chartContainer: {
-          alignItems: 'center',
-          justifyContent: 'center',
-          marginBottom: 16,
-        },
-        chartStyle: {
-          marginVertical: 8,
-          borderRadius: 16,
-        },
-        timestamp: {
-          fontSize: 12,
-          fontWeight: 'bold',
-          marginTop: 8,
-        },
-        buttonContainer: {
-          flexDirection: 'row',
-          justifyContent: 'center',
-          marginBottom: 16,
-        },
-        button: {
-          paddingHorizontal: 16,
-          paddingVertical: 8,
-          borderRadius: 8,
-          backgroundColor: 'lightgray',
-          marginRight: 8,
-        },
-        activeButton: {
-          backgroundColor: 'gray',
-        },
-        buttonText: {
-          fontSize: 12,
-          fontWeight: 'bold',
-          color: 'black',
-        },
-        noDataContainer: {
-          backgroundColor: 'white',
-          borderRadius: 16,
-          padding: 16,
-        },
-        noDataText: {
-          fontSize: 16,
-          fontWeight: 'bold',
-          textAlign: 'center',
-        },
-        closeButtonContainer: {
-          alignItems: 'center',
-          marginTop: 16,
-        },
-        closeButton: {
-          backgroundColor: 'white',
-          borderRadius: 16,
-          paddingVertical: 8,
-          paddingHorizontal: 16,
-        },
-        closeButtonText: {
-          color: 'black',
-          fontWeight: 'bold',
-        },
-      });
+      container: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+      },
+      popupContainer: {
+        flex: 1,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        alignItems: 'center',
+        justifyContent: 'center',
+      },
+      timestampContainer: {
+        backgroundColor: 'white',
+        borderRadius: 16,
+        padding: 16,
+        marginBottom: 16,
+        flexDirection: 'row', // Arrange the timestamps in a row
+        alignItems: 'center', // Center the timestamps horizontally
+      },
+      chartContainer: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: 16,
+      },
+      chartStyle: {
+        marginVertical: 8,
+        borderRadius: 16,
+      },
+      timestamp: {
+        fontSize: 12,
+        fontWeight: 'bold',
+        marginTop: 8,
+      },
+      buttonContainer: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        marginBottom: 16,
+      },
+      button: {
+        paddingHorizontal: 16,
+        paddingVertical: 8,
+        borderRadius: 8,
+        backgroundColor: 'lightgray',
+        marginRight: 8,
+      },
+      activeButton: {
+        backgroundColor: 'gray',
+      },
+      buttonText: {
+        fontSize: 12,
+        fontWeight: 'bold',
+        color: 'black',
+      },
+      noDataContainer: {
+        backgroundColor: 'white',
+        borderRadius: 16,
+        padding: 16,
+      },
+      noDataText: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        textAlign: 'center',
+      },
+      closeButtonContainer: {
+        alignItems: 'center',
+        marginTop: 16,
+      },
+      closeButton: {
+        backgroundColor: 'white',
+        borderRadius: 16,
+        paddingVertical: 8,
+        paddingHorizontal: 16,
+      },
+      closeButtonText: {
+        color: 'black',
+        fontWeight: 'bold',
+      },
+      scrollView: {
+        // Add some spacing to the top and bottom of the ScrollView
+        marginTop: 8,
+        marginBottom: 8,
+      },
+      scrollViewContent: {
+        flexDirection: 'row', // Arrange the timestamps horizontally
+        alignItems: 'center', // Center the timestamps vertically
+      }
+    });
       
       const stylesUpload = StyleSheet.create({
         page: {

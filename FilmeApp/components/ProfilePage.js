@@ -3,6 +3,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { View, Modal, Text, Image, StyleSheet, FlatList, TouchableOpacity, Dimensions, BackHandler} from 'react-native';
 import axios from 'axios';
 import GraphPage from './GraphPage';
+import { stylesProfile } from '../styles/style';
 
 export default class ProfileScreen extends React.Component {
   constructor(props) {
@@ -58,15 +59,15 @@ export default class ProfileScreen extends React.Component {
     return (
       <TouchableOpacity
         style={[
-          styles.itemContainer,
-          column === 0 && styles.itemContainerFirstColumn,
-          item.id === this.state.selectedImageId && styles.selectedItemContainer,
+          stylesProfile.itemContainer,
+          column === 0 && stylesProfile.itemContainerFirstColumn,
+          item.id === this.state.selectedImageId && stylesProfile.selectedItemContainer,
         ]}
         onPress={() => {
           this.setState({ selectedImageId: item._id, isGraphVisible: true });
         }}
       >
-        <Image style={[styles.itemImage, { width: itemWidth }]} source={{ uri: item.LinkToPreviewImage }} />
+        <Image style={[stylesProfile.itemImage, { width: itemWidth }]} source={{ uri: item.LinkToPreviewImage }} />
       </TouchableOpacity>
     );
   };
@@ -81,11 +82,11 @@ export default class ProfileScreen extends React.Component {
     return (
       <Modal visible={this.state.isGraphVisible} transparent animationType="slide">
         <TouchableOpacity
-          style={styles.modalBackground}
+          style={stylesProfile.modalBackground}
           activeOpacity={1}
           onPress={() => this.setState({ isGraphVisible: false })}
         >
-          <View style={styles.modalContent}>
+          <View style={stylesProfile.modalContent}>
             <GraphPage objectId={this.state.selectedImageId} onClose={() => this.setState({ isGraphVisible: false })} />
           </View>
         </TouchableOpacity>
@@ -98,12 +99,12 @@ export default class ProfileScreen extends React.Component {
     return (
       <LinearGradient
         colors={['#29024f', '#000000', '#29024f']}
-        style={styles.body}
+        style={stylesProfile.body}
       >
         {/* Header section */}
-        <View style={styles.header}>
+        <View style={stylesProfile.header}>
           <TouchableOpacity onPress={() => this.props.navigation.navigate('ExplorePage', { previousRouteName: 'ProfilePage' })}>
-            <Text style={ styles.headerText }>{"  Explore Page "}
+            <Text style={ stylesProfile.headerText }>{"  Explore Page "}
               <Image source={require('../images/up.png')} style={{ width: 16, height: 16 }} />
             </Text>
           </TouchableOpacity>
@@ -114,36 +115,36 @@ export default class ProfileScreen extends React.Component {
         {/* Profile picture section */}
         <View style={{ alignItems: 'center', marginTop: 16 }}>
           <Image source={user && { uri: user.ProfileImage }} style={{ width: 120, height: 120, borderRadius: 60 }} />
-          <Text style={styles.profileName}>{user && user.Username}</Text>
+          <Text style={stylesProfile.profileName}>{user && user.Username}</Text>
         </View>
 
         {/* Followers, following, likes row */}
-        <View style={[styles.centerStyle, { marginTop: 16 }]}>
+        <View style={[stylesProfile.centerStyle, { marginTop: 16 }]}>
           <View style={[{ alignItems: 'center' }, { marginRight: 8 }]}>
-            <Text style={styles.infoStatic}>{user && user.NumberOfFollowing}</Text>
-            <Text style={styles.infoName}>Following</Text>
+            <Text style={stylesProfile.infoStatic}>{user && user.NumberOfFollowing}</Text>
+            <Text style={stylesProfile.infoName}>Following</Text>
           </View>
           <View style={[{ alignItems: 'center' }, { marginRight: 8 }]}>
-            <Text style={styles.infoStatic}>{user && user.NumberOfFollowers}</Text>
-            <Text style={styles.infoName}>Followers</Text>
+            <Text style={stylesProfile.infoStatic}>{user && user.NumberOfFollowers}</Text>
+            <Text style={stylesProfile.infoName}>Followers</Text>
           </View>
           <View style={[{ alignItems: 'center' },{marginRight: 8}]}>
-            <Text style={styles.infoStatic}>{user && user.NumberOfReactions}</Text>
-            <Text style={styles.infoName}>Reactions</Text>
+            <Text style={stylesProfile.infoStatic}>{user && user.NumberOfReactions}</Text>
+            <Text style={stylesProfile.infoName}>Reactions</Text>
           </View>
         </View>
 
         {/* Buttons section */}
-        <View style={[styles.centerStyle, {marginVertical: 16, marginBottom: 20 }]}>
-          <TouchableOpacity style={styles.followBtn}>
-            <Text style={ styles.headerText }>Follow</Text>
+        <View style={[stylesProfile.centerStyle, {marginVertical: 16, marginBottom: 20 }]}>
+          <TouchableOpacity style={stylesProfile.followBtn}>
+            <Text style={ stylesProfile.headerText }>Follow</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={() => this.props.navigation.navigate('UploadPage',
                                                      { previousRouteName: 'ProfilePage' })}
-                            style={[styles.iconBtn,{ marginHorizontal: 25}]}>
+                            style={[stylesProfile.iconBtn,{ marginHorizontal: 25}]}>
             <Image source={require('../images/plus.png')} style={{ width: 30, height: 30 }} />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.iconBtn}>
+          <TouchableOpacity style={stylesProfile.iconBtn}>
             <Image source={require('../images/spotify.png')} style={{ width: 30, height: 30 }} />
           </TouchableOpacity>
         </View>
@@ -158,7 +159,7 @@ export default class ProfileScreen extends React.Component {
 
         {/* Video list section */}
         {showList ? (
-          <View style={styles.container}>
+          <View style={stylesProfile.container}>
             <FlatList data={this.state.songs} renderItem={this.renderItem} keyExtractor={(item) => item.id} numColumns={3} />
           </View>
         ) : (
@@ -170,66 +171,3 @@ export default class ProfileScreen extends React.Component {
     );
   }
 }
-
-const styles = StyleSheet.create({
-    header:{
-        flexDirection: 'row-reverse',
-        alignItems: 'center', 
-        justifyContent: 'center',
-        paddingTop: 25,
-        paddingHorizontal: 10
-    },
-    body:{
-        flex: 1,
-    },
-    container: {
-      flex: 1,
-      padding: 16,
-    },
-    itemContainer: {
-      flex: 1,
-      margin: 4,
-      borderRadius: 2,
-      overflow: 'hidden',
-      alignItems: 'center'
-    },
-    itemImage: {
-      flex: 1,
-      width: 210,
-      height: 235,
-      aspectRatio: 1,
-    },
-    infoName:{
-        fontSize: 16,
-        color: 'gray',
-    },
-    infoStatic:{
-        fontWeight: 'bold',
-        fontSize: 14,
-        color: 'white',
-    },
-    profileName:{
-        fontWeight: 'bold',
-        fontSize: 18,
-        marginTop: 8,
-        color: 'white',
-    },
-    headerText:{
-        fontSize: 16,
-        color: 'white'
-    },
-    followBtn:{
-        backgroundColor: 'red',
-        paddingVertical: 8,
-        paddingHorizontal: 16, 
-        borderRadius: 20
-    },
-    centerStyle:{
-        flexDirection: 'row-reverse', 
-        justifyContent: 'center', 
-        alignItems: 'center'
-    },
-    iconBtn:{
-        borderColor: '#686060', borderWidth: 1, borderRadius: 3
-    },
-  });

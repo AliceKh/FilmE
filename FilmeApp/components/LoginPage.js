@@ -1,4 +1,4 @@
-import { default as React, default as React, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, Button, Dimensions, Image, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { getLogin, saveLogin } from "../services/AsyncStorageService";
 import { login } from '../services/AuthService';
@@ -76,7 +76,7 @@ export default function Login(props) {
                 <TouchableOpacity
                   activeOpacity={0.8}
                   style={stylesLogin.visibilityView}
-                  onPress={this.changePasswordVisibility}>
+                  onPress={changePasswordVisibility}>
                   <Image
                     source={
                       hidePassword
