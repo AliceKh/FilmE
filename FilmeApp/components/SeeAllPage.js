@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, Image, FlatList, BackHandler } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { LinearGradient } from 'expo-linear-gradient';
+import { styles, stylesExplore } from '../styles/style';
 
 export default class SeeAllPage extends React.Component {
   constructor(props) {
@@ -75,11 +76,11 @@ export default class SeeAllPage extends React.Component {
         <FlatList
           data={this.state.AllSongs}
           renderItem={({item}) =>(
-            <View style={styles.songItem}>
-              <Image style={styles.songImage} source={{uri : item.LinkToPreviewImage}} />
-              <View style={styles.songDetails}>
-                <Text style={styles.songName}>{item.Title}</Text>
-                <Text style={styles.artistName}>{item.Uploader.Username}</Text>
+            <View style={stylesExplore.songItem}>
+              <Image style={stylesExplore.songImage} source={{uri : item.LinkToPreviewImage}} />
+              <View style={stylesExplore.songDetails}>
+                <Text style={stylesExplore.songName}>{item.Title}</Text>
+                <Text style={stylesExplore.artistName}>{item.Uploader.Username}</Text>
               </View>
               <TouchableOpacity onPress={() => {
                 if(this.state.type == "recently")
@@ -99,98 +100,3 @@ export default class SeeAllPage extends React.Component {
   }
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingHorizontal: 20,
-    paddingTop: 40,
-  },
-  searchBar: {
-    flexDirection: 'row-reverse',
-    alignItems: 'center',
-    backgroundColor: '#584177',
-    borderRadius: 5,
-    paddingHorizontal: 7,
-    marginBottom: 20,
-  },
-  searchIcon: {
-    marginRight: 10,
-  },
-  searchInput: {
-    flex: 1,
-    fontSize: 18,
-    color: 'white'
-  },
-  header: {
-    flexDirection: 'row-reverse',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  heading: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: 'white'
-  },
-  recentlyPlayed: {
-    fontWeight: 'bold',
-    fontSize: 24,
-    color: 'white'
-  },
-  seeAll: {
-    color: 'gray',
-    fontSize: 16,
-  },
-  recentlyPlayedContainer: {
-    flexDirection: 'row-reverse',
-    justifyContent: 'space-between',
-    marginBottom: 20,
-  },
-  recentlyPlayedItem: {
-    alignItems: 'center',
-  },
-  recentlyPlayedImage: {
-    width: 150,
-    height: 150,
-    borderRadius: 20,
-    marginBottom: 10,
-  },
-  recentlyPlayedName: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    color: 'white'
-  },
-  recentlyPlayedArtist: {
-    fontSize: 16,
-    textAlign: 'center',
-    color: 'gray'
-  },
-  songItem: {
-    flexDirection: 'row-reverse',
-    alignItems: 'center',
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
-  },
-  songImage: {
-    width: 50,
-    height: 50,
-    borderRadius: 10,
-    marginRight: 10,
-  },
-  songDetails: {
-    flex: 1,
-  },
-  songName: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 5,
-    color: 'white'
-  },
-  artistName: {
-    fontSize: 14,
-    color: 'gray'
-  },
-  
-});

@@ -251,105 +251,12 @@ const stylesExplore = StyleSheet.create({
       width:1,
       alignItems:'flex-end'
     },
-    buttonContainer: {
-      flex: 1,
-      flexDirection: 'row',
-      backgroundColor: 'transparent',
-      margin: 64,
-    },
-    button: {
-      flex: 1,
-      alignSelf: 'flex-end',
-      alignItems: 'center',
+    text: {
+      textAlign: 'center'
     }
   });
   
-  const stylesAll = StyleSheet.create({
-    searchBar: {
-      flexDirection: 'row-reverse',
-      alignItems: 'center',
-      backgroundColor: '#584177',
-      borderRadius: 5,
-      paddingHorizontal: 7,
-      marginBottom: 20,
-    },
-    searchIcon: {
-      marginRight: 10,
-    },
-    searchInput: {
-      flex: 1,
-      fontSize: 18,
-      color: 'white'
-    },
-    heading: {
-      fontSize: 24,
-      fontWeight: 'bold',
-      color: 'white'
-    },
-    recentlyPlayed: {
-      fontWeight: 'bold',
-      fontSize: 24,
-      color: 'white'
-    },
-    seeAll: {
-      color: 'gray',
-      fontSize: 16,
-    },
-    recentlyPlayedContainer: {
-      flexDirection: 'row-reverse',
-      justifyContent: 'space-between',
-      marginBottom: 20,
-    },
-    recentlyPlayedItem: {
-      alignItems: 'center',
-    },
-    recentlyPlayedImage: {
-      width: 150,
-      height: 150,
-      borderRadius: 20,
-      marginBottom: 10,
-    },
-    recentlyPlayedName: {
-      fontSize: 18,
-      fontWeight: 'bold',
-      textAlign: 'center',
-      color: 'white'
-    },
-    recentlyPlayedArtist: {
-      fontSize: 16,
-      textAlign: 'center',
-      color: 'gray'
-    },
-    songItem: {
-      flexDirection: 'row-reverse',
-      alignItems: 'center',
-      paddingVertical: 10,
-      borderBottomWidth: 1,
-      borderBottomColor: '#ddd',
-    },
-    songImage: {
-      width: 50,
-      height: 50,
-      borderRadius: 10,
-      marginRight: 10,
-    },
-    songDetails: {
-      flex: 1,
-    },
-    songName: {
-      fontSize: 16,
-      fontWeight: 'bold',
-      marginBottom: 5,
-      color: 'white'
-    },
-    artistName: {
-      fontSize: 14,
-      color: 'gray'
-    },
-    
-  });
-  
-  const stylesAudio = StyleSheet.create({
+  const stylesMedia = StyleSheet.create({
     container: {
         flex: 1,
         justifyContent: 'center',
@@ -607,129 +514,11 @@ const stylesExplore = StyleSheet.create({
     
     });
 
-    const stylesVideo = StyleSheet.create({
-        container: {
-          flex: 1,
-          justifyContent: 'center',
-          alignItems: 'center',
-        },
-        header: {
-          position: 'absolute',
-          top: 20,
-          left: 16,
-          right: 16,
-          height: 50,
-          flexDirection: 'row-reverse',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          zIndex: 1,
-        
-        },
-        backgroundVideo: {
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          bottom: 0,
-          right: 0,
-          height: height,
-          width: width,
-          flex: 1,
-        },
-        overlay: {
-          position: 'absolute',
-          bottom: 20,
-          left: 0,
-          right: 0,
-          padding: 10,
-        },
-        title: {
-          color: 'white',
-          fontSize: 20,
-          fontWeight: 'bold',
-          marginBottom: 5,
-        },
-        artist: {
-          color: 'white',
-          fontSize: 16,
-        },
-        controls: {
-          flexDirection: 'row-reverse',
-          justifyContent: 'space-between',
-          marginTop: 10,
-        },
-        controlButton: {
-          width: 30,
-          height: 30,
-          marginHorizontal: 5,
-        },
-        dialogContainer: {
-          flex: 1,
-          justifyContent: 'center',
-          alignItems: 'center',
-          backgroundColor: 'rgba(255, 255, 255, 0.5)',
-          marginVertical: height / 6,
-          marginHorizontal: width / 15,
-          borderRadius: 20,
-          borderWidth:1
-        },
-        dialogContent: {
-          flex: 1,
-          justifyContent: 'flex-start',
-          alignItems: 'center',
-          width: '100%',
-        },  
-        dialogImageContainer: {
-          flex: 4,
-          justifyContent: 'center',
-          alignItems: 'center',
-          aspectRatio: 1,
-        },
-        dialogTextContainer: {
-          flex: 4,
-          justifyContent: 'center',
-          alignItems: 'center',
-          aspectRatio: 1,
-        },
-        dialogButtonContainer: {
-          flex: 2,
-          justifyContent: 'center',
-          alignItems: 'center',
-        },
-        dialogImage: {
-          width: '100%',
-          height: '60%',
-          resizeMode: 'cover',
-          borderRadius: 20
-        },
-        dialogText: {
-          fontSize: 16,
-          textAlign: 'left',
-          color: '#807e7e',
-          marginTop : 20
-        },
-        paraText: {
-          marginTop: 10,
-          color: '#cccccc',
-          
-        },
-        dialogButton: {
-          marginTop: 55,
-          backgroundColor: 'red',
-          borderRadius: 10,
-        },
-        headerText: {
-          fontSize: 16,
-          color: 'white'
-        }
-      });
-
       export { styles,
-        stylesAudio, 
+        stylesMedia, 
         stylesExplore, 
-        stylesGraph, 
-        stylesAll, 
+        stylesGraph,  
         stylesLogin, 
         stylesProfile, 
         stylesReaction, 
-        stylesUpload, 
-        stylesVideo}
+        stylesUpload, }
