@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
-import {Text,View,Image, TextInput, Button, Alert, TouchableOpacity, ActivityIndicator, Dimensions} from 'react-native';
+import { default as React, default as React, useEffect, useState } from 'react';
+import { ActivityIndicator, Alert, Button, Dimensions, Image, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { getLogin, saveLogin } from "../services/AsyncStorageService";
 import { login } from '../services/AuthService';
 import { styles, stylesLogin } from '../styles/style';
 
-export default function Login (props) {    
-    const { height } = Dimensions.get('screen');
+export default function Login(props) {
+    const {height} = Dimensions.get('screen');
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -12,11 +13,14 @@ export default function Login (props) {
     const [hidePassword, sethidePassword] = useState(true);
     const {navigate} = props.navigation;
 
-    function submitLogin(){
+    useEffect(() => getLogin(setEmail, setPassword), []);
+
+    function submitLogin() {
         setIsLoading(true);
         login(email, password)
-            .then(() => {
-                navigate('ExplorePage', { previousRouteName: 'Login' });
+            .then(async () => {
+                await saveLogin(email, password);
+                navigate('ExplorePage', {previousRouteName: 'LoginPage'});
             })
             .catch((error) => {
                 loginFailedAlert(error);
@@ -26,11 +30,11 @@ export default function Login (props) {
             });
     }
 
-    function loginFailedAlert (error){
-        Alert.alert('Oops!', 'Login failed: ' + error, [{text: 'OK', onPress: ()=>console.log(error)}]);
+    function loginFailedAlert(error) {
+        Alert.alert('Oops!', 'Login failed: ' + error, [{text: 'OK', onPress: () => console.log(error)}]);
     }
 
-    changePasswordVisibility = () => {
+    function changePasswordVisibility() {
         sethidePassword(!hidePassword);
     }
 
@@ -54,6 +58,7 @@ export default function Login (props) {
                     textAlign='left'
                     style={stylesLogin.inputText}
                     onChangeText={email => setEmail(email)}
+                    value={email}
                 />
             </View>
 
@@ -66,6 +71,7 @@ export default function Login (props) {
                     textAlign='left'
                     style={stylesLogin.inputText}
                     onChangeText={pass => setPassword(pass)}
+                    value={password}
                 />
                 <TouchableOpacity
                   activeOpacity={0.8}
