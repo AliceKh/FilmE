@@ -39,6 +39,10 @@ class AudioReactionPage extends React.Component {
         );
     }
     componentWillUnmount() {
+        if(this.sound.current){
+            this.sound.current.stopAsync();
+        }
+
         this.backHandler.remove()
     }
     handleBackButtonPressAndroid = () => {
@@ -49,7 +53,6 @@ class AudioReactionPage extends React.Component {
     
         if (navigation && navigation.navigate) {
           navigation.navigate('ExplorePage');
-          this.sound.current.pauseAsync();
           return true;
         }
         // We have handled the back button

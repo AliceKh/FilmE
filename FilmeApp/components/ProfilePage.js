@@ -139,8 +139,8 @@ export default class ProfileScreen extends React.Component {
           <TouchableOpacity style={styles.followBtn}>
             <Text style={ styles.headerText }>Follow</Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => this.props.navigation.navigate('UploadPage',
-                                                     { previousRouteName: 'ProfilePage' })}
+          <TouchableOpacity onPress={() => {if(user) {this.props.navigation.navigate('UploadPage',
+                                                     { previousRouteName: 'ProfilePage', userID: user._id})}}}
                             style={[styles.iconBtn,{ marginHorizontal: 25}]}>
             <Image source={require('../images/plus.png')} style={{ width: 30, height: 30 }} />
           </TouchableOpacity>

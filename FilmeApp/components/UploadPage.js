@@ -24,7 +24,6 @@ export default function UploadPage(props) {
     const [linkToStorage, setLinkToStorage] = useState('');
     const [linkToPreviewImage, setLinkToPreviewImage] = useState('');
     const [title, setTitle] = useState('');
-    const [uploader, setUploader] = useState('64306b71dd045edb9b98d52d');
     const [dateWhenUploaded, setDateWhenUploaded] = useState('');
     const [type, setType] = useState('');
     const [tags, setTags] = useState('');
@@ -35,28 +34,29 @@ export default function UploadPage(props) {
     const [chosenImageFile, setChosenImageFile] = useState('');
     const [chosenPreviewFile, setChosenPreviewFile] = useState('');
 
-    const retry = useRetry();
-
     const { navigate } = props.navigation
+
+    const uploader = props.navigation.getParam("userID");
 
     const FileUpload = () => {
         const uploadyContext = useContext(UploadyContext);
         const [failedItems, setFailedItems] = useState([]);
         const [failedBatches, setFailedBatches] = useState([]);
-        const [uploadResult, setUploadResult] = useState(null);
+        const retry = useRetry();
         const retryBatch = useBatchRetry();
 
         useItemFinishListener((item) => {
             const response = item.uploadResponse.data;
-            console.log(`item ${item.id} finished uploading, response was: `, response);
+            var today = new Date();
             var nametype = response.mimetype.split("/")[0];
             var type = response.mimetype.split("/")[1];
             type = (type == "mpeg")? "mp3" : type;
             nametype = (nametype == "image")? "preview" : nametype
-            const filename = response.originalname
 
             const linkToMongo = "https://firebasestorage.googleapis.com/v0/b/filme-4277e.appspot.com/o/"
-            + nametype + "%2F" + filename + "." + type + "?alt=media"
+                                + nametype + "%2F" 
+                                + filename + "." 
+                                + type + "?alt=media"
 
             if(!isImagePicked){
                 setLinkToStorage(linkToMongo);
@@ -64,26 +64,24 @@ export default function UploadPage(props) {
             else{
                 setLinkToPreviewImage(linkToMongo);
             }      
-
-            setUploadedResult(item.uploadResponse.data);
         });
-        
         useItemErrorListener(async (item, error) => {
-            console.error(`Error occurred while uploading ${item.file.name}: ${error}`);
-            if (!failedItems.some((failedItem) => failedItem.id === item.id)) {
-                setFailedItems((prevFailedItems) => [...prevFailedItems, item]);
-                setFailedBatches((batches) =>
-                !batches.includes(item.batchId) ? batches.concat(item.batchId) : batches
-                );
-            }
+            const itemIdentity = item.file ? item.file.name : item.url;
 
-            if (retry.uploadResult) {
-                await retry(retry.uploadResult);
+            if (!failedItems[itemIdentity]) {
+              setFailedItems((failed) => {
+                return { ...failed, [item.id]: item.file };
+              });
+        
+              setFailedBatches((batches) => {
+                return !batches.includes(item.batchId)
+                  ? batches.concat(item.batchId)
+                  : batches;
+              });
             }
         });
 
         useItemStartListener(async (item) => {
-            console.log(`item ${item.id} starting to upload, name = ${item.file.name} ${item.file.type}`);
         });
         let progress = useItemProgressListener((item) => {
 
@@ -91,29 +89,29 @@ export default function UploadPage(props) {
         
         useEffect(() => {
             const retryFailedItems = async () => {
-              for (const item of failedItems) {
-                await retry(item.file);
-              }
-              setFailedItems([]);
+            for (const item of Object.values(failedItems)) {
+                if (item) {
+                }
+            }
+            setFailedItems({});
             };
-      
+
             const retryFailedBatches = async () => {
-              for (const batchId of failedBatches) {
-                console.log(`Retry ${JSON.stringify(batchId)}`);
+            for (const batchId of failedBatches) {
                 await retryBatch(batchId);
-              }
-              setFailedBatches([]);
+            }
+            setFailedBatches([]);
             };
-      
-            if (failedItems.length > 0) {
-              retryFailedItems();
+
+            if (Object.keys(failedItems).length > 0) {
+            retryFailedItems();
             }
             if (failedBatches.length > 0) {
-              retryFailedBatches();
+            retryFailedBatches();
             }
-          }, [failedItems, failedBatches, retry, retryBatch]);
+        }, [failedItems, failedBatches, retry, retryBatch]);
 
-         const handleDocumentSelection = (setFunc, type) => {
+        function handleDocumentSelection(setFunc, type) {
             console.log("enter:" + type);
             return async () => {
                 try {
@@ -126,19 +124,15 @@ export default function UploadPage(props) {
                     if (result.type === 'success') {
                         console.warn('res : ' + JSON.stringify(result));
                         setFunc(result);
-                        setServerUploadDestUrl(serverUploadDestUrl + type)                        
-                        result.type = result.mimeType // uploady needs mimetype
+                        setServerUploadDestUrl(server + type)
+                        result.type = result.mimeType
                         uploadyContext.upload(result);
-                        setServerUploadDestUrl(server)
                     }
                 } catch (err) {
                     if (DocumentPicker.isCancel(err)) {
                         console.log("User cancelled the picker, exit any dialogs or menus and move on"); // TODO console.log
                     } else {
-                        console.error(`Error occurred while uploading ${result.name}: ${err}`);
-                        retry.uploadResult = result;
-                        await retry(result.id);
-                        retry.uploadResult = null;
+                        throw err;
                     }
                 }
             };
@@ -191,7 +185,9 @@ export default function UploadPage(props) {
             Tags:tags,
             TimeStamps:timeStamps
         })
-            .then(r => console.log("uploaded!!")) // TODO console.log
+            .then(r => console.log("uploaded!!"))
+
+            navigate('ProfilePage')
     }
 
     return (
@@ -311,15 +307,6 @@ export default function UploadPage(props) {
 
                 source={require("../assets/mainLogo2.png")}
             />}
-            {/*<Text*/}
-            {/*    onPress={() => navigate('Login')}*/}
-
-            {/*    style={{*/}
-            {/*        alignSelf: "center",*/}
-            {/*        color: "#9960D2",*/}
-            {/*        paddingBottom: "5%"*/}
-            {/*    }}>Login*/}
-            {/*</Text>*/}
         </LinearGradient>
     );
 }
