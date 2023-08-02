@@ -23,7 +23,7 @@ export function connectToMongo() {
 export async function insertUser(userData, uid) {
   var profileImage = await generateProfileImage(userData.username);
 
-  var user = new User({Email:userData.email,
+  var user = new User({Email:userData.email.toLowerCase(),
                        Username:userData.username,
                        UID:uid, 
                        ProfileImage: profileImage});
