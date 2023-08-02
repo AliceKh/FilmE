@@ -49,7 +49,7 @@ class AudioReactionPage extends React.Component {
         const { navigation } = this.props;
 
         if(this.sound.current)
-            this.sound.current.pauseAsync();
+            this.sound.current.stopAsync();
     
         if (navigation && navigation.navigate) {
           navigation.navigate('ExplorePage');

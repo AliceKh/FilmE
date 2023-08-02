@@ -41,7 +41,7 @@ export default class ProfileScreen extends React.Component {
       componentWillUnmount() {
         this.backHandler.remove()
       }
-    
+
       handleBackPress = () => {
         const { navigation } = this.props;
         if (navigation && navigation.navigate) {
@@ -86,21 +86,20 @@ export default class ProfileScreen extends React.Component {
           onPress={() => this.setState({ isGraphVisible: false })}
         >
           <View style={styles.modalContent}>
-            <GraphPage objectId={this.state.selectedImageId}/>
+            <GraphPage objectId={this.state.selectedImageId} onClose={() => this.setState({ isGraphVisible: false })} />
           </View>
         </TouchableOpacity>
       </Modal>
     );
   };
 
-
   render() {
     const { showList, user } = this.state;
     return (
-        <LinearGradient
-         colors={['#29024f', '#000000', '#29024f']}
-         style={styles.body}
-        >
+      <LinearGradient
+        colors={['#29024f', '#000000', '#29024f']}
+        style={styles.body}
+      >
         {/* Header section */}
         <View style={styles.header}>
           <TouchableOpacity onPress={() => this.props.navigation.navigate('ExplorePage', { previousRouteName: 'ProfilePage' })}>
@@ -109,7 +108,7 @@ export default class ProfileScreen extends React.Component {
             </Text>
           </TouchableOpacity>
         </View>
-        
+
         {this.renderGraphModal()}
 
         {/* Profile picture section */}
@@ -167,16 +166,16 @@ export default class ProfileScreen extends React.Component {
             <Text style={{ color: 'white' }}>Notifications</Text>
           </View>
         )}
-        </LinearGradient>
-);
-    }
+      </LinearGradient>
+    );
+  }
 }
 
 const styles = StyleSheet.create({
     header:{
         flexDirection: 'row-reverse',
         alignItems: 'center', 
-        justifyContent: 'center', 
+        justifyContent: 'center',
         paddingTop: 25,
         paddingHorizontal: 10
     },
