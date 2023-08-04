@@ -6,8 +6,8 @@ const router = express.Router();
 
 router.get('/profileuser', async (req, res) => {
     try {
-      const currentUser = auth.currentUser.email;
-      const user = await User.findOne({ Email : currentUser});
+      console.log(req.body);
+      const user = await User.findOne({Email: req.body.email});
       if (!user) {
         return res.status(404).json({ message: "User not found" });
       }
@@ -17,5 +17,11 @@ router.get('/profileuser', async (req, res) => {
         return res.status(500).json({ message: "Server error" });
       }
 });
+
+// router.get('/user', async (req, res)=>{
+//   try{
+//     const user = await User.findOne({Email: req.body.email});
+//   }
+// })
 
 export {router as getUsers};
