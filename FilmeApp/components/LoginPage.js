@@ -12,7 +12,7 @@ import {
     View
 } from 'react-native';
 import {login} from '../services/AuthService';
-import {getLogin, saveLogin} from "../services/AsyncStorageService";
+import {getLogin, saveLogin} from "../services/StayLoggedInService";
 
 export default function Login(props) {
     const {height} = Dimensions.get('screen');
