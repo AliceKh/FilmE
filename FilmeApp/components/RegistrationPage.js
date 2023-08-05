@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import {ActivityIndicator, Alert, Button, Dimensions, Image, Text, TextInput, View} from 'react-native';
 import {register} from '../services/AuthService';
 import {confirmValidation, emailValidation, passwordValidation, usernameValidation} from '../services/Validation';
-import {saveLogin} from "../services/StayLoggedInService";
+import {saveLogin} from "../services/AsyncStorageService";
 
 export default function Register(props) {
     const {height} = Dimensions.get('screen');
