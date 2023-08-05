@@ -18,10 +18,4 @@ router.get('/profileuser', async (req, res) => {
       }
 });
 
-// router.get('/user', async (req, res)=>{
-//   try{
-//     const user = await User.findOne({Email: req.body.email});
-//   }
-// })
-
 export {router as getUsers};

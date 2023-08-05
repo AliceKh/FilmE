@@ -5,25 +5,15 @@ const storageName = {
 }
 
 export async function saveLogin(email, password) {
-    await AsyncStorage.setItem(storageName.email, password).then();
-    await AsyncStorage.setItem(storageName.password, email).then();
+    await AsyncStorage.setItem(storageName.email, email).then();
+    await AsyncStorage.setItem(storageName.password, password).then();
 }
 
 export function getLogin(setEmail, setPassword) {
     try {
         Promise.all([AsyncStorage.getItem(storageName.email), AsyncStorage.getItem(storageName.password)]).then(value => {
-            setEmail(value[1]);
-            setPassword(value[0]);
-        })
-    } catch (e) {
-        console.log('error at getting saved username and password');
-    }
-}
-
-export function getEmail() {
-    try {
-        Promise(AsyncStorage.getItem(storageName.email)).then(value => {
-            return value;
+            setEmail(value[0]);
+            setPassword(value[1]);
         })
     } catch (e) {
         console.log('error at getting saved username and password');
