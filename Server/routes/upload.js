@@ -46,7 +46,7 @@ router.route('/video').post(upload.single('file'), (req, res) => {
         const file = req.file;
 
         if (currentUser) {
-        const storageRef = ref(storage, `video/${file.originalname}.mp4`);
+        const storageRef = ref(storage, `video/${file.originalname}`);
         fs.readFile(req.file.path, (err, data) => {
             if(err){
                 console.log(err);
@@ -76,7 +76,7 @@ router.route('/audio').post(upload.single('file'), (req,res) => {
         const file = req.file;
 
         if (currentUser) {
-        const storageRef = ref(storage, `audio/${file.originalname}.mp3`);
+        const storageRef = ref(storage, `audio/${file.originalname}`);
         fs.readFile(req.file.path, (err, data) => {
             if(err){
                 console.log(err);
@@ -107,7 +107,7 @@ router.route('/image').post(upload.single('file'), (req, res) => {
         const file = req.file;
 
         if (currentUser) {
-        const storageRef = ref(storage, `preview/${file.originalname}.jpeg`);
+        const storageRef = ref(storage, `preview/${file.originalname}`);
         fs.readFile(req.file.path, (err, data) => {
             if(err){
                 console.log(err);
