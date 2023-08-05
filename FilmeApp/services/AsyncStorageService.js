@@ -18,3 +18,25 @@ export function getLogin(setEmail, setPassword) {
         console.log('error at getting saved username and password');
     }
 }
+
+export function setAllSongs(songs){
+    return new Promise((resolve, reject) => {
+    AsyncStorage.setItem('AllSongs', songs)
+        .then(() => resolve)
+        .catch((error) => {
+            reject(error);
+        });
+});
+}
+
+export function getAllSongs(){
+    return new Promise((resolve, reject) => {
+        AsyncStorage.getItem('AllSongs')
+        .then((value) => {
+            resolve(value);
+        })
+        .catch((error) => {
+            reject(error);
+        });
+    })
+}

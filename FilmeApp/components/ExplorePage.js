@@ -1,9 +1,9 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, Image, FlatList, BackHandler } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage'
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import axios from 'axios'
+import { getUploads } from '../services/ExploreService';
+import { setAllSongs, getAllSongs } from '../services/AsyncStorageService';
 
 export default class ExplorePage extends React.Component {
   constructor(props) {
@@ -19,15 +19,15 @@ export default class ExplorePage extends React.Component {
   }
 
   componentDidMount() {
-    axios.get(`http://${global.server}:4000/exploreuploads`)
+    getUploads()
       .then(response => {
-        this.setState({ songs: response.data });
+        this.setState({ songs: response });
       })
       .catch(error => {
         console.log(error);
       });
 
-    AsyncStorage.getItem('AllSongs')
+    getAllSongs()
     .then((value) => {
       if (value) {
         this.setState({ AllSongs: JSON.parse(value) });
@@ -41,7 +41,7 @@ export default class ExplorePage extends React.Component {
 
   componentDidUpdate(prevProps, prevState) {
     if (prevState.AllSongs !== this.state.RecentlySongs) {
-      AsyncStorage.setItem('AllSongs', JSON.stringify(this.state.RecentlySongs))
+      setAllSongs(JSON.stringify(this.state.RecentlySongs))
         .catch((error) => {
           console.log(error);
         });
