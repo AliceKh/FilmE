@@ -1,5 +1,6 @@
 // setx GOOGLE_APPLICATION_CREDENTIALS "D:\Projects\FilmE\emotionrecognition\credentials.json"
 const express = require('express');
+const fs = require('fs');
 const {ImageAnnotatorClient} = require('@google-cloud/vision');
 const multer = require('multer');
 const {v4: uuidv4} = require('uuid');
@@ -58,6 +59,16 @@ app.post('/emotions', upload.single('image'), async (req, res) => {
         }
     } catch (error) {
         res.status(400).send({error: error.message});
+    } finally {
+        console.log("finally");
+        if(req.file)
+        {
+            const fileLocation = `./uploads/${req.file.filename}`;
+            fs.unlink(fileLocation, (err) => {
+                if (err) throw err;
+                console.log(`${fileLocation} was deleted`);
+            });
+        }
     }
 });
 
