@@ -6,8 +6,8 @@ const router = express.Router();
 
 router.get('/profileuser', async (req, res) => {
     try {
-      console.log(req.body);
-      const user = await User.findOne({Email: req.body.email});
+      const currentUser = auth.currentUser.email;
+      const user = await User.findOne({ Email : currentUser});
       if (!user) {
         return res.status(404).json({ message: "User not found" });
       }

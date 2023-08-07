@@ -47,16 +47,18 @@ export default function UploadPage(props) {
 
         useItemFinishListener((item) => {
             const response = item.uploadResponse.data;
-            var today = new Date();
             var nametype = response.mimetype.split("/")[0];
             var type = response.mimetype.split("/")[1];
             type = (type == "mpeg")? "mp3" : type;
             nametype = (nametype == "image")? "preview" : nametype
 
+            const filename = response.originalname;
+
             const linkToMongo = "https://firebasestorage.googleapis.com/v0/b/filme-4277e.appspot.com/o/"
                                 + nametype + "%2F" 
-                                + filename + "." 
-                                + type + "?alt=media"
+                                + filename + "?alt=media"
+
+            console.log(linkToMongo)
 
             if(!isImagePicked){
                 setLinkToStorage(linkToMongo);
@@ -122,7 +124,6 @@ export default function UploadPage(props) {
                     });
 
                     if (result.type === 'success') {
-                        console.warn('res : ' + JSON.stringify(result));
                         setFunc(result);
                         setServerUploadDestUrl(server + type)
                         result.type = result.mimeType
@@ -171,9 +172,6 @@ export default function UploadPage(props) {
             </View>
         )
     }
-    const PreviewUpload = () => {
-
-    }
 
     const handlePublish = () => {
         axios.post(`http://${global.server}:4000/upload/`, {
@@ -187,7 +185,7 @@ export default function UploadPage(props) {
         })
             .then(r => console.log("uploaded!!"))
 
-            navigate('ProfilePage')
+            navigate('ExplorePage')
     }
 
     return (
