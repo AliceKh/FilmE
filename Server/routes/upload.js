@@ -11,7 +11,7 @@ import fs from 'fs'
 
 const router = express.Router();
 
-function setDate(nametype){
+function setFileName(nametype){
     var today = new Date();
     const filename = nametype.substring(0,3).toUpperCase()
                                              + today.getFullYear().toString().substring(2,4)
@@ -38,7 +38,6 @@ const upload = multer({ storage: multerStorage });
 
 router.post('/', function (req, res) {
     let upload = req.body;
-    console.log(upload)
     console.log("Server upload: " + upload['LinkToPreviewImage']);
     upload['DateWhenUploaded'] = Date.now();
     upload['NumberOfReactions'] = 0;
@@ -58,7 +57,7 @@ router.route('/video').post(upload.single('file'), (req, res) => {
         const currentUser = auth.currentUser;
         const file = req.file;
 
-        file.originalname = setDate(file.mimetype);
+        file.originalname = setFileName(file.mimetype);
         if (currentUser) {
         const storageRef = ref(storage, `video/${file.originalname}`);
         fs.readFile(req.file.path, (err, data) => {
@@ -88,7 +87,7 @@ router.route('/audio').post(upload.single('file'), (req,res) => {
     try {
         const currentUser = auth.currentUser;
         const file = req.file;
-        file.originalname = setDate(file.mimetype);
+        file.originalname = setFileName(file.mimetype);
 
         if (currentUser) {
         const storageRef = ref(storage, `audio/${file.originalname}`);
@@ -120,7 +119,7 @@ router.route('/image').post(upload.single('file'), (req, res) => {
     try {
         const currentUser = auth.currentUser;
         const file = req.file;
-        file.originalname = setDate(file.mimetype);
+        file.originalname = setFileName(file.mimetype);
 
         if (currentUser) {
         const storageRef = ref(storage, `preview/${file.originalname}`);
