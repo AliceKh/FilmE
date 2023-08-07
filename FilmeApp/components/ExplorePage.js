@@ -1,9 +1,9 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { Text, View, TextInput, TouchableOpacity, Image, FlatList, BackHandler } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage'
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import axios from 'axios';
+import { getUploads } from '../services/ExploreService';
+import { setAllSongs, getAllSongs } from '../services/AsyncStorageService';
 import { styles, stylesExplore } from '../styles/style';
 
 export default class ExplorePage extends React.Component {
@@ -20,15 +20,15 @@ export default class ExplorePage extends React.Component {
   }
 
   componentDidMount() {
-    axios.get(`http://${global.server}:4000/exploreuploads`)
+    getUploads()
       .then(response => {
-        this.setState({ songs: response.data });
+        this.setState({ songs: response });
       })
       .catch(error => {
         console.log(error);
       });
 
-    AsyncStorage.getItem('AllSongs')
+    getAllSongs()
     .then((value) => {
       if (value) {
         this.setState({ AllSongs: JSON.parse(value) });
@@ -42,7 +42,7 @@ export default class ExplorePage extends React.Component {
 
   componentDidUpdate(prevProps, prevState) {
     if (prevState.AllSongs !== this.state.RecentlySongs) {
-      AsyncStorage.setItem('AllSongs', JSON.stringify(this.state.RecentlySongs))
+      setAllSongs(JSON.stringify(this.state.RecentlySongs))
         .catch((error) => {
           console.log(error);
         });
@@ -114,7 +114,7 @@ export default class ExplorePage extends React.Component {
     };
 
   render() {
-    const { showSearchResults, RecentlySongs: AllSongs } = this.state;
+    const { showSearchResults } = this.state;
     const { searchResults } = this.state;
     const songsToDisplay = searchResults.length > 0 ? searchResults : this.state.songs;
 
@@ -142,7 +142,6 @@ export default class ExplorePage extends React.Component {
               placeholder="Search"
               style={stylesExplore.searchInput}
               value={this.state.searchTerm}
-              //onChangeText={(searchTerm) => this.setState({ searchTerm })}
               onChangeText={(searchTerm) => this.setState({ searchTerm }, this.handleSearch)}
               onSubmitEditing={this.handleSearch}
             />
@@ -201,10 +200,5 @@ export default class ExplorePage extends React.Component {
         </LinearGradient>
       );
     }
-    return (
-      <LinearGradient colors={['#29024f', '#000000', '#29024f']} style={styles.container}>
-        <SearchResultsPage searchData={AllSongs} navigation={this.props.navigation} />
-      </LinearGradient>
-    );
   }
 }

@@ -1,9 +1,10 @@
 import React from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
 import { View, Modal, Text, Image, StyleSheet, FlatList, TouchableOpacity, Dimensions, BackHandler} from 'react-native';
-import axios from 'axios';
 import GraphPage from './GraphPage';
 import { stylesProfile } from '../styles/style';
+import { getCurrentUser } from '../services/ProfileService';
+import { getUsersUploads } from '../services/ProfileService';
 
 export default class ProfileScreen extends React.Component {
   constructor(props) {
@@ -20,37 +21,38 @@ export default class ProfileScreen extends React.Component {
     this.toggleList = this.toggleList.bind(this);
   }
 
-      componentDidMount() {
-        axios.get(`http://${global.server}:4000/profileuser`)
-          .then(response => {
-            this.setState({ user: response.data });
-          })
-          .catch(error => {
-            console.log(error);
-          });
-          
-        axios.get(`http://${global.server}:4000/uploads`)
-          .then(response => {
-            this.setState({ songs: response.data });
-          })
-          .catch(error => {
-            console.log(error);
-          });
-          this.backHandler = BackHandler.addEventListener('hardwareBackPress', this.handleBackPress);
-      }
+  componentDidMount() {
+    getCurrentUser()
+      .then(response => {
+        this.setState({ user: response });
+      })
+      .catch(error => {
+        console.log(error);
+      });
+      
+    getUsersUploads()
+      .then(response => {
+        this.setState({ songs: response });
+      })
+      .catch(error => {
+        console.log(error);
+      });
+      
+    this.backHandler = BackHandler.addEventListener('hardwareBackPress', this.handleBackPress);
+  }
 
-      componentWillUnmount() {
-        this.backHandler.remove()
-      }
+  componentWillUnmount() {
+    this.backHandler.remove()
+  }
 
-      handleBackPress = () => {
-        const { navigation } = this.props;
-        if (navigation && navigation.navigate) {
-          navigation.navigate('ExplorePage');
-          return true;
-        }
-        return false;
-      };
+  handleBackPress = () => {
+    const { navigation } = this.props;
+    if (navigation && navigation.navigate) {
+      navigation.navigate('ExplorePage');
+      return true;
+    }
+    return false;
+  };
 
   renderItem = ({ item, index }) => {
     const column = index % 3;
@@ -118,34 +120,13 @@ export default class ProfileScreen extends React.Component {
           <Text style={stylesProfile.profileName}>{user && user.Username}</Text>
         </View>
 
-        {/* Followers, following, likes row */}
-        <View style={[stylesProfile.centerStyle, { marginTop: 16 }]}>
-          <View style={[{ alignItems: 'center' }, { marginRight: 8 }]}>
-            <Text style={stylesProfile.infoStatic}>{user && user.NumberOfFollowing}</Text>
-            <Text style={stylesProfile.infoName}>Following</Text>
-          </View>
-          <View style={[{ alignItems: 'center' }, { marginRight: 8 }]}>
-            <Text style={stylesProfile.infoStatic}>{user && user.NumberOfFollowers}</Text>
-            <Text style={stylesProfile.infoName}>Followers</Text>
-          </View>
-          <View style={[{ alignItems: 'center' },{marginRight: 8}]}>
-            <Text style={stylesProfile.infoStatic}>{user && user.NumberOfReactions}</Text>
-            <Text style={stylesProfile.infoName}>Reactions</Text>
-          </View>
-        </View>
-
+        
         {/* Buttons section */}
         <View style={[stylesProfile.centerStyle, {marginVertical: 16, marginBottom: 20 }]}>
-          <TouchableOpacity style={stylesProfile.followBtn}>
-            <Text style={ stylesProfile.headerText }>Follow</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => this.props.navigation.navigate('UploadPage',
-                                                     { previousRouteName: 'ProfilePage' })}
+          <TouchableOpacity onPress={() => {if(user) {this.props.navigation.navigate('UploadPage',
+                                                     { previousRouteName: 'ProfilePage', userID: user._id})}}}
                             style={[stylesProfile.iconBtn,{ marginHorizontal: 25}]}>
             <Image source={require('../images/plus.png')} style={{ width: 30, height: 30 }} />
-          </TouchableOpacity>
-          <TouchableOpacity style={stylesProfile.iconBtn}>
-            <Image source={require('../images/spotify.png')} style={{ width: 30, height: 30 }} />
           </TouchableOpacity>
         </View>
         <View style={{ flexDirection: 'row-reverse', justifyContent: 'space-evenly' }}>

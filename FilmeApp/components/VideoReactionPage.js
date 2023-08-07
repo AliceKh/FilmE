@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Dimensions, Image, Modal, ActivityIndicator, BackHandler, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, Dimensions, Image, Modal, ActivityIndicator, BackHandler, Alert } from 'react-native';
 import { Video } from 'expo-av';
 import * as FileSystem from 'expo-file-system';
 import * as MediaLibrary from 'expo-media-library';
@@ -55,7 +55,7 @@ class VideoReactionPage extends React.Component {
     const { status } = await MediaLibrary.requestPermissionsAsync();
 
     if(status != 'granted') {
-        console.log("Permissions error"); // TODO console.log
+        console.log("Permissions error");
         return;
     }
 
@@ -136,24 +136,12 @@ class VideoReactionPage extends React.Component {
           <Text style={stylesMedia.title}>{item.Title}</Text>
           <Text style={stylesMedia.artist}>{item.Uploader.Username}</Text>
           <View style={stylesMedia.controls}>
-          <TouchableOpacity>
-            <Image source={require('../images/shuffle.png')} style={stylesMedia.controlButton} />
-          </TouchableOpacity>
-          <TouchableOpacity>
-            <Image source={require('../images/prev.png')} style={stylesMedia.controlButton} />
-          </TouchableOpacity>
           <TouchableOpacity onPress={this.handlePlayPause}>
           {isPlaying ?
                 <Image source={require('../images/pause.png')} style={stylesMedia.controlButton} />
                 :
                 <Image source={require('../images/play.png')} style={stylesMedia.controlButton} />
               }
-          </TouchableOpacity>
-          <TouchableOpacity>
-            <Image source={require('../images/next.png')} style={stylesMedia.controlButton} />
-          </TouchableOpacity>
-          <TouchableOpacity>
-            <Image source={require('../images/loop.png')} style={stylesMedia.controlButton} />
           </TouchableOpacity>
         </View>
         </View>

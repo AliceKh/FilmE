@@ -11,6 +11,19 @@ import fs from 'fs'
 
 const router = express.Router();
 
+function setFileName(nametype){
+    var today = new Date();
+    const filename = nametype.substring(0,3).toUpperCase()
+                                             + today.getFullYear().toString().substring(2,4)
+                                             + (today.getMonth() + 1)
+                                             + today.getDate() + "_"
+                                             + today.getHours()
+                                             + today.getMinutes()
+                                             + today.getSeconds()
+
+    return filename;
+}
+
 const multerStorage = multer.diskStorage({
     destination: function (req, file, cb) {
       cb(null, './uploads')
@@ -25,7 +38,6 @@ const upload = multer({ storage: multerStorage });
 
 router.post('/', function (req, res) {
     let upload = req.body;
-    console.log(upload);
     console.log("Server upload: " + upload['LinkToPreviewImage']);
     upload['DateWhenUploaded'] = Date.now();
     upload['NumberOfReactions'] = 0;
@@ -45,8 +57,9 @@ router.route('/video').post(upload.single('file'), (req, res) => {
         const currentUser = auth.currentUser;
         const file = req.file;
 
+        file.originalname = setFileName(file.mimetype);
         if (currentUser) {
-        const storageRef = ref(storage, `video/${file.originalname}.mp4`);
+        const storageRef = ref(storage, `video/${file.originalname}`);
         fs.readFile(req.file.path, (err, data) => {
             if(err){
                 console.log(err);
@@ -74,9 +87,10 @@ router.route('/audio').post(upload.single('file'), (req,res) => {
     try {
         const currentUser = auth.currentUser;
         const file = req.file;
+        file.originalname = setFileName(file.mimetype);
 
         if (currentUser) {
-        const storageRef = ref(storage, `audio/${file.originalname}.mp3`);
+        const storageRef = ref(storage, `audio/${file.originalname}`);
         fs.readFile(req.file.path, (err, data) => {
             if(err){
                 console.log(err);
@@ -105,9 +119,10 @@ router.route('/image').post(upload.single('file'), (req, res) => {
     try {
         const currentUser = auth.currentUser;
         const file = req.file;
+        file.originalname = setFileName(file.mimetype);
 
         if (currentUser) {
-        const storageRef = ref(storage, `preview/${file.originalname}.jpeg`);
+        const storageRef = ref(storage, `preview/${file.originalname}`);
         fs.readFile(req.file.path, (err, data) => {
             if(err){
                 console.log(err);
