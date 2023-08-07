@@ -119,22 +119,7 @@ export default class ProfileScreen extends React.Component {
           <Text style={styles.profileName}>{user && user.Username}</Text>
         </View>
 
-        {/* Followers, following, likes row */}
-        <View style={[styles.centerStyle, { marginTop: 16 }]}>
-          <View style={[{ alignItems: 'center' }, { marginRight: 8 }]}>
-            <Text style={styles.infoStatic}>{user && user.NumberOfFollowing}</Text>
-            <Text style={styles.infoName}>Following</Text>
-          </View>
-          <View style={[{ alignItems: 'center' }, { marginRight: 8 }]}>
-            <Text style={styles.infoStatic}>{user && user.NumberOfFollowers}</Text>
-            <Text style={styles.infoName}>Followers</Text>
-          </View>
-          <View style={[{ alignItems: 'center' },{marginRight: 8}]}>
-            <Text style={styles.infoStatic}>{user && user.NumberOfReactions}</Text>
-            <Text style={styles.infoName}>Reactions</Text>
-          </View>
-        </View>
-
+        
         {/* Buttons section */}
         <View style={[styles.centerStyle, {marginVertical: 16, marginBottom: 20 }]}>
           <TouchableOpacity onPress={() => {if(user) {this.props.navigation.navigate('UploadPage',
