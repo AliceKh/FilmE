@@ -157,12 +157,6 @@ class AudioReactionPage extends React.Component {
             <Text style={styles.title}>{item.Title}</Text>
             <Text style={styles.artist}>{item.Uploader.Username}</Text>
             <View style={styles.controls}>
-            <TouchableOpacity>
-                <Image source={require('../images/shuffle.png')} style={styles.controlButton} />
-            </TouchableOpacity>
-            <TouchableOpacity>
-                <Image source={require('../images/prev.png')} style={styles.controlButton} />
-            </TouchableOpacity>
             <TouchableOpacity onPress={this.handlePlayPause}>
             {isPlaying ?
                     <Image source={require('../images/pause.png')} style={styles.controlButton} />
@@ -170,12 +164,7 @@ class AudioReactionPage extends React.Component {
                     <Image source={require('../images/play.png')} style={styles.controlButton} />
                 }
             </TouchableOpacity>
-            <TouchableOpacity>
-                <Image source={require('../images/next.png')} style={styles.controlButton} />
-            </TouchableOpacity>
-            <TouchableOpacity>
-                <Image source={require('../images/loop.png')} style={styles.controlButton} />
-            </TouchableOpacity>
+
             </View>
             </View>
             <ReactionRecording isPlaying={this.state.isPlaying} 
@@ -247,7 +236,7 @@ class AudioReactionPage extends React.Component {
     },
     controls: {
         flexDirection: 'row-reverse',
-        justifyContent: 'space-between',
+        justifyContent: 'center',
         marginTop: 10,
     },
     controlButton: {
