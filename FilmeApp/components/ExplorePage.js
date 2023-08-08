@@ -1,9 +1,10 @@
 import React from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, Image, FlatList, BackHandler } from 'react-native';
+import { Text, View, TextInput, TouchableOpacity, Image, FlatList, BackHandler } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { getUploads } from '../services/ExploreService';
 import { setAllSongs, getAllSongs } from '../services/AsyncStorageService';
+import { styles, stylesExplore } from '../styles/style';
 
 export default class ExplorePage extends React.Component {
   constructor(props) {
@@ -30,7 +31,7 @@ export default class ExplorePage extends React.Component {
     getAllSongs()
     .then((value) => {
       if (value) {
-        this.setState({ AllSongs: JSON.parse(value) });
+        this.setState({ RecentlySongs: JSON.parse(value) });
       }
     })
     .catch((error) => {
@@ -40,7 +41,7 @@ export default class ExplorePage extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (prevState.AllSongs !== this.state.RecentlySongs) {
+    if (prevState.RecentlySongs !== this.state.RecentlySongs) {
       setAllSongs(JSON.stringify(this.state.RecentlySongs))
         .catch((error) => {
           console.log(error);
@@ -67,22 +68,22 @@ export default class ExplorePage extends React.Component {
   };
 
   handleRecentlyPlayed = (item) =>{
-    const { RecentlySongs: AllSongs } = this.state;
+    const { RecentlySongs} = this.state;
     let song = "";
-    const foundIndex = AllSongs.findIndex(song => song._id === item._id);
+    const foundIndex = RecentlySongs.findIndex(song => song._id === item._id);
           if (foundIndex !== -1) {
             if(foundIndex !== 0){
-              song = AllSongs.splice(foundIndex,1)[0];
-              AllSongs.unshift(song);
+              song = RecentlySongs.splice(foundIndex,1)[0];
+              RecentlySongs.unshift(song);
             }
 
           }
           else {
             // If song is not in the list, add it to the end
-            AllSongs.unshift(item);
+            RecentlySongs.unshift(item);
           } 
           // Update state with the new recently played songs list
-          this.setState({ AllSongs: [...AllSongs] });
+          this.setState({ RecentlySongs: [...RecentlySongs] });
     }
 
     generateAvatar = (name) => {
@@ -125,7 +126,7 @@ export default class ExplorePage extends React.Component {
           style={styles.container}
           >
           <View style={styles.header}>
-          <View style={styles.centeredButton}>
+          <View style={stylesExplore.centeredButton}>
             <TouchableOpacity onPress={() => this.props.navigation.navigate('ProfilePage', { previousRouteName: 'ExplorePage' })}>
               <Text style={styles.headerText}>
                 {"  Profile Page "}
@@ -135,31 +136,31 @@ export default class ExplorePage extends React.Component {
           </View>
         </View>
 
-          <View style={styles.searchBar}>
-            <Ionicons name="search-outline" size={24} color="gray" style={styles.searchIcon} />
+          <View style={stylesExplore.searchBar}>
+            <Ionicons name="search-outline" size={24} color="gray" style={stylesExplore.searchIcon} />
             <TextInput
               placeholder="Search"
-              style={styles.searchInput}
+              style={stylesExplore.searchInput}
               value={this.state.searchTerm}
               onChangeText={(searchTerm) => this.setState({ searchTerm }, this.handleSearch)}
               onSubmitEditing={this.handleSearch}
             />
           </View>
-          <View style={styles.body}>
-            <Text style={styles.recentlyPlayed}>Recently Played</Text>
-            <Text style={styles.seeAll} onPress={() => this.props.navigation.navigate('SeeAllPage',
+          <View style={stylesExplore.body}>
+            <Text style={stylesExplore.recentlyPlayed}>Recently Played</Text>
+            <Text style={stylesExplore.seeAll} onPress={() => this.props.navigation.navigate('SeeAllPage',
                                                       { selectedItem: this.state.RecentlySongs,
                                                         type: "recently" })}>See All</Text>
           </View>
-          <View style={styles.recentlyPlayedContainer}>
+          <View style={stylesExplore.recentlyPlayedContainer}>
             <FlatList
               data={this.state.RecentlySongs.slice(0,2)}
               renderItem={({item}) => (
-                <TouchableOpacity style={styles.recentlyPlayedItem} onPress={() => this.props.navigation.navigate('VideoReactionPage', { selectedItem: item })}>
-                  <Image style={styles.recentlyPlayedImage} source={{uri : item.LinkToPreviewImage}} />
-                  <View style={styles.songDetails}>
-                    <Text style={styles.recentlyPlayedName}>{item.Title}</Text>
-                    <Text style={styles.recentlyPlayedArtist}>{item.Uploader.Username}</Text>
+                <TouchableOpacity style={stylesExplore.recentlyPlayedItem} onPress={() => this.props.navigation.navigate('VideoReactionPage', { selectedItem: item })}>
+                  <Image style={stylesExplore.recentlyPlayedImage} source={{uri : item.LinkToPreviewImage}} />
+                  <View style={stylesExplore.songDetails}>
+                    <Text style={stylesExplore.recentlyPlayedName}>{item.Title}</Text>
+                    <Text style={stylesExplore.recentlyPlayedArtist}>{item.Uploader.Username}</Text>
                   </View>
                 </TouchableOpacity>
               )}
@@ -169,20 +170,20 @@ export default class ExplorePage extends React.Component {
               contentContainerStyle={{ paddingLeft: 20 }}
             />
           </View>
-          <View style={styles.body}>
-            <Text style={styles.heading}>Recommendation</Text>
-            <Text style={styles.seeAll} onPress={() => this.props.navigation.navigate('SeeAllPage',
+          <View style={stylesExplore.body}>
+            <Text style={stylesExplore.heading}>Recommendation</Text>
+            <Text style={stylesExplore.seeAll} onPress={() => this.props.navigation.navigate('SeeAllPage',
                                                       { selectedItem: songsToDisplay,
                                                         type: "all" })}>See All</Text>
           </View>
           <FlatList
             data={songsToDisplay.slice(0,7)}
             renderItem={({item}) =>(
-              <View style={styles.songItem}>
-                <Image style={styles.songImage} source={{uri : item.LinkToPreviewImage}} />
-                <View style={styles.songDetails}>
-                  <Text style={styles.songName}>{item.Title}</Text>
-                  <Text style={styles.artistName}>{item.Uploader.Username}</Text>
+              <View style={stylesExplore.songItem}>
+                <Image style={stylesExplore.songImage} source={{uri : item.LinkToPreviewImage}} />
+                <View style={stylesExplore.songDetails}>
+                  <Text style={stylesExplore.songName}>{item.Title}</Text>
+                  <Text style={stylesExplore.artistName}>{item.Uploader.Username}</Text>
                 </View>
                 <TouchableOpacity onPress={() => {
                   this.handleRecentlyPlayed(item);
@@ -201,117 +202,3 @@ export default class ExplorePage extends React.Component {
     }
   }
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingHorizontal: 20,
-    paddingTop: 40,
-  },
-  searchBar: {
-    flexDirection: 'row-reverse',
-    alignItems: 'center',
-    backgroundColor: '#584177',
-    borderRadius: 5,
-    paddingHorizontal: 7,
-    marginBottom: 20,
-  },
-  searchIcon: {
-    marginRight: 10,
-  },
-  searchInput: {
-    flex: 1,
-    fontSize: 18,
-    color: 'white'
-  },
-  header: {
-    flexDirection: 'row-reverse',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  headerText:{
-    fontSize: 16,
-    color: 'white'
-  },
-  backButton: {
-    marginRight: 10, 
-  },
-  centeredButton: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  body: {
-    flexDirection: 'row-reverse',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  heading: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: 'white'
-  },
-  recentlyPlayed: {
-    fontWeight: 'bold',
-    fontSize: 24,
-    color: 'white'
-  },
-  seeAll: {
-    color: 'gray',
-    fontSize: 16,
-  },
-  recentlyPlayedContainer: {
-    flexDirection: 'row-reverse',
-    justifyContent: 'space-between',
-    marginBottom: 20,
-  },
-  recentlyPlayedItem: {
-    alignItems: 'center',
-    margin: 10,
-  },
-  recentlyPlayedImage: {
-    width: 150,
-    height: 150,
-    borderRadius: 20,
-    marginBottom: 10,
-  },
-  recentlyPlayedName: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    color: 'white'
-  },
-  recentlyPlayedArtist: {
-    fontSize: 16,
-    textAlign: 'center',
-    color: 'gray'
-  },
-  songItem: {
-    flexDirection: 'row-reverse',
-    alignItems: 'center',
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
-  },
-  songImage: {
-    width: 50,
-    height: 50,
-    borderRadius: 10,
-    marginRight: 10,
-  },
-  songDetails: {
-    flex: 1,
-  },
-  songName: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 5,
-    color: 'white'
-  },
-  artistName: {
-    fontSize: 14,
-    color: 'gray'
-  },
-  
-});

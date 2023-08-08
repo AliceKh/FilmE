@@ -11,10 +11,10 @@ export function connectToMongo() {
       { useNewUrlParser: true }
     )
     .then(() => {
-      console.log("mongodb connection open!"); // TODO console.log
+      console.log("mongodb connection open!"); 
     })
     .catch((err) => {
-      console.log("error connecting to mongodb"); // TODO console.log
+      console.log("error connecting to mongodb");
     });
 }
 

@@ -22,7 +22,7 @@ export function getLogin(setEmail, setPassword) {
 
 export function setAllSongs(songs){
     return new Promise((resolve, reject) => {
-    AsyncStorage.setItem('AllSongs', songs)
+    AsyncStorage.setItem('RecentlySongs', songs)
         .then(() => resolve)
         .catch((error) => {
             reject(error);
@@ -32,7 +32,7 @@ export function setAllSongs(songs){
 
 export function getAllSongs(){
     return new Promise((resolve, reject) => {
-        AsyncStorage.getItem('AllSongs')
+        AsyncStorage.getItem('RecentlySongs')
         .then((value) => {
             resolve(value);
         })

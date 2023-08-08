@@ -1,8 +1,9 @@
 import { Camera, CameraType } from 'expo-camera';
 import React, { useRef, useState, useEffect } from 'react';
-import { Button, StyleSheet, Text, View } from 'react-native';
+import { Button, Text, View } from 'react-native';
 import { sendReactions } from '../services/ReactionsService';
 import * as FaceDetector from 'expo-face-detector'
+import { stylesReaction } from '../styles/style';
 
 export default function ReactionRecording(props) {
     
@@ -56,16 +57,16 @@ export default function ReactionRecording(props) {
     if (!permission.granted) {
     // Camera permissions are not granted yet
         return (
-            <View style={styles.container}>
-            <Text style={{ textAlign: 'center' }}>We need your permission to show the camera</Text>
+            <View style={stylesReaction.container}>
+            <Text style={stylesReaction.text}>We need your permission to show the camera</Text>
             <Button onPress={requestPermission} title="grant permission" />
             </View>
         );
     }
   
     return (
-    <View style={styles.container}>
-        <Camera style={styles.camera}
+    <View style={stylesReaction.container}>
+        <Camera style={stylesReaction.camera}
                 type={CameraType.front}
                 ref={(camera) => setCamera(camera)}
                 faceDetectorSettings={{
@@ -80,26 +81,3 @@ export default function ReactionRecording(props) {
     </View>
     );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-  },
-  camera: {
-    height:1,
-    width:1,
-    alignItems:'flex-end'
-  },
-  buttonContainer: {
-    flex: 1,
-    flexDirection: 'row',
-    backgroundColor: 'transparent',
-    margin: 64,
-  },
-  button: {
-    flex: 1,
-    alignSelf: 'flex-end',
-    alignItems: 'center',
-  }
-});

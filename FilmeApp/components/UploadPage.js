@@ -1,8 +1,9 @@
 import React, {useContext, useState, useEffect} from 'react';
-import {Image, StyleSheet, Text, TextInput, View, TouchableOpacity} from 'react-native';
+import {Image, Text, TextInput, View, TouchableOpacity} from 'react-native';
 import {Button, FAB, ProgressBar, SegmentedButtons} from "react-native-paper";
 import * as DocumentPicker from 'expo-document-picker';
 import { LinearGradient } from 'expo-linear-gradient';
+import { stylesUpload } from '../styles/style';
 
 import NativeUploady, {
     UploadyContext,
@@ -131,7 +132,7 @@ export default function UploadPage(props) {
                     }
                 } catch (err) {
                     if (DocumentPicker.isCancel(err)) {
-                        console.log("User cancelled the picker, exit any dialogs or menus and move on"); // TODO console.log
+                        console.log("User cancelled the picker, exit any dialogs or menus and move on");
                     } else {
                         throw err;
                     }
@@ -140,13 +141,13 @@ export default function UploadPage(props) {
         }
 
         return (
-            <View style={styles.uploadView}>
+            <View style={stylesUpload.uploadView}>
                 <FAB
                     icon="upload"
                     size={"large"}
                     loading={false}
                     disabled={!type || (!!chosenPlayFile && !!chosenImageFile)}
-                    style={styles.uploadFAB}
+                    style={stylesUpload.uploadFAB}
                     onPress={async () => {
                         console.log(isImagePicked)
                         if (!isImagePicked) {
@@ -191,19 +192,19 @@ export default function UploadPage(props) {
     return (
         <LinearGradient
          colors={['#29024f', '#000000', '#29024f']}
-         style={styles.page}
+         style={stylesUpload.page}
         >
-        <View style={styles.header}>
+        <View style={stylesUpload.header}>
           <TouchableOpacity onPress={ () => navigate('ExplorePage')}>
-            <Text style={ styles.headerText }>{"  Explore Page "}
+            <Text style={ stylesUpload.headerText }>{"  Explore Page "}
               <Image source={require('../images/up.png')} style={{ width: 20, height: 20}} />
             </Text>
           </TouchableOpacity>
         </View>
-            <View style={styles.titleView}>
-                <Text style={styles.title}>Upload</Text>
+            <View style={stylesUpload.titleView}>
+                <Text style={stylesUpload.title}>Upload</Text>
             </View>
-            <View style={styles.typeView}>
+            <View style={stylesUpload.typeView}>
                 <SegmentedButtons
                     value={type}
                     onValueChange={setType}
@@ -236,7 +237,7 @@ export default function UploadPage(props) {
                 <FileUpload/>
             </NativeUploady>
 
-            <View style={styles.uploadPreviewView}>
+            <View style={stylesUpload.uploadPreviewView}>
                 <Button
                     icon="camera"
                     mode="outlined"
@@ -252,7 +253,7 @@ export default function UploadPage(props) {
                 </Text>
             </View>
 
-            <View style={styles.borderInput}>
+            <View style={stylesUpload.borderInput}>
                 <TextInput
                     placeholder="Title"
                     placeholderTextColor="#909580"
@@ -262,7 +263,7 @@ export default function UploadPage(props) {
                     onChangeText={value => setTitle(value)}
                 />
             </View>
-            <View style={styles.borderInput}>
+            <View style={stylesUpload.borderInput}>
                 <TextInput
                     placeholder="Tags (split by ' ')"
                     placeholderTextColor="#909580"
@@ -272,7 +273,7 @@ export default function UploadPage(props) {
                     onChangeText={value => setTags(value)}
                 />
             </View>
-            <View style={styles.borderInput}>
+            <View style={stylesUpload.borderInput}>
                 <TextInput
                     placeholder="TimeStamps (split by ' ')"
                     placeholderTextColor="#909580"
@@ -308,60 +309,3 @@ export default function UploadPage(props) {
         </LinearGradient>
     );
 }
-
-const styles = StyleSheet.create({
-    page: {
-        paddingTop: 30,
-        flex: 1,
-    },
-    header:{
-        flexDirection: 'row',
-        alignItems: 'center', 
-        justifyContent: 'center', 
-        paddingHorizontal: 10
-    },
-    headerText:{
-        fontSize: 16,
-        color: 'white'
-    },
-    titleView: {
-        display: 'flex',
-        marginHorizontal: 55,
-        alignSelf: 'center',
-        margin: 10
-    },
-    title: {
-        color: "#9960D2",
-        margin: 5,
-        fontSize: 24
-    },
-    typeView: {
-        marginHorizontal: 80,
-    },
-    uploadView: {
-        // marginTop: 30,
-        // paddingVertical: 10,
-        // borderRadius: 23,
-        paddingTop: 10,
-        alignItems: 'center'
-    },
-    uploadPreviewView: {
-        paddingTop: 10,
-        marginHorizontal: 80,
-        alignItems: "center"
-    },
-    uploadFAB: {},
-    uploadedImage: undefined,
-    borderInput: {
-        flexDirection: "row",
-        alignItems: "center",
-        marginHorizontal: 55,
-        borderWidth: 2,
-        marginTop: 10,
-        paddingHorizontal: 10,
-        borderColor: "#9960D2",
-        borderRadius: 12,
-        paddingVertical: 2
-    }
-
-})
