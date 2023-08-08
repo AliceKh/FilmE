@@ -1,9 +1,10 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Dimensions, Image, Modal, ActivityIndicator, BackHandler, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, Dimensions, Image, Modal, ActivityIndicator, BackHandler, Alert } from 'react-native';
 import { Video } from 'expo-av';
 import * as FileSystem from 'expo-file-system';
 import * as MediaLibrary from 'expo-media-library';
 import ReactionRecording from './ReactionRecordingComponent';
+import { stylesMedia } from '../styles/style';
 
 const { height } = Dimensions.get('screen');
 const width = height * 0.5625; // 16:9 aspect ratio
@@ -54,7 +55,7 @@ class VideoReactionPage extends React.Component {
     const { status } = await MediaLibrary.requestPermissionsAsync();
 
     if(status != 'granted') {
-        console.log("Permissions error"); // TODO console.log
+        console.log("Permissions error");
         return;
     }
 
@@ -115,7 +116,7 @@ class VideoReactionPage extends React.Component {
     const item = navigation.state.params.selectedItem
 
     return (
-      <View style={styles.container}>
+      <View style={stylesMedia.container}>
         {this.state.isLoading ?
           <View style={{paddingTop: height/2}}>
               <ActivityIndicator size="large" color="#9960D2" /> 
@@ -124,35 +125,23 @@ class VideoReactionPage extends React.Component {
           <Video
           ref={this.videoRef}
           source={{uri: this.state.videoFile}}
-          style={styles.backgroundVideo}
+          style={stylesMedia.backgroundVideo}
           resizeMode="contain"
           shouldPlay={this.state.isPlaying}
           isLooping={false}
           onPlaybackStatusUpdate={(status) => this.handleEndOfVideo(status)}
         />     
         }   
-        <View style={styles.overlay}>
-          <Text style={styles.title}>{item.Title}</Text>
-          <Text style={styles.artist}>{item.Uploader.Username}</Text>
-          <View style={styles.controls}>
-          <TouchableOpacity>
-            <Image source={require('../images/shuffle.png')} style={styles.controlButton} />
-          </TouchableOpacity>
-          <TouchableOpacity>
-            <Image source={require('../images/prev.png')} style={styles.controlButton} />
-          </TouchableOpacity>
+        <View style={stylesMedia.overlay}>
+          <Text style={stylesMedia.title}>{item.Title}</Text>
+          <Text style={stylesMedia.artist}>{item.Uploader.Username}</Text>
+          <View style={stylesMedia.controls}>
           <TouchableOpacity onPress={this.handlePlayPause}>
           {isPlaying ?
-                <Image source={require('../images/pause.png')} style={styles.controlButton} />
+                <Image source={require('../images/pause.png')} style={stylesMedia.controlButton} />
                 :
-                <Image source={require('../images/play.png')} style={styles.controlButton} />
+                <Image source={require('../images/play.png')} style={stylesMedia.controlButton} />
               }
-          </TouchableOpacity>
-          <TouchableOpacity>
-            <Image source={require('../images/next.png')} style={styles.controlButton} />
-          </TouchableOpacity>
-          <TouchableOpacity>
-            <Image source={require('../images/loop.png')} style={styles.controlButton} />
           </TouchableOpacity>
         </View>
         </View>
@@ -164,11 +153,11 @@ class VideoReactionPage extends React.Component {
                         
         </ReactionRecording>
         <Modal visible={!isFaceDetected} animationType="slide" transparent={true}>
-          <View style={styles.dialogContainer}>
-            <View style={styles.dialogContent}>
-              <Image source={require('../images/inFrame.png')} style={styles.dialogImage} />
-              <Text style={styles.dialogText}>You're Not in Frame</Text>
-              <Text style={styles.paraText}>Please adjust your position so that your face is centered within the square on the screen for optimal facial recognition.</Text>
+          <View style={stylesMedia.dialogContainer}>
+            <View style={stylesMedia.dialogContent}>
+              <Image source={require('../images/inFrame.png')} style={stylesMedia.dialogImage} />
+              <Text style={stylesMedia.dialogText}>You're Not in Frame</Text>
+              <Text style={stylesMedia.paraText}>Please adjust your position so that your face is centered within the square on the screen for optimal facial recognition.</Text>
             </View>
           </View>
         </Modal>
@@ -176,122 +165,5 @@ class VideoReactionPage extends React.Component {
     );
   }
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundImage: 'linear-gradient(to right, #29024f, #000000, #29024f)',
-  },
-  header: {
-    position: 'absolute',
-    top: 20,
-    left: 16,
-    right: 16,
-    height: 50,
-    flexDirection: 'row-reverse',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    zIndex: 1,
-  
-  },
-  backgroundVideo: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    bottom: 0,
-    right: 0,
-    height: height,
-    width: width,
-    flex: 1,
-  },
-  overlay: {
-    position: 'absolute',
-    bottom: 20,
-    left: 0,
-    right: 0,
-    padding: 10,
-  },
-  title: {
-    color: 'white',
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 5,
-  },
-  artist: {
-    color: 'white',
-    fontSize: 16,
-  },
-  controls: {
-    flexDirection: 'row-reverse',
-    justifyContent: 'space-between',
-    marginTop: 10,
-  },
-  controlButton: {
-    width: 30,
-    height: 30,
-    marginHorizontal: 5,
-  },
-  dialogContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.5)',
-    marginVertical: height / 6,
-    marginHorizontal: width / 15,
-    borderRadius: 20,
-    borderWidth:1
-  },
-  dialogContent: {
-    flex: 1,
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-    width: '100%',
-  },  
-  dialogImageContainer: {
-    flex: 4,
-    justifyContent: 'center',
-    alignItems: 'center',
-    aspectRatio: 1,
-  },
-  dialogTextContainer: {
-    flex: 4,
-    justifyContent: 'center',
-    alignItems: 'center',
-    aspectRatio: 1,
-  },
-  dialogButtonContainer: {
-    flex: 2,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  dialogImage: {
-    width: '100%',
-    height: '60%',
-    resizeMode: 'cover',
-    borderRadius: 20
-  },
-  dialogText: {
-    fontSize: 16,
-    textAlign: 'left',
-    color: '#807e7e',
-    marginTop : 20
-  },
-  paraText: {
-    marginTop: 10,
-    color: '#cccccc',
-    
-  },
-  dialogButton: {
-    marginTop: 55,
-    backgroundColor: 'red',
-    borderRadius: 10,
-  },
-  headerText: {
-    fontSize: 16,
-    color: 'white'
-  }
-});
 
 export default VideoReactionPage;

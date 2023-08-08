@@ -1,7 +1,8 @@
 import React from 'react';
-import { View, Text, StyleSheet, Dimensions, TouchableOpacity, Modal, ScrollView } from 'react-native';
+import { View, Text, Dimensions, TouchableOpacity, Modal, ScrollView } from 'react-native';
 import { BarChart } from 'react-native-chart-kit';
 import axios from 'axios';
+import { stylesGraph } from '../styles/style';
 
 export default class GraphPage extends React.Component {
   constructor(props) {
@@ -69,20 +70,20 @@ export default class GraphPage extends React.Component {
       <TouchableOpacity
         key={index}
         style={[
-          styles.button,
-          index === activeDatasetIndex && styles.activeButton,
+          stylesGraph.button,
+          index === activeDatasetIndex && stylesGraph.activeButton,
         ]}
         onPress={() => this.handleClick(index)}
       >
-        <Text style={styles.buttonText}>{dataset.timestamp}</Text>
+        <Text style={stylesGraph.buttonText}>{dataset.timestamp}</Text>
       </TouchableOpacity>
     ));
 
     return (
-      <View style={styles.timestampContainer}>
+      <View style={stylesGraph.timestampContainer}>
         <ScrollView
-          style={styles.scrollView}
-          contentContainerStyle={styles.scrollViewContent}
+          style={stylesGraph.scrollView}
+          contentContainerStyle={stylesGraph.scrollViewContent}
           horizontal
           showsHorizontalScrollIndicator={false}
         >
@@ -130,35 +131,35 @@ export default class GraphPage extends React.Component {
     };
 
     return (
-      <View style={styles.container}>
+      <View style={stylesGraph.container}>
         <Modal animationType="slide" transparent={true} visible={true}>
-          <View style={styles.popupContainer}>
+          <View style={stylesGraph.popupContainer}>
             {datasets.length === 0 ? (
-              <View style={styles.chartContainer}>
-                <View style={styles.noDataContainer}>
-                  <Text style={styles.noDataText}>No analytics data available</Text>
+              <View style={stylesGraph.chartContainer}>
+                <View style={stylesGraph.noDataContainer}>
+                  <Text style={stylesGraph.noDataText}>No analytics data available</Text>
                 </View>
               </View>
             ) : (
-              <View style={styles.chartContainer}>
+              <View style={stylesGraph.chartContainer}>
                 <BarChart
                   data={chartData}
                   width={Dimensions.get('window').width * 0.8}
                   height={200}
                   chartConfig={chartConfig}
-                  style={styles.chartStyle}
+                  style={stylesGraph.chartStyle}
                 />
               </View>
             )}
 
             {datasets.length > 0 && this.renderTimestampButtons()}
 
-            <View style={styles.closeButtonContainer}>
+            <View style={stylesGraph.closeButtonContainer}>
               <TouchableOpacity
-                style={styles.closeButton}
+                style={stylesGraph.closeButton}
                 onPress={this.props.onClose}
               >
-                <Text style={styles.closeButtonText}>Close</Text>
+                <Text style={stylesGraph.closeButtonText}>Close</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -167,92 +168,3 @@ export default class GraphPage extends React.Component {
     );
   }
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  popupContainer: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  timestampContainer: {
-    backgroundColor: 'white',
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 16,
-    flexDirection: 'row', // Arrange the timestamps in a row
-    alignItems: 'center', // Center the timestamps horizontally
-  },
-  chartContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 16,
-  },
-  chartStyle: {
-    marginVertical: 8,
-    borderRadius: 16,
-  },
-  timestamp: {
-    fontSize: 12,
-    fontWeight: 'bold',
-    marginTop: 8,
-  },
-  buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginBottom: 16,
-  },
-  button: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 8,
-    backgroundColor: 'lightgray',
-    marginRight: 8,
-  },
-  activeButton: {
-    backgroundColor: 'gray',
-  },
-  buttonText: {
-    fontSize: 12,
-    fontWeight: 'bold',
-    color: 'black',
-  },
-  noDataContainer: {
-    backgroundColor: 'white',
-    borderRadius: 16,
-    padding: 16,
-  },
-  noDataText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
-  closeButtonContainer: {
-    alignItems: 'center',
-    marginTop: 16,
-  },
-  closeButton: {
-    backgroundColor: 'white',
-    borderRadius: 16,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-  },
-  closeButtonText: {
-    color: 'black',
-    fontWeight: 'bold',
-  },
-  scrollView: {
-    // Add some spacing to the top and bottom of the ScrollView
-    marginTop: 8,
-    marginBottom: 8,
-  },
-  scrollViewContent: {
-    flexDirection: 'row', // Arrange the timestamps horizontally
-    alignItems: 'center', // Center the timestamps vertically
-  },
-});

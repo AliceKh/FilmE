@@ -5,7 +5,7 @@ import {bucketName, firebaseInstance} from "../../firebaseUtils.js";
 export const checkFileSize = async (filePath) => {
     const stats = fs.statSync(filePath);
     const fileSizeInBytes = stats.size;
-    console.log(`Video file size: ${fileSizeInBytes} bytes`); // TODO console.log
+    console.log(`Video file size: ${fileSizeInBytes} bytes`);
     return fileSizeInBytes;
 }
 
