@@ -8,15 +8,15 @@ export default class SeeAllPage extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      AllSongs: this.props.navigation.state.params.selectedItem,
+      RecentlySongs: this.props.navigation.state.params.selectedItem,
       type: this.props.navigation.state.params.type,
     };
   }
 
 
   componentDidUpdate(prevProps, prevState) {
-    if (prevState.AllSongs !== this.state.AllSongs) {
-      AsyncStorage.setItem('AllSongs', JSON.stringify(this.state.AllSongs))
+    if (prevState.RecentlySongs !== this.state.RecentlySongs) {
+      AsyncStorage.setItem('RecentlySongs', JSON.stringify(this.state.RecentlySongs))
         .catch((error) => {
           console.log(error);
         });
@@ -41,22 +41,22 @@ export default class SeeAllPage extends React.Component {
   };
 
   handleRecentlyPlayed = (item) =>{
-    const { AllSongs } = this.state;
+    const { RecentlySongs } = this.state;
     let song = "";
-    const foundIndex = AllSongs.findIndex(song => song._id === item._id);
+    const foundIndex = RecentlySongs.findIndex(song => song._id === item._id);
           if (foundIndex !== -1) {
             if(foundIndex !== 0){
-              song = AllSongs.splice(foundIndex,1)[0];
-              AllSongs.unshift(song);
+              song = RecentlySongs.splice(foundIndex,1)[0];
+              RecentlySongs.unshift(song);
             }
 
           }
           else {
             // If song is not in the list, add it to the end
-            AllSongs.unshift(item);
+            RecentlySongs.unshift(item);
           } 
           // Update state with the new recently played songs list
-          this.setState({ AllSongs: [...AllSongs] });
+          this.setState({ RecentlySongs: [...RecentlySongs] });
     }
 
   render() {
@@ -74,7 +74,7 @@ export default class SeeAllPage extends React.Component {
         </View>
 
         <FlatList
-          data={this.state.AllSongs}
+          data={this.state.RecentlySongs}
           renderItem={({item}) =>(
             <View style={stylesExplore.songItem}>
               <Image style={stylesExplore.songImage} source={{uri : item.LinkToPreviewImage}} />
