@@ -14,14 +14,14 @@ const storage = multer.diskStorage({
 });
 const upload = multer({storage: storage});
 
-// TODO: maybe proxy to facial recognition api and then work on the result
 router.post('', upload.single('photo'), async (req, res) => {
-console.log("started reaction");
 
     const {reactionTo, userReacting, timestamp} = req.body;
     let formData = new FormData();
 
-    formData.append('image', fs.createReadStream(`./${req.file.path}`));
+    const fileLocation = `./${req.file.path}`
+
+    formData.append('image', fs.createReadStream(fileLocation));
 
     await axios.post('http://localhost:3001/emotions', formData, {
         headers: {'Content-Type': 'multipart/form-data'},
@@ -32,7 +32,6 @@ console.log("started reaction");
             ...reactionData, timestamp: timestamp,
         };
 
-        console.log("saving reaction");
         console.log(reactionData);
 
         try {
@@ -42,8 +41,12 @@ console.log("started reaction");
         }
         res.send('reaction saved successfully!');
     }).catch((error) => {
-        console.log("failed reaction");
         res.status(400).send({error: "cant analyse image"});
+    }).finally(()=>{
+        fs.unlink(fileLocation, (err) => {
+            if (err) throw err;
+            console.log(`${fileLocation} was deleted`);
+        });
     });
 });
 

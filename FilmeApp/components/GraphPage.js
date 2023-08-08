@@ -1,7 +1,8 @@
 import React from 'react';
-import { View, Text, StyleSheet, Dimensions, TouchableOpacity, Modal } from 'react-native';
+import { View, Text, Dimensions, TouchableOpacity, Modal, ScrollView } from 'react-native';
 import { BarChart } from 'react-native-chart-kit';
 import axios from 'axios';
+import { stylesGraph } from '../styles/style';
 
 export default class GraphPage extends React.Component {
   constructor(props) {
@@ -15,8 +16,6 @@ export default class GraphPage extends React.Component {
   }
 
   componentDidMount() {
-    console.log("recieved object id:");
-    console.log(this.props);
     const { objectId } = this.props;
     this.setState({ contentObjectID: objectId }, () => {
       this.fetchAnalyticsData();
@@ -24,8 +23,6 @@ export default class GraphPage extends React.Component {
   }
 
   fetchAnalyticsData = () => {
-    console.log("fetching analytics for");
-    console.log(this.state.contentObjectID);
     axios
       .get(`http://${global.server}:4000/analytics/${this.state.contentObjectID}`)
       .then(response => {
@@ -33,13 +30,67 @@ export default class GraphPage extends React.Component {
         this.setState({ datasets: reactions, isLoading: false });
       })
       .catch(error => {
-        console.error('Error fetching analytics data:', error);
         this.setState({ isLoading: false });
       });
   };
 
-  handleClick = index => {
+  handleClick = (index) => {
     this.setState({ activeDatasetIndex: index });
+  };
+
+  parseTimestampToSeconds = (timestamp) => {
+    const parts = timestamp.split(':').map((part) => parseInt(part));
+    if (parts.length === 3) {
+      // Timestamp with "XX:YY:ZZ" format
+      const [hours, minutes, seconds] = parts;
+      return (hours * 60 * 60) + (minutes * 60) + seconds;
+    } else if (parts.length === 2) {
+      // Timestamp with "XX:YY" format
+      const [minutes, seconds] = parts;
+      return (minutes * 60) + seconds;
+    } else {
+      // Invalid timestamp format, return 0
+      return 0;
+    }
+  };
+
+  renderTimestampButtons = () => {
+    const { activeDatasetIndex, datasets } = this.state;
+
+    const activeDataset = datasets[activeDatasetIndex];
+
+    // Sort timestamps based on their converted values (in seconds)
+    const sortedButtons = datasets.sort((a, b) => {
+      const timeA = this.parseTimestampToSeconds(a.timestamp);
+      const timeB = this.parseTimestampToSeconds(b.timestamp);
+      return timeA - timeB;
+    });
+
+    const buttons = sortedButtons.map((dataset, index) => (
+      <TouchableOpacity
+        key={index}
+        style={[
+          stylesGraph.button,
+          index === activeDatasetIndex && stylesGraph.activeButton,
+        ]}
+        onPress={() => this.handleClick(index)}
+      >
+        <Text style={stylesGraph.buttonText}>{dataset.timestamp}</Text>
+      </TouchableOpacity>
+    ));
+
+    return (
+      <View style={stylesGraph.timestampContainer}>
+        <ScrollView
+          style={stylesGraph.scrollView}
+          contentContainerStyle={stylesGraph.scrollViewContent}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+        >
+          {buttons}
+        </ScrollView>
+      </View>
+    );
   };
 
   render() {
@@ -80,51 +131,35 @@ export default class GraphPage extends React.Component {
     };
 
     return (
-      <View style={styles.container}>
+      <View style={stylesGraph.container}>
         <Modal animationType="slide" transparent={true} visible={true}>
-          <View style={styles.popupContainer}>
+          <View style={stylesGraph.popupContainer}>
             {datasets.length === 0 ? (
-              <View style={styles.chartContainer}>
-                <View style={styles.noDataContainer}>
-                  <Text style={styles.noDataText}>No analytics data available</Text>
+              <View style={stylesGraph.chartContainer}>
+                <View style={stylesGraph.noDataContainer}>
+                  <Text style={stylesGraph.noDataText}>No analytics data available</Text>
                 </View>
               </View>
             ) : (
-              <View style={styles.chartContainer}>
+              <View style={stylesGraph.chartContainer}>
                 <BarChart
                   data={chartData}
                   width={Dimensions.get('window').width * 0.8}
                   height={200}
                   chartConfig={chartConfig}
-                  style={styles.chartStyle}
+                  style={stylesGraph.chartStyle}
                 />
               </View>
             )}
 
-            {datasets.length > 0 && (
-              <View style={styles.timestampContainer}>
-                <Text style={styles.timestampTitle}>Timestamps:</Text>
+            {datasets.length > 0 && this.renderTimestampButtons()}
 
-                <View style={styles.buttonContainer}>
-                  {datasets.map((dataset, index) => (
-                    <TouchableOpacity
-                      key={index}
-                      style={[
-                        styles.button,
-                        index === activeDatasetIndex && styles.activeButton,
-                      ]}
-                      onPress={() => this.handleClick(index)}
-                    >
-                      <Text style={styles.buttonText}>{dataset.timestamp}</Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              </View>
-            )}
-
-            <View style={styles.closeButtonContainer} onPress={console.log(this.props.closeGraph)}>
-              <TouchableOpacity style={styles.closeButton}>
-                <Text style={styles.closeButtonText} >Close</Text>
+            <View style={stylesGraph.closeButtonContainer}>
+              <TouchableOpacity
+                style={stylesGraph.closeButton}
+                onPress={this.props.onClose}
+              >
+                <Text style={stylesGraph.closeButtonText}>Close</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -133,91 +168,3 @@ export default class GraphPage extends React.Component {
     );
   }
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 16,
-  },
-  popupContainer: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  timestampContainer: {
-    backgroundColor: 'white',
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 16,
-  },
-  timestampTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 8,
-  },
-  chartContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 16,
-  },
-  chartStyle: {
-    marginVertical: 8,
-    borderRadius: 16,
-  },
-  timestamp: {
-    fontSize: 12,
-    fontWeight: 'bold',
-    marginTop: 8,
-  },
-  buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginBottom: 16,
-  },
-  button: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 8,
-    backgroundColor: 'lightgray',
-    marginRight: 8,
-  },
-  activeButton: {
-    backgroundColor: 'gray',
-  },
-  buttonText: {
-    fontSize: 12,
-    fontWeight: 'bold',
-    color: 'black',
-  },
-  noDataContainer: {
-    backgroundColor: 'white',
-    borderRadius: 16,
-    padding: 16,
-  },
-  noDataText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
-  closeButtonContainer: {
-    alignItems: 'center',
-    marginTop: 16,
-  },
-  closeButton: {
-    backgroundColor: 'white',
-    borderRadius: 16,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-  },
-  closeButtonText: {
-    color: 'black',
-    fontWeight: 'bold',
-  },
-});

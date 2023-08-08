@@ -3,7 +3,6 @@ import {createAppContainer,} from 'react-navigation';
 import Login from './components/LoginPage';
 import Register from './components/RegistrationPage'
 import Home from './components/MainPage';
-import ImageGrid from './components/ShowContentPage';
 import GraphPage from './components/GraphPage';
 import ProfilePage from './components/ProfilePage'
 import ExplorePage from './components/ExplorePage';
@@ -23,14 +22,13 @@ const AppNavigator = createStackNavigator({
     Home: {screen:Home},
     Login:{screen:Login},
     Register:{screen:Register},
-    ImageGrid:{screen:ImageGrid},
     GraphPage:{screen:GraphPage},
     ProfilePage:{screen:ProfilePage},
     ExplorePage:{screen:ExplorePage},
     UploadPage:{screen:UploadPage},
     VideoReactionPage:{screen:VideoReactionPage},
     AudioReactionPage: {screen:AudioReactionPage},
-    SeeAllPage: {screen:SeeAllPage}
+    SeeAllPage: {screen:SeeAllPage},
 },
 {
     defaultNavigationOptions : stackNavigatorOptions

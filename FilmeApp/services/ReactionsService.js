@@ -27,9 +27,8 @@ export function sendReactions(uri, time, mediaId) {
             headers: { 'Content-Type': 'multipart/form-data' },
         }).then(res => {
             console.log(res);
-            console.log("file sent");
         }).catch(err => {
-            console.log(err);
+            console.log(JSON.stringify(err.response.data));
         });
     })
     .catch(error => {

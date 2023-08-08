@@ -1,5 +1,6 @@
 // setx GOOGLE_APPLICATION_CREDENTIALS "D:\Projects\FilmE\emotionrecognition\credentials.json"
 const express = require('express');
+const fs = require('fs');
 const {ImageAnnotatorClient} = require('@google-cloud/vision');
 const multer = require('multer');
 const {v4: uuidv4} = require('uuid');
@@ -26,8 +27,6 @@ const upload = multer({storage: storage});
 const processImageLink = async (imageUrl) => {
     const [result] = await client.faceDetection(imageUrl);
     const annotations = result.faceAnnotations;
-    console.log("annotations");
-    console.log(annotations);
     return annotations;
 };
 
@@ -40,9 +39,7 @@ const processBase64Image = async (imageBase64) => {
 
 // Function to process image file
 const processImageFile = async (imageFile) => {
-    console.log("process image");
     const imageUrl = `./uploads/${imageFile.filename}`;
-    console.log(imageUrl);
     return await processImageLink(imageUrl);
 };
 
@@ -55,15 +52,23 @@ app.post('/emotions', upload.single('image'), async (req, res) => {
             const annotations = await processBase64Image(req.body.imageBase64);
             filteredSend(annotations, res);
         } else if (req.file) {
-            console.log("req.file started");
             const annotations = await processImageFile(req.file);
             filteredSend(annotations, res);
         } else {
-            console.log("failed analyse");
             throw new Error('No image specified');
         }
     } catch (error) {
         res.status(400).send({error: error.message});
+    } finally {
+        console.log("finally");
+        if(req.file)
+        {
+            const fileLocation = `./uploads/${req.file.filename}`;
+            fs.unlink(fileLocation, (err) => {
+                if (err) throw err;
+                console.log(`${fileLocation} was deleted`);
+            });
+        }
     }
 });
 
@@ -76,8 +81,6 @@ function filteredSend(annotations, res) {
         LIKELY: 4,
         VERY_LIKELY: 5,
     };
-    console.log("annotations:");
-    console.log(annotations);
     if (annotations.length > 0) {
         const ReactionMetadata = {
             joyLikelihood: annotations[0].joyLikelihood,
@@ -99,5 +102,4 @@ function filteredSend(annotations, res) {
 }
 
 app.listen(3001, () => {
-    console.log('Server listening on port 3001');
 });

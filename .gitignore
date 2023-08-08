@@ -107,5 +107,8 @@ dist
 
 #IDE
 .idea
-
 .vscode/
+
+#uploads
+./server/uploads/
+./emotionRecognition/uploads/

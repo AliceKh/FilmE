@@ -11,6 +11,19 @@ import fs from 'fs'
 
 const router = express.Router();
 
+function setFileName(nametype){
+    var today = new Date();
+    const filename = nametype.substring(0,3).toUpperCase()
+                                             + today.getFullYear().toString().substring(2,4)
+                                             + (today.getMonth() + 1)
+                                             + today.getDate() + "_"
+                                             + today.getHours()
+                                             + today.getMinutes()
+                                             + today.getSeconds()
+
+    return filename;
+}
+
 const multerStorage = multer.diskStorage({
     destination: function (req, file, cb) {
       cb(null, './uploads')
@@ -25,7 +38,7 @@ const upload = multer({ storage: multerStorage });
 
 router.post('/', function (req, res) {
     let upload = req.body;
-    console.log(upload);
+    console.log("Server upload: " + upload['LinkToPreviewImage']);
     upload['DateWhenUploaded'] = Date.now();
     upload['NumberOfReactions'] = 0;
     upload['ListOfReactions'] = [];
@@ -39,18 +52,14 @@ router.post('/', function (req, res) {
     res.send('respond with a resource');
 });
 
-// router.route('/video')
-//     .post(uploadVideoMulter.single('file'), (req, res) => {
-//         res.status(201).json(req.file)
-//     });
-
 router.route('/video').post(upload.single('file'), (req, res) => {
     try {
         const currentUser = auth.currentUser;
         const file = req.file;
 
+        file.originalname = setFileName(file.mimetype);
         if (currentUser) {
-        const storageRef = ref(storage, `video/${file.originalname}.mp4`);
+        const storageRef = ref(storage, `video/${file.originalname}`);
         fs.readFile(req.file.path, (err, data) => {
             if(err){
                 console.log(err);
@@ -58,7 +67,7 @@ router.route('/video').post(upload.single('file'), (req, res) => {
             }
             else{
                 uploadBytes(storageRef, data, {contentType: 'video/mp4'}).then((snapshot) => {
-                    console.log('Uploaded a file!');
+                    console.log('video uploaded!');
                 })
             }
         })
@@ -78,9 +87,10 @@ router.route('/audio').post(upload.single('file'), (req,res) => {
     try {
         const currentUser = auth.currentUser;
         const file = req.file;
+        file.originalname = setFileName(file.mimetype);
 
         if (currentUser) {
-        const storageRef = ref(storage, `audio/${file.originalname}.mp3`);
+        const storageRef = ref(storage, `audio/${file.originalname}`);
         fs.readFile(req.file.path, (err, data) => {
             if(err){
                 console.log(err);
@@ -88,7 +98,7 @@ router.route('/audio').post(upload.single('file'), (req,res) => {
             }
             else{
                 uploadBytes(storageRef, data, {contentType: 'audio/mp3'}).then((snapshot) => {
-                    console.log('Uploaded a file!');
+                    console.log('audio uploaded!');
                 })
             }
         })
@@ -104,13 +114,37 @@ router.route('/audio').post(upload.single('file'), (req,res) => {
       }
     
 })
-    //.post(uploadAudioMulter.single('file'), (req, res) => {
-    //    res.status(201).json(req.file)
-    //});
 
-router.route('/preview')
-    .post(uploadPreviewMulter.single('file'), (req, res) => {
-        res.status(201).json(req.file)
+router.route('/image').post(upload.single('file'), (req, res) => {
+    try {
+        const currentUser = auth.currentUser;
+        const file = req.file;
+        file.originalname = setFileName(file.mimetype);
+
+        if (currentUser) {
+        const storageRef = ref(storage, `preview/${file.originalname}`);
+        fs.readFile(req.file.path, (err, data) => {
+            if(err){
+                console.log(err);
+                return;
+            }
+            else{
+                uploadBytes(storageRef, data, {contentType: 'image/jpeg'}).then((snapshot) => {
+                    console.log('preview image uploaded!');
+                })
+            }
+        })
+        res.status(201).json(file);
+      }
+     else{
+        res.status(401).json({ error: 'User is not authenticated' });
+     }
+
+     }catch (error) {
+        console.error('Error uploading file:', error);
+        res.status(500).json({ error: 'Internal server error' });
+      }
+    
     });
 
 export {router as uploadRoute};
